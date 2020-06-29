@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "660442958635",
+    "firebase_url": "https://magalis-51d6c.firebaseio.com",
+    "project_id": "magalis-51d6c",
+    "storage_bucket": "magalis-51d6c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:660442958635:android:8d80752dafdf638842d36e",
+        "android_client_info": {
+          "package_name": "com.maglis.maglis_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "660442958635-1vlgtsqrvdefr6b0j8tg2jgm96auvqmc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.maglis.maglis_app",
+            "certificate_hash": "2a497e864ef75f5f18f98a0bc6b983cc59cd8a99"
+          }
+        },
+        {
+          "client_id": "660442958635-dbajm2ojjntdu0t2u7ued81v7glrrid4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBX-jOE2Cr5nVr5fC_e_dSY-OLGPWxyRRI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "660442958635-dbajm2ojjntdu0t2u7ued81v7glrrid4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
