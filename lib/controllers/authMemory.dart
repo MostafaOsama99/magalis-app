@@ -10,7 +10,10 @@ class AuthMemory {
       return false;
     }
   } 
-
+  Future getPrefs() async {
+    var prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
   void setPrefs(value) async {
     var prefs = await SharedPreferences.getInstance();
 

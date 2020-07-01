@@ -11,8 +11,8 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   loggedIn() {
     Timer(Duration(seconds: 3), () async {
-      if (await AuthMemory().loggedIn() == true) {
-        Navigator.pushReplacementNamed(context, '/home');
+      if (await AuthMemory().loggedIn() != true) {
+        Navigator.pushReplacementNamed(context, '/cashFlow');
       } else {
         Navigator.pushReplacementNamed(context, '/beforeLogin');
       }

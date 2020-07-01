@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:maglis_app/widgets/orderTile.dart';
 
-class HomePage extends StatefulWidget {
+class ReprePage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _ReprePageState createState() => _ReprePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _ReprePageState extends State<ReprePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,38 +20,33 @@ class _HomePageState extends State<HomePage> {
           width: 150,
         ),
       ),
+
       body: Column(
         children: [
           SizedBox(
-            height: 30,
+            height: 10,
           ),
           Container(
             color: Colors.white,
             child: ListTile(
-              title: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                          width: 2, color: Colors.grey[400].withOpacity(0.9)),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                        hintText: 'Search',
-                        prefixIcon: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Icon(Icons.search, color: Colors.grey[500]),
+              subtitle: Text(
+                          "18.05.2020",
+                          style: TextStyle(
+                            color: Color.fromRGBO(96, 125, 129, 1),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600
+                          ),
                         ),
-                        border: InputBorder.none),
-                  ),
-                ),
+              title: Text(
+                'Mohamed Amr',
+                style: TextStyle(
+                    color: Color.fromRGBO(170, 44, 94, 1),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20),
               ),
               trailing: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.grey[400],
-                    width: 2
-                  ),
+                  border: Border.all(color: Colors.grey[400], width: 2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Padding(
@@ -68,24 +63,8 @@ class _HomePageState extends State<HomePage> {
           SizedBox(
             height: 20,
           ),
-          Container(
-            color: Colors.white,
-            child: ListTile(
-              title: Text(
-                'Orders',
-                style: TextStyle(
-                    color: Color.fromRGBO(170, 44, 94, 1),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20),
-              ),
-              trailing: Icon(
-                Icons.sort,
-                size: 30,
-                color: Color.fromRGBO(96, 125, 129, 1),
-              ),
-            ),
-          ),
-          Expanded(
+
+            Expanded(
             child: ListView.builder(
                 itemCount: 10,
                 itemBuilder: (context, i) {
@@ -97,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                       address: 'New Cairo',
                       factoryName: 'Bean Bags',
                       lineName: 'Cairo - 23 Street',
-                      isDistribution: false,
+                      isEdit: true,
                     ),
                   );
                 }),
