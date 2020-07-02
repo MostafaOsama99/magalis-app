@@ -5,6 +5,9 @@ import 'package:maglis_app/view/adminPage.dart';
 import 'package:maglis_app/view/beforeLogin.dart';
 import 'package:maglis_app/view/cairoDistribute.dart';
 import 'package:maglis_app/view/cashFlow.dart';
+import 'package:maglis_app/view/collectedRoute.dart';
+import 'package:maglis_app/view/dateDetails.dart';
+import 'package:maglis_app/view/dateScreen.dart';
 import 'package:maglis_app/view/distributionCities.dart';
 import 'package:maglis_app/view/finance.dart';
 import 'package:maglis_app/view/financeAndShipments.dart';
@@ -16,6 +19,8 @@ import 'package:maglis_app/view/representatives.dart';
 import 'package:maglis_app/view/revenue.dart';
 import 'package:maglis_app/view/shipment.dart';
 import 'package:maglis_app/view/splashscreen.dart';
+import 'package:maglis_app/view/customerItemDetails.dart';
+import 'package:maglis_app/view/customerRepresentative.dart';
 
 class MyApp extends StatefulWidget {
   @override
@@ -27,6 +32,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: Get.key,
+      home: CustomerRepresentative(),
       routes: {
         "/splashscreen":(ctx)=> SplashScreen(),
         "/beforeLogin":(ctx)=> BeforeLogin(),
@@ -44,9 +50,14 @@ class _MyAppState extends State<MyApp> {
         "/finance": (ctx)=>Finance(),
         "/revenue": (ctx)=>Revenue(),
         "/cashFlow": (ctx)=>CashFlow(),
+        "/collectedRoutes": (ctx)=>CollectedRoutes(),
+        "/dateScreen":(ctx)=> DateScreen(),
+        "/dateDetails": (ctx)=> DateDetails(),
+        "/customerItemDetails":(ctx)=>CustomerItemDetails(),
+        "/customerRepresentative":(ctx)=>CustomerRepresentative(),
       },
 
-      initialRoute: '/splashscreen',
+      //initialRoute: '/distributionCities',
     );
   }
 }

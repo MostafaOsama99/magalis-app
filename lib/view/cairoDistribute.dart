@@ -139,8 +139,7 @@ class _CairoDistributeState extends State<CairoDistribute> {
                                       fontWeight: FontWeight.w600,
                                       fontSize: 18),
                                 ),
-                                activeColor: Colors.orange,
-                                autofocus: true,
+                                activeColor: Colors.orange,              
                                 value: checkedMap[i]['value'],
                                 onChanged: (v) {
                                   if (checkedMap[i]['value'] == true) {
