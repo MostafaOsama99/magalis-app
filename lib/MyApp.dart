@@ -34,7 +34,7 @@ class _MyAppState extends State<MyApp> {
         "/login":(ctx)=> LoginPage(),
         "/orders":(ctx)=> OrdersPage(),
         "/distributionCities":(ctx)=> DistributionCities(),
-        "/cairoDistribution":(ctx)=> CairoDistribute(),
+        "/cairoDistribution":(ctx)=> CairoDistribution(),
         "/reprePage":(ctx)=> ReprePage(),
         "/representatives": (ctx)=>RepresentativesPage(),
         "/addRepresentatives": (ctx)=>AddRepresentatives(),

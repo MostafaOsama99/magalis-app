@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/gridItems.dart';
 
 class AdminPage extends StatefulWidget {
   @override
@@ -155,6 +156,8 @@ class _AdminPageState extends State<AdminPage> {
                 ],
               ),
             ),
+            Padding(padding: EdgeInsets.all(8)),
+            GridItems(firstItemName: 'Customer Service',secondItemName: 'Reports',),
             Expanded(child: SizedBox()),
             Material(
               elevation: 20,
