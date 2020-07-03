@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class Revenue extends StatefulWidget {
+class Expense extends StatefulWidget {
   @override
   _RevenueState createState() => _RevenueState();
 }
 
-class _RevenueState extends State<Revenue> {
+class _RevenueState extends State<Expense> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,12 +27,29 @@ class _RevenueState extends State<Revenue> {
               color: Colors.white,
               child: ListTile(
                 title: Text(
-                  'Revenue',
+                  'Expense',
                   style: TextStyle(
                       color: Color.fromRGBO(170, 44, 94, 1),
                       fontWeight: FontWeight.bold,
                       fontSize: 20),
                 ),
+              trailing: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey[400],
+                    width: 2
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: Icon(
+                    Icons.add,
+                    size: 25,
+                    color: Color.fromRGBO(96, 125, 129, 1),
+                  ),
+                ),
+              ),
               )),
           Padding(
             padding: const EdgeInsets.all(
@@ -102,29 +119,7 @@ class _RevenueState extends State<Revenue> {
               ],
             ),
           ),
-          Expanded(child: SizedBox()),
-          Material(
-            elevation: 20,
-            child: Container(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(
-                      Icons.book,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                    Icon(
-                      Icons.settings,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
+         
         ]));
   }
 }

@@ -12,7 +12,7 @@ class _SplashScreenState extends State<SplashScreen> {
   loggedIn() {
     Timer(Duration(seconds: 3), () async {
       if (await AuthMemory().loggedIn() != true) {
-        Navigator.pushReplacementNamed(context, '/admin');
+        Navigator.pushReplacementNamed(context, '/allScreens');
       } else {
         Navigator.pushReplacementNamed(context, '/beforeLogin');
       }

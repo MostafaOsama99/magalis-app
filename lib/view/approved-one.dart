@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:maglis_app/widgets/gridItems.dart';
 
-class DistributionCities extends StatelessWidget {
+class ApprovedOne extends StatefulWidget {
+  @override
+  _ApprovedOneState createState() => _ApprovedOneState();
+}
+
+class _ApprovedOneState extends State<ApprovedOne> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +30,7 @@ class DistributionCities extends StatelessWidget {
               color: Colors.white,
               child: ListTile(
                 title: Text(
-                  'Distribution',
+                  'Approved',
                   style: TextStyle(
                       color: Color.fromRGBO(170, 44, 94, 1),
                       fontWeight: FontWeight.bold,
@@ -36,11 +41,19 @@ class DistributionCities extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-           GridItems(
-             firstItemName: 'Cairo',
-             secondItemName: 'Cities',
-           ),
-           
+            GridItems(
+              firstItemName: 'Date',
+              secondItemName: 'PickUp',
+            ),
+
+            SizedBox(
+              height: 20,
+            ),
+
+            GridItems(
+              firstItemName: 'Cairo',
+              secondItemName: 'Cities',
+            ),
           ],
         ),
       ),

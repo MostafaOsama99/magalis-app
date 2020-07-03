@@ -1,123 +1,54 @@
 import 'package:flutter/material.dart';
 
-class CashFlow extends StatefulWidget {
+
+class NotApprovedDetails extends StatefulWidget {
   @override
-  _CashFlowState createState() => _CashFlowState();
+  _ApprovedDetailsState createState() => _ApprovedDetailsState();
 }
 
-class _CashFlowState extends State<CashFlow> {
+class _ApprovedDetailsState extends State<NotApprovedDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.grey[200],
-        appBar: AppBar(
-          elevation: 10,
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          title: Image.asset(
-            'assets/images/logo.png',
-            width: 150,
-          ),
+       backgroundColor: Colors.grey[200],
+      appBar: AppBar(
+        elevation: 10,
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        title: Image.asset(
+          'assets/images/logo.png',
+          width: 150,
         ),
-        body: Column(children: [
-          SizedBox(
-            height: 10,
-          ),
-          Container(
+      ),
+      body: Container(
+        child: ListView(
+          children: [
+            SizedBox(
+              height: 10,
+            ),
+            Container(
               color: Colors.white,
               child: ListTile(
                 title: Text(
-                  'Cash Flow',
+                  'Not Approved ',
                   style: TextStyle(
                       color: Color.fromRGBO(170, 44, 94, 1),
                       fontWeight: FontWeight.bold,
                       fontSize: 20),
                 ),
-              )),
-          SizedBox(
-            height: 0,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Color.fromRGBO(170, 44, 94, 1),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    width: MediaQuery.of(context).size.width,
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Text(
-                        "REVENUE\n14,350 EGP",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[800],
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    width: MediaQuery.of(context).size.width,
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Text(
-                        "EXPENSE\n4,350 EGP",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal:15.0),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    width: MediaQuery.of(context).size.width,
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Text(
-                        "NET\n4,350",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20),
-                      ),
-                    ),
-                  ),
-                ),
-               
-              ],
+            SizedBox(
+              height: 10,
             ),
-          ),
-          cashFlowTile(true),
-          cashFlowTile(false)
-        ]));
+            approvedTile(true),
+            approvedTile(false),
+            approvedTile(true),
+            ]
+    )));
   }
 
-  cashFlowTile(revenue) {
+  approvedTile(revenue) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -194,7 +125,8 @@ class _CashFlowState extends State<CashFlow> {
                       ),
                     )
                   ],
-                )
+                ),
+                
               ],
             ),
           ),

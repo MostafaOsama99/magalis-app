@@ -34,138 +34,130 @@ class _CairoDistributionState extends State<CairoDistribution> {
                       fontSize: 20),
                 ),
               )),
-
-
-
-               Padding(
-              padding:
-                  const EdgeInsets.all( 20.0, ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          Padding(
+            padding: const EdgeInsets.all(
+              20.0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width / 2.5,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                        width: 2.5, color: Colors.grey[400].withOpacity(0.9)),
+                    color: Colors.white,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.timeline,
+                          color: Color.fromRGBO(170, 44, 94, 1),
+                          size: 30,
+                        ),
+                        Text(
+                          "Collected Routes",
+                          style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width / 2.5,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(
+                        width: 2.5, color: Colors.grey[400].withOpacity(0.9)),
+                    color: Colors.white,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20.0, horizontal: 0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.timeline,
+                          color: Color.fromRGBO(170, 44, 94, 1),
+                          size: 30,
+                        ),
+                        Text(
+                          "On Distribution Route",
+                          style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: MediaQuery.of(context).size.width / 2.5,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(
+                  width: 2.5, color: Colors.grey[400].withOpacity(0.9)),
+              color: Colors.white,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width / 2.5,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                          width: 2.5, color: Colors.grey[400].withOpacity(0.9)),
-                      color: Colors.white,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.timeline,
-                            color: Color.fromRGBO(170, 44, 94, 1),
-                            size: 30,
-                          ),
-                          Text(
-                            "Collected Routes",
-                            style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600),
-                          )
-                        ],
-                      ),
-                    ),
+                  Icon(
+                    Icons.timeline,
+                    color: Color.fromRGBO(170, 44, 94, 1),
+                    size: 30,
                   ),
-                  Container(
-                    width: MediaQuery.of(context).size.width / 2.5,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                          width: 2.5, color: Colors.grey[400].withOpacity(0.9)),
-                      color: Colors.white,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.timeline,
-                            color: Color.fromRGBO(170, 44, 94, 1),
-                            size: 30,
-                          ),
-                          Text(
-                            "On Distribution Route",
-                            style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
+                  Text(
+                    "New Routes",
+                    style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600),
+                  )
                 ],
               ),
             ),
-             Container(
-                    width: MediaQuery.of(context).size.width / 2.5,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                          width: 2.5, color: Colors.grey[400].withOpacity(0.9)),
-                      color: Colors.white,
+          ),
+          Expanded(child: SizedBox()),
+          Material(
+            elevation: 20,
+            child: Container(
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Icon(
+                      Icons.book,
+                      color: Color.fromRGBO(96, 125, 129, 1),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.timeline,
-                            color: Color.fromRGBO(170, 44, 94, 1),
-                            size: 30,
-                          ),
-                          Text(
-                            "New Routes",
-                            style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600),
-                          )
-                        ],
-                      ),
+                    Icon(
+                      Icons.settings,
+                      color: Color.fromRGBO(96, 125, 129, 1),
                     ),
-                  ),
-            Expanded(child: SizedBox()),
-            Material(
-              elevation: 20,
-              child: Container(
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Icon(
-                        Icons.book,
-                        color: Color.fromRGBO(96, 125, 129, 1),
-                      ),
-                      Icon(
-                        Icons.settings,
-                        color: Color.fromRGBO(96, 125, 129, 1),
-                      ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
-            )
+            ),
+          )
         ]));
   }
 }
-
-
-
-
-
-
-
 
 // import 'package:flutter/material.dart';
 
@@ -337,7 +329,7 @@ class _CairoDistributionState extends State<CairoDistribution> {
 //                   itemCount: 5,
 //                   itemBuilder: (context, i) {
 //                     return Container(
-                      
+
 //                       color: Colors.white,
 
 //                       child: ListTile(
