@@ -24,16 +24,17 @@ class _CashFlowState extends State<CashFlow> {
             height: 10,
           ),
           Container(
-              color: Colors.white,
-              child: ListTile(
-                title: Text(
-                  'Cash Flow',
-                  style: TextStyle(
-                      color: Color.fromRGBO(170, 44, 94, 1),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20),
-                ),
-              )),
+            color: Colors.white,
+            child: ListTile(
+              title: Text(
+                'Cash Flow',
+                style: TextStyle(
+                    color: Color.fromRGBO(170, 44, 94, 1),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20),
+              ),
+            ),
+          ),
           SizedBox(
             height: 0,
           ),
@@ -86,7 +87,7 @@ class _CashFlowState extends State<CashFlow> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal:15.0),
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
             child: Row(
               children: <Widget>[
                 Expanded(
@@ -108,7 +109,6 @@ class _CashFlowState extends State<CashFlow> {
                     ),
                   ),
                 ),
-               
               ],
             ),
           ),
@@ -125,7 +125,9 @@ class _CashFlowState extends State<CashFlow> {
           borderRadius: BorderRadius.circular(5),
           border: Border.all(
             width: 2.5,
-            color: revenue == true ? Color.fromRGBO(170, 44, 94, 1) : Colors.grey[800],
+            color: revenue == true
+                ? Color.fromRGBO(170, 44, 94, 1)
+                : Colors.grey[800],
           ),
           color: Colors.white,
         ),
@@ -158,7 +160,9 @@ class _CashFlowState extends State<CashFlow> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: revenue == true ? Color.fromRGBO(170, 44, 94, 1) : Colors.grey[800],
+                      color: revenue == true
+                          ? Color.fromRGBO(170, 44, 94, 1)
+                          : Colors.grey[800],
                     ),
                   )),
                 ),
@@ -167,12 +171,15 @@ class _CashFlowState extends State<CashFlow> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: <Widget>[
-                    Text('2140 EGP',
-                    style: TextStyle(
-                      color: revenue == true ? Color.fromRGBO(170, 44, 94, 1) : Colors.grey[800],
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold
-                    ),),
+                    Text(
+                      '2140 EGP',
+                      style: TextStyle(
+                          color: revenue == true
+                              ? Color.fromRGBO(170, 44, 94, 1)
+                              : Colors.grey[800],
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
+                    ),
                     SizedBox(
                       height: 10,
                     ),
@@ -189,7 +196,9 @@ class _CashFlowState extends State<CashFlow> {
                         ),
                       ),
                       decoration: BoxDecoration(
-                      color:  revenue == true ? Color.fromRGBO(170, 44, 94, 1) : Colors.grey[800],
+                        color: revenue == true
+                            ? Color.fromRGBO(170, 44, 94, 1)
+                            : Colors.grey[800],
                         borderRadius: BorderRadius.circular(5),
                       ),
                     )
