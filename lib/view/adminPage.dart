@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:maglis_app/widgets/gridItems.dart';
 
-class AdminPage extends StatefulWidget {
-  @override
-  _AdminPageState createState() => _AdminPageState();
-}
-
-class _AdminPageState extends State<AdminPage> {
+//Screen 43
+class AdminPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final height = size.height -
+        AppBar().preferredSize.height -
+        MediaQuery.of(context).padding.top;
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -20,169 +19,136 @@ class _AdminPageState extends State<AdminPage> {
           width: 150,
         ),
       ),
-      body: Container(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width / 2.5,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                          width: 2.5, color: Colors.grey[400].withOpacity(0.9)),
-                      color: Colors.white,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.timeline,
-                            color: Color.fromRGBO(170, 44, 94, 1),
-                            size: 30,
-                          ),
-                          Text(
-                            "Finance",
-                            style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width / 2.5,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                          width: 2.5, color: Colors.grey[400].withOpacity(0.9)),
-                      color: Colors.white,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.timeline,
-                            color: Color.fromRGBO(170, 44, 94, 1),
-                            size: 30,
-                          ),
-                          Text(
-                            "Distribution",
-                            style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width / 2.5,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                          width: 2.5, color: Colors.grey[400].withOpacity(0.9)),
-                      color: Colors.white,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.timeline,
-                            color: Color.fromRGBO(170, 44, 94, 1),
-                            size: 30,
-                          ),
-                          Text(
-                            "Orders",
-                            style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width / 2.5,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                          width: 2.5, color: Colors.grey[400].withOpacity(0.9)),
-                      color: Colors.white,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.timeline,
-                            color: Color.fromRGBO(170, 44, 94, 1),
-                            size: 30,
-                          ),
-                          Text(
-                            "Representatives",
-                            style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(padding: EdgeInsets.all(8)),
-            GridItems(firstItemName: 'Customer Service',secondItemName: 'Reports',),
-            Expanded(child: SizedBox()),
-            Material(
-              elevation: 20,
-              child: Container(
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+      body: Column(
+        children: <Widget>[
+          SizedBox(
+            height: 10,
+          ),
+          Expanded(
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Icon(
-                        Icons.book,
-                        color: Color.fromRGBO(170, 44, 94, 1),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      InkWell(
+                        onTap: ()=>Navigator.of(context).pushNamed('/finance'),
+                        child: Container(
+                          width: size.width / 2.25,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border:
+                                Border.all(width: 2.5, color: Colors.grey[400]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Image.asset('assets/images/Finance.png'),
+                        ),
                       ),
-                      Icon(
-                        Icons.settings,
-                        color: Color.fromRGBO(96, 125, 129, 1),
+                      InkWell(
+                        onTap: ()=>Navigator.of(context).pushNamed('/distribution'),
+                        child: Container(
+                          width: size.width / 2.25,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border:
+                                Border.all(width: 2.5, color: Colors.grey[400]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Image.asset('assets/images/Distribution.png'),
+                        ),
                       ),
                     ],
                   ),
                 ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Container(
+                        width: size.width / 2.25,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border:
+                              Border.all(width: 2.5, color: Colors.grey[400]),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Image.asset('assets/images/Orders.png'),
+                      ),
+                      Container(
+                        width: size.width / 2.25,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border:
+                              Border.all(width: 2.5, color: Colors.grey[400]),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Image.asset('assets/images/Representatives.png'),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Container(
+                        width: size.width / 2.25,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border:
+                              Border.all(width: 2.5, color: Colors.grey[400]),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Image.asset('assets/images/CustomerService.png'),
+                      ),
+                      Container(
+                        width: size.width / 2.25,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border:
+                              Border.all(width: 2.5, color: Colors.grey[400]),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Image.asset('assets/images/Reports.png'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Material(
+            elevation: 20,
+            child: Container(
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Icon(
+                      Icons.book,
+                      color: Color.fromRGBO(96, 125, 129, 1),
+                    ),
+                    Icon(
+                      Icons.settings,
+                      color: Color.fromRGBO(96, 125, 129, 1),
+                    ),
+                  ],
+                ),
               ),
-            )
-          ],
-        ),
+            ),
+          )
+        ],
       ),
     );
   }

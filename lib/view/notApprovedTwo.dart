@@ -1,6 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:maglis_app/widgets/gridItems.dart';
-
 
 class NotApprovedTwo extends StatefulWidget {
   @override
@@ -8,28 +8,31 @@ class NotApprovedTwo extends StatefulWidget {
 }
 
 class _NotApprovedTwoState extends State<NotApprovedTwo> {
+  List<String> dates = [];
+  List<String> userName = [];
+  List<String> supplier = [];
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        elevation: 10,
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        title: Image.asset(
-          'assets/images/logo.png',
-          width: 150,
+        backgroundColor: Colors.grey[200],
+        appBar: AppBar(
+          elevation: 10,
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          title: Image.asset(
+            'assets/images/logo.png',
+            width: 150,
+          ),
         ),
-      ),
-      body: Container(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 10,
-            ),
-            Container(
+        body: Column(children: [
+          SizedBox(
+            height: 10,
+          ),
+          Container(
               color: Colors.white,
               child: ListTile(
+                leading: Image.asset('assets/images/NotApproved.png'),
                 title: Text(
                   'Not Approved',
                   style: TextStyle(
@@ -37,50 +40,220 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
                       fontWeight: FontWeight.bold,
                       fontSize: 20),
                 ),
+              )),
+          Expanded(
+            child: FutureBuilder<QuerySnapshot>(
+                future: Firestore.instance
+                    .collection('expenses')
+                    .where('approved', isEqualTo: false)
+                    .getDocuments(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  final documents = snapshot.data.documents;
+                  documents.forEach((element) {
+                    if (!dates.contains(element.data['date']))
+                      dates.add(element.data['date']);
+                    if (!supplier.contains(element.data['supplier']))
+                      supplier.add(element.data['supplier']);
+                    if (!userName.contains(element.data['userName']))
+                      userName.add(element.data['userName']);
+                  });
+                  print('dates:$dates');
+                  print('suppliers:$supplier');
+                  print('userNames:$userName');
+                  return ListView(
+                    children: <Widget>[
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            InkWell(
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed('/dateScreen', arguments: {
+                                'route': '/expensesNotApprovedDetails',
+                                'date': dates,
+                                'type': 1
+                              }),
+                              child: Container(
+                                width: size.width / 2.25,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      width: 2.5, color: Colors.grey[400]),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                      child: Image.asset(
+                                          'assets/images/DateIcon.png'),
+                                      width: 100,
+                                      height: 100,
+                                    ),
+                                    Text(
+                                      'Date',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color:
+                                              Color.fromRGBO(134, 134, 134, 1),
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed('/dateScreen', arguments: {
+                                'route': '/expensesNotApprovedDetails',
+                                'date': userName,
+                                'type': 2
+                              }),
+                              child: Container(
+                                  width: size.width / 2.25,
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        width: 2.5, color: Colors.grey[400]),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    children: <Widget>[
+                                      Container(
+                                        child: Image.asset(
+                                          'assets/images/Person.png',
+                                        ),
+                                        width: 100,
+                                        height: 100,
+                                      ),
+                                      Text(
+                                        'User',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            color: Color.fromRGBO(
+                                                134, 134, 134, 1),
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                    ],
+                                  )),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            InkWell(
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed('/dateScreen', arguments: {
+                                'route': '/expensesNotApprovedDetails',
+                                'date': supplier,
+                                'type': 3
+                              }),
+                              child: Container(
+                                width: size.width / 2.25,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      width: 2.5, color: Colors.grey[400]),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                      child: Image.asset(
+                                          'assets/images/Person.png'),
+                                      width: 100,
+                                      height: 100,
+                                    ),
+                                    Text(
+                                      'Supplier',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color:
+                                              Color.fromRGBO(134, 134, 134, 1),
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () => Navigator.of(context).pushNamed(
+                                  '/expensesNotApprovedDetails',
+                                  arguments: {'type': 4}),
+                              child: Container(
+                                width: size.width / 2.25,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      width: 2.5, color: Colors.grey[400]),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                      child: Image.asset(
+                                          'assets/images/AllIcon.png'),
+                                      width: 100,
+                                      height: 100,
+                                    ),
+                                    Text(
+                                      'All',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color:
+                                              Color.fromRGBO(134, 134, 134, 1),
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+          ),
+          Material(
+            elevation: 20,
+            child: Container(
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Icon(
+                      Icons.book,
+                      color: Color.fromRGBO(96, 125, 129, 1),
+                    ),
+                    Icon(
+                      Icons.settings,
+                      color: Color.fromRGBO(96, 125, 129, 1),
+                    ),
+                  ],
+                ),
               ),
             ),
-            SizedBox(
-              height: 10,
-            ),
-            GridItems(
-              firstItemName: 'Date',
-              secondItemName: 'User',
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Container(
-                  width: MediaQuery.of(context).size.width / 2.5,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(
-                        width: 2.5, color: Colors.grey[400].withOpacity(0.9)),
-                    color: Colors.white,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.timeline,
-                          color: Color.fromRGBO(170, 44, 94, 1),
-                          size: 30,
-                        ),
-                        Text(
-                          "Supplier",
-                          style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-          ],
-        ),
-      ),
-    );
+          )
+        ]));
   }
 }

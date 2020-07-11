@@ -6,6 +6,22 @@ class DateScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final argument = ModalRoute.of(context).settings.arguments as Map;
+    final List dates = argument['date'];
+    final String route = argument['route'];
+    final type = argument['type'];
+    String logo = '';
+    String title=  '';
+    if(type == 1){
+      logo ='assets/images/DateIcon.png';
+      title  = 'Date';
+    }else if(type == 2){
+      logo ='assets/images/Person.png';
+      title  = 'User';
+    }else if(type == 3){
+      logo ='assets/images/Person.png';
+      title  = 'Supplier';
+    }
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -26,12 +42,12 @@ class DateScreen extends StatelessWidget {
             color: Colors.white,
             child: ListTile(
               leading: Image.asset(
-                'assets/images/DateIcon.png',
+                logo,
                 width: 50,
                 height: 50,
               ),
               title: Text(
-                'Date',
+                title,
                 style: TextStyle(
                     color: Color.fromRGBO(170, 44, 94, 1),
                     fontWeight: FontWeight.bold,
@@ -60,8 +76,10 @@ class DateScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: ListTile(
+                    onTap: () =>
+                        Navigator.of(context).pushNamed(route,arguments: {'type':type,'date':dates[index]}),
                     title: Text(
-                      '${index + 1}/05/2020',
+                      '${dates[index]}',
                       style: TextStyle(
                           color: Color.fromRGBO(170, 44, 94, 1),
                           fontWeight: FontWeight.bold,
@@ -70,8 +88,7 @@ class DateScreen extends StatelessWidget {
                   ),
                 );
               },
-              itemCount: 10,
-              reverse: true,
+              itemCount: dates.length,
             ),
           ))
         ],

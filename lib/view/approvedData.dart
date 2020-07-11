@@ -1,8 +1,7 @@
-//Screen 12
+//screen 11
 import 'package:flutter/material.dart';
 
-class DateDetails extends StatelessWidget {
-  const DateDetails({Key key}) : super(key: key);
+class ApprovedDate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +30,7 @@ class DateDetails extends StatelessWidget {
                 height: 50,
               ),
               title: Text(
-                '18/05/2020',
+                'Date',
                 style: TextStyle(
                     color: Color.fromRGBO(170, 44, 94, 1),
                     fontWeight: FontWeight.bold,
@@ -60,25 +59,13 @@ class DateDetails extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: ListTile(
-                    onTap: ()=> Navigator.of(context).pushNamed('/customerItemDetails'),
+                    onTap: ()=> Navigator.of(context).pushNamed('/dateDetails'),
                     title: Text(
-                      'Mohamed Amr',
+                      '${index + 1}/05/2020',
                       style: TextStyle(
                           color: Color.fromRGBO(170, 44, 94, 1),
                           fontWeight: FontWeight.bold,
                           fontSize: 20),
-                    ),
-                    subtitle: Text(
-                      'New Cairo',
-                      style: TextStyle(
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16),
-                    ),
-                    trailing: Icon(
-                      Icons.info,
-                      color: Colors.amber,
-                      size: 30,
                     ),
                   ),
                 );

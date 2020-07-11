@@ -41,7 +41,7 @@ class CashFlowDetails extends StatelessWidget {
                 children: <Widget>[
                   Container(
                     width: size.width,
-                    height: height / 5,
+                    height: height / 5.5,
                     padding: EdgeInsets.all(12),
                     margin: EdgeInsets.all(16),
                     decoration: BoxDecoration(

@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class ApprovedDetails extends StatefulWidget {
+class ExpensesNotApprovedDetails extends StatefulWidget {
   @override
   _ApprovedDetailsState createState() => _ApprovedDetailsState();
 }
 
-class _ApprovedDetailsState extends State<ApprovedDetails> {
+class _ApprovedDetailsState extends State<ExpensesNotApprovedDetails> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -18,24 +19,24 @@ class _ApprovedDetailsState extends State<ApprovedDetails> {
       expenseStream = Firestore.instance
           .collection('expenses')
           .where('date', isEqualTo: map['date'])
-          .where('approved', isEqualTo: true)
+          .where('approved', isEqualTo: false)
           .snapshots();
     } else if (map['type'] == 2) {
       expenseStream = Firestore.instance
           .collection('expenses')
           .where('userName', isEqualTo: map['date'])
-          .where('approved', isEqualTo: true)
+          .where('approved', isEqualTo: false)
           .snapshots();
     } else if (map['type'] == 3) {
       expenseStream = Firestore.instance
           .collection('expenses')
           .where('supplier', isEqualTo: map['date'])
-          .where('approved', isEqualTo: true)
+          .where('approved', isEqualTo: false)
           .snapshots();
     } else {
       expenseStream = Firestore.instance
           .collection('expenses')
-          .where('approved', isEqualTo: true)
+          .where('approved', isEqualTo: false)
           .snapshots();
     }
     return Scaffold(
@@ -61,7 +62,7 @@ class _ApprovedDetailsState extends State<ApprovedDetails> {
               color: Colors.white,
               child: ListTile(
                 title: Text(
-                  'Approved ',
+                  'Not Approved ',
                   style: TextStyle(
                       color: Color.fromRGBO(170, 44, 94, 1),
                       fontWeight: FontWeight.bold,
@@ -74,34 +75,34 @@ class _ApprovedDetailsState extends State<ApprovedDetails> {
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: expenseStream,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting)
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  return ListView.builder(
-                    itemBuilder: (ctx, index) {
-                      final userName =
-                          snapshot.data.documents[index].data['userName'];
-                      final supplier =
-                          snapshot.data.documents[index].data['supplier'];
-                      final date = snapshot.data.documents[index].data['date'];
-                      final amount =
-                          snapshot.data.documents[index].data['amount'];
-                      return approvedTile(
-                        userName: userName,
-                        suplierName: supplier,
-                        date: date,
-                        amount: amount,
-                        documentId: snapshot.data.documents[index].documentID,
+                  stream: expenseStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting)
+                      return Center(
+                        child: CircularProgressIndicator(),
                       );
-                    },
-                    itemCount: snapshot.data.documents.length,
-                  );
-                },
-              ),
-            ),
+                    return ListView.builder(
+                      itemBuilder: (ctx, index) {
+                        final userName =
+                            snapshot.data.documents[index].data['userName'];
+                        final supplier =
+                            snapshot.data.documents[index].data['supplier'];
+                        final date =
+                            snapshot.data.documents[index].data['date'];
+                        final amount =
+                            snapshot.data.documents[index].data['amount'];
+                        return approvedTile(
+                          userName: userName,
+                          suplierName: supplier,
+                          date: date,
+                          amount: amount,
+                          documentId: snapshot.data.documents[index].documentID,
+                        );
+                      },
+                      itemCount: snapshot.data.documents.length,
+                    );
+                  }),
+            )
           ],
         ),
       ),
@@ -180,6 +181,47 @@ class _ApprovedDetailsState extends State<ApprovedDetails> {
                     SizedBox(
                       height: 10,
                     ),
+                    InkWell(
+                      onTap: () async {
+                        await Firestore.instance
+                            .collection('expenses')
+                            .document(documentId)
+                            .updateData({
+                          'approved': true,
+                        });
+                        await showDialog(
+                            context: context,
+                            child: AlertDialog(
+                              title: Text('Confirmed'),
+                              content: Text('This item has been confirmed'),
+                              actions: <Widget>[
+                                FlatButton(
+                                  child: Text('Ok'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                )
+                              ],
+                            ));
+                      },
+                      child: Container(
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              "ADD",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        decoration: BoxDecoration(
+                          color: Color.fromRGBO(170, 44, 94, 1),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ],

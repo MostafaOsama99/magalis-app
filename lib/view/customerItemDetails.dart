@@ -94,6 +94,7 @@ class CustomerItemDetails extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: ListTile(
+                    onTap: ()=> Navigator.of(context).pushNamed('/customerRepresentative'),
                     title: Text(
                       'Mohamed Amr',
                       style: TextStyle(

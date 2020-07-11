@@ -32,6 +32,11 @@ dependencies:
   firebase_auth:
   get:
   cloud_firestore:
+  intl: ^0.16.1
+  firebase_storage:
+  file_picker:
+  image_picker:
+  
 
 dev_dependencies:
   flutter_test:
