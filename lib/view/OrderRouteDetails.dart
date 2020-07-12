@@ -1,8 +1,8 @@
+//Screen 14
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-//Screen 39
-class OrderDetails extends StatelessWidget {
+class OrderRouteDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final orderData =
@@ -45,11 +45,6 @@ class OrderDetails extends StatelessWidget {
                           color: Color.fromRGBO(170, 44, 94, 1),
                           fontWeight: FontWeight.bold,
                           fontSize: 20),
-                    ),
-                    trailing: Image.asset(
-                      'assets/images/noteAdd.png',
-                      width: 50,
-                      height: 50,
                     ),
                   ),
                 ),
@@ -295,51 +290,6 @@ class OrderDetails extends StatelessWidget {
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: 50,
-                        margin: EdgeInsets.symmetric(horizontal: 12),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey, width: 2),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(15),
-                              topRight: Radius.circular(15),
-                            )),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            InkWell(
-                              onTap: ()=>Navigator.of(context).pushNamed('/newRoute'),
-                              child: Text(
-                                'Add To Distribution',
-                                style: TextStyle(
-                                  color: Color.fromRGBO(96, 125, 130, 1),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            VerticalDivider(
-                              color: Color.fromRGBO(170, 44, 94, 1),
-                              thickness: 3,
-                            ),
-                            Expanded(child: SizedBox()),
-                            Text(
-                              'Call',
-                              style: TextStyle(
-                                color: Colors.green,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Expanded(child: SizedBox()),
                           ],
                         ),
                       ),

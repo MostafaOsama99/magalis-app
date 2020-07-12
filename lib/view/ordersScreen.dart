@@ -1,52 +1,70 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:maglis_app/widgets/gridItems.dart';
 
-class NotApprovedTwo extends StatefulWidget {
+class OrderScreen extends StatefulWidget {
   @override
-  _NotApprovedTwoState createState() => _NotApprovedTwoState();
+  _RevenueState createState() => _RevenueState();
 }
 
-class _NotApprovedTwoState extends State<NotApprovedTwo> {
+class _RevenueState extends State<OrderScreen> {
   List<String> dates = [];
-  List<String> userName = [];
-  List<String> supplier = [];
+  List<String> areas = [];
+  List<String> lines = [
+    'Bean Bags',
+    'Rattan',
+    'Travel accessories',
+    'Luxurious chairs',
+    'Wooden products'
+  ];
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-        backgroundColor: Colors.grey[200],
-        appBar: AppBar(
-          elevation: 10,
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          title: Image.asset(
-            'assets/images/logo.png',
-            width: 150,
-          ),
+      backgroundColor: Colors.grey[200],
+      appBar: AppBar(
+        elevation: 10,
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        title: Image.asset(
+          'assets/images/logo.png',
+          width: 150,
         ),
-        body: Column(children: [
+      ),
+      body: Column(
+        children: [
           SizedBox(
             height: 10,
           ),
           Container(
               color: Colors.white,
               child: ListTile(
-                leading: Image.asset('assets/images/NotApproved.png'),
+                leading: Image.asset('assets/images/OrdersIcon.png'),
                 title: Text(
-                  'Not Approved',
+                  'Orders',
                   style: TextStyle(
                       color: Color.fromRGBO(170, 44, 94, 1),
                       fontWeight: FontWeight.bold,
                       fontSize: 20),
                 ),
+                trailing: InkWell(
+                  onTap: () {},
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 1.5, color: Colors.grey),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      size: 35,
+                    ),
+                  ),
+                ),
               )),
           Expanded(
             child: FutureBuilder<QuerySnapshot>(
-                future: Firestore.instance
-                    .collection('expenses')
-                    .where('approved', isEqualTo: false)
-                    .getDocuments(),
+                future: Firestore.instance.collection('orders').getDocuments(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting)
                     return Center(
@@ -54,16 +72,14 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
                     );
                   final documents = snapshot.data.documents;
                   documents.forEach((element) {
-                    if (!dates.contains(element.data['date']))
-                      dates.add(element.data['date']);
-                    if (!supplier.contains(element.data['supplier']))
-                      supplier.add(element.data['supplier']);
-                    if (!userName.contains(element.data['userName']))
-                      userName.add(element.data['userName']);
+                    if (!dates.contains(element.data['createdAt']))
+                      dates.add(element.data['createdAt']);
+                    if (!areas.contains(element.data['area']))
+                      areas.add(element.data['area']);
                   });
                   print('dates:$dates');
-                  print('suppliers:$supplier');
-                  print('userNames:$userName');
+                  print('suppliers:$areas');
+                  print('userNames:$lines');
                   return ListView(
                     children: <Widget>[
                       Padding(
@@ -75,12 +91,50 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
                             InkWell(
                               onTap: () => Navigator.of(context)
                                   .pushNamed('/dateScreen', arguments: {
-                                'route': '/expensesNotApprovedDetails',
-                                'date': dates,
+                                'route': '/orders',
+                                'date': areas,
                                 'type': 1,
-                                'logo':'assets/images/DateIcon.png',
-                                'title':'Date',
-
+                                'logo': 'assets/images/CairoIcon.png',
+                                'title': 'Area',
+                              }),
+                              child: Container(
+                                width: size.width / 2.25,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      width: 2.5, color: Colors.grey[400]),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                      child: Image.asset(
+                                          'assets/images/CairoIcon.png'),
+                                      width: 100,
+                                      height: 100,
+                                    ),
+                                    Text(
+                                      'Area',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color:
+                                              Color.fromRGBO(134, 134, 134, 1),
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed('/dateScreen', arguments: {
+                                'route': '/orders',
+                                'date': dates,
+                                'type': 2,
+                                'logo': 'assets/images/DateIcon.png',
+                                'title': 'Date'
                               }),
                               child: Container(
                                 width: size.width / 2.25,
@@ -112,44 +166,6 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
                                 ),
                               ),
                             ),
-                            InkWell(
-                              onTap: () => Navigator.of(context)
-                                  .pushNamed('/dateScreen', arguments: {
-                                'route': '/expensesNotApprovedDetails',
-                                'date': userName,
-                                'type': 2,
-                                'logo':'assets/images/Person.png',
-                                'title':'User'
-                              }),
-                              child: Container(
-                                  width: size.width / 2.25,
-                                  height: 150,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(
-                                        width: 2.5, color: Colors.grey[400]),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Column(
-                                    children: <Widget>[
-                                      Container(
-                                        child: Image.asset(
-                                          'assets/images/Person.png',
-                                        ),
-                                        width: 100,
-                                        height: 100,
-                                      ),
-                                      Text(
-                                        'User',
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            color: Color.fromRGBO(
-                                                134, 134, 134, 1),
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    ],
-                                  )),
-                            ),
                           ],
                         ),
                       ),
@@ -162,11 +178,11 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
                             InkWell(
                               onTap: () => Navigator.of(context)
                                   .pushNamed('/dateScreen', arguments: {
-                                'route': '/expensesNotApprovedDetails',
-                                'date': supplier,
+                                'route': '/orders',
+                                'date': lines,
                                 'type': 3,
-                                'logo':'assets/images/Person.png',
-                                'title': 'Supplier',
+                                'logo': 'assets/images/Line.png',
+                                'title': 'Line'
                               }),
                               child: Container(
                                 width: size.width / 2.25,
@@ -181,13 +197,13 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     Container(
-                                      child: Image.asset(
-                                          'assets/images/Person.png'),
+                                      child:
+                                          Image.asset('assets/images/Line.png'),
                                       width: 100,
                                       height: 100,
                                     ),
                                     Text(
-                                      'Supplier',
+                                      'Line',
                                       style: TextStyle(
                                           fontSize: 18,
                                           color:
@@ -199,9 +215,11 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
                               ),
                             ),
                             InkWell(
-                              onTap: () => Navigator.of(context).pushNamed(
-                                  '/expensesNotApprovedDetails',
-                                  arguments: {'type': 4}),
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed('/orders', arguments: {
+                                'logo': 'assets/images/AllIcon.png',
+                                'title': 'All'
+                              }),
                               child: Container(
                                 width: size.width / 2.25,
                                 height: 150,
@@ -261,6 +279,8 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
               ),
             ),
           )
-        ]));
+        ],
+      ),
+    );
   }
 }

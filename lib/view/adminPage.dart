@@ -33,7 +33,8 @@ class AdminPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       InkWell(
-                        onTap: ()=>Navigator.of(context).pushNamed('/finance'),
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/finance'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 150,
@@ -47,7 +48,8 @@ class AdminPage extends StatelessWidget {
                         ),
                       ),
                       InkWell(
-                        onTap: ()=>Navigator.of(context).pushNamed('/distribution'),
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/distribution'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 150,
@@ -68,16 +70,36 @@ class AdminPage extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Container(
-                        width: size.width / 2.25,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border:
-                              Border.all(width: 2.5, color: Colors.grey[400]),
-                          borderRadius: BorderRadius.circular(12),
+                      InkWell(
+                        onTap: ()=>Navigator.of(context).pushNamed('/orderScreen'),
+                        child: Container(
+                          width: size.width / 2.25,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border:
+                                Border.all(width: 2.5, color: Colors.grey[400]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Container(
+                                child:
+                                    Image.asset('assets/images/OrdersIcon.png'),
+                                width: 100,
+                                height: 100,
+                              ),
+                              Text(
+                                'Orders',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: Color.fromRGBO(134, 134, 134, 1),
+                                    fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
                         ),
-                        child: Image.asset('assets/images/Orders.png'),
                       ),
                       Container(
                         width: size.width / 2.25,

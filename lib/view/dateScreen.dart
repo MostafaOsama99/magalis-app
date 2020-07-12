@@ -10,18 +10,8 @@ class DateScreen extends StatelessWidget {
     final List dates = argument['date'];
     final String route = argument['route'];
     final type = argument['type'];
-    String logo = '';
-    String title=  '';
-    if(type == 1){
-      logo ='assets/images/DateIcon.png';
-      title  = 'Date';
-    }else if(type == 2){
-      logo ='assets/images/Person.png';
-      title  = 'User';
-    }else if(type == 3){
-      logo ='assets/images/Person.png';
-      title  = 'Supplier';
-    }
+    final logo = argument['logo'];
+    final title = argument['title'];
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -77,7 +67,12 @@ class DateScreen extends StatelessWidget {
                   ),
                   child: ListTile(
                     onTap: () =>
-                        Navigator.of(context).pushNamed(route,arguments: {'type':type,'date':dates[index]}),
+                        Navigator.of(context).pushNamed(route, arguments: {
+                      'type': type,
+                      'date': dates[index],
+                      'logo': logo,
+                      'title': title,
+                    }),
                     title: Text(
                       '${dates[index]}',
                       style: TextStyle(

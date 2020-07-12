@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class CairoDistribution extends StatefulWidget {
+class Distribution extends StatefulWidget {
   @override
-  _CairoDistributionState createState() => _CairoDistributionState();
+  _DistributionState createState() => _DistributionState();
 }
 
-class _CairoDistributionState extends State<CairoDistribution> {
+class _DistributionState extends State<Distribution> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -17,7 +17,7 @@ class _CairoDistributionState extends State<CairoDistribution> {
           backgroundColor: Colors.white,
           title: Image.asset(
             'assets/images/logo.png',
-            width: 150,
+            width: 170,
           ),
         ),
         body: Column(children: [
@@ -25,17 +25,19 @@ class _CairoDistributionState extends State<CairoDistribution> {
             height: 10,
           ),
           Container(
-              color: Colors.white,
-              child: ListTile(
-                leading: Image.asset('assets/images/CairoIcon.png'),
-                title: Text(
-                  'Cairo',
-                  style: TextStyle(
-                      color: Color.fromRGBO(170, 44, 94, 1),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20),
-                ),
-              )),
+            color: Colors.white,
+            child: ListTile(
+              leading: Image.asset('assets/images/DistributionIcon.png'),
+              title: Text(
+                'Distribution',
+                style: TextStyle(
+                    color: Color.fromRGBO(170, 44, 94, 1),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20),
+              ),
+              
+            ),
+          ),
           Expanded(
             child: ListView(
               children: <Widget>[
@@ -45,11 +47,43 @@ class _CairoDistributionState extends State<CairoDistribution> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/collectedRoutes'),
+                        onTap: () => Navigator.of(context)
+                            .pushNamed('/distributionType'),
                         child: Container(
                           width: size.width / 2.25,
-                          height: 150,
+                          height: 170,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border:
+                                Border.all(width: 2.5, color: Colors.grey[400]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Container(
+                                child: Image.asset(
+                                    'assets/images/NotApproved.png'),
+                                width: 100,
+                                height: 100,
+                              ),
+                              Text(
+                                'On Distribution Route',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: Color.fromRGBO(134, 134, 134, 1),
+                                    fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {},
+                        child: Container(
+                          width: size.width / 2.25,
+                          height: 170,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border:
@@ -65,60 +99,32 @@ class _CairoDistributionState extends State<CairoDistribution> {
                                 width: 100,
                                 height: 100,
                               ),
-                              FittedBox(
-                                child: Text(
-                                  'Collected Routes',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: Color.fromRGBO(134, 134, 134, 1),
-                                      fontWeight: FontWeight.bold),
-                                ),
+                              Text(
+                                'Collected routes',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: Color.fromRGBO(134, 134, 134, 1),
+                                    fontWeight: FontWeight.bold),
                               )
                             ],
                           ),
                         ),
                       ),
-                      Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            children: <Widget>[
-                              Container(
-                                child: Image.asset(
-                                  'assets/images/NotApproved.png',
-                                ),
-                                width: 150,
-                                height: 120,
-                              ),
-                              FittedBox(
-                                child: Text(
-                                  'On Distribution Route',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: Color.fromRGBO(134, 134, 134, 1),
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )
-                            ],
-                          )),
                     ],
                   ),
                 ),
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Container(
+                      InkWell(
+                        onTap: () => Navigator.of(context)
+                            .pushNamed('/distributionType'),
+                        child: Container(
                           width: size.width / 2.25,
-                          height: 150,
+                          height: 170,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border:
@@ -126,25 +132,57 @@ class _CairoDistributionState extends State<CairoDistribution> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Container(
+                                child:
+                                    Image.asset('assets/images/LinesIcon.png'),
+                                width: 100,
+                                height: 100,
+                              ),
+                              Text(
+                                'New routes',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: Color.fromRGBO(134, 134, 134, 1),
+                                    fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {},
+                        child: Container(
+                          width: size.width / 2.25,
+                          height: 170,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border:
+                                Border.all(width: 2.5, color: Colors.grey[400]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Container(
                                 child: Image.asset(
-                                  'assets/images/PersonCheck.png',
-                                ),
-                                width: 150,
-                                height: 120,
+                                    'assets/images/PersonCheck.png'),
+                                width: 100,
+                                height: 100,
                               ),
-                              FittedBox(
-                                child: Text(
-                                  'New Routes',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: Color.fromRGBO(134, 134, 134, 1),
-                                      fontWeight: FontWeight.bold),
-                                ),
+                              Text(
+                                'Shipped',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: Color.fromRGBO(134, 134, 134, 1),
+                                    fontWeight: FontWeight.bold),
                               )
                             ],
-                          )),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -179,12 +217,12 @@ class _CairoDistributionState extends State<CairoDistribution> {
 
 // import 'package:flutter/material.dart';
 
-// class CairoDistribute extends StatefulWidget {
+// class Distribute extends StatefulWidget {
 //   @override
-//   _CairoDistributeState createState() => _CairoDistributeState();
+//   _DistributeState createState() => _DistributeState();
 // }
 
-// class _CairoDistributeState extends State<CairoDistribute> {
+// class _DistributeState extends State<Distribute> {
 //   List checkedMap = [];
 //   var expanded = true;
 //   @override
@@ -215,7 +253,7 @@ class _CairoDistributionState extends State<CairoDistribution> {
 //         backgroundColor: Colors.white,
 //         title: Image.asset(
 //           'assets/images/logo.png',
-//           width: 150,
+//           width: 170,
 //         ),
 //       ),
 //       body: Column(
@@ -227,7 +265,7 @@ class _CairoDistributionState extends State<CairoDistribution> {
 //             color: Colors.white,
 //             child: ListTile(
 //               title: Text(
-//                 'Cairo',
+//                 '',
 //                 style: TextStyle(
 //                     color: Color.fromRGBO(170, 44, 94, 1),
 //                     fontWeight: FontWeight.bold,
