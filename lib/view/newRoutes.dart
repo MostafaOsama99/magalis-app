@@ -12,6 +12,41 @@ class NewRoutes extends StatefulWidget {
 class _NewRoutesState extends State<NewRoutes> {
   @override
   Widget build(BuildContext context) {
+    final map = ModalRoute.of(context).settings.arguments as Map;
+    Stream routestream;
+    if (map != null) {
+      print(map['date']);
+      if (map['type'] == 1) {
+        routestream = Firestore.instance
+            .collection('routes')
+            .where('createdAt', isEqualTo: map['date'])
+            .where('status', isEqualTo: 'new')
+            .snapshots();
+      } else if (map['type'] == 2) {
+        routestream = Firestore.instance
+            .collection('routes')
+            .where('name', isEqualTo: map['date'])
+            .where('status', isEqualTo: 'new')
+            .snapshots();
+      } else if (map['type'] == 3) {
+        routestream = Firestore.instance
+            .collection('routes')
+            .where('area', isEqualTo: map['date'])
+            .where('status', isEqualTo: 'new')
+            .snapshots();
+      } else {
+        routestream = Firestore.instance
+            .collection('routes')
+            .where('status', isEqualTo: 'new')
+            .snapshots();
+      }
+    } else {
+      routestream = Firestore.instance
+          .collection('routes')
+          .where('status', isEqualTo: 'new')
+          .snapshots();
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -60,7 +95,7 @@ class _NewRoutesState extends State<NewRoutes> {
                     width: 15,
                   ),
                   InkWell(
-                    onTap: () => Navigator.of(context).pushNamed('/addOrder'),
+                    onTap: () => Navigator.of(context).pushNamed('/addRoute'),
                     child: Container(
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey[400], width: 2),
@@ -96,10 +131,40 @@ class _NewRoutesState extends State<NewRoutes> {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: InkWell(
-                        onTap: ()=>Navigator.of(context).pushNamed('/routeItemDetails',arguments: {
-                          'docId':routesData[i].documentID
-                        }),
-                                              child: Container(
+                        onTap: () async {
+                          if (map != null) {
+                            if (map['type'] == 2) {
+                              final lastroutes =
+                                  routesData[i].data['orders'] as List;
+                              final routesId =
+                                  lastroutes.map((e) => e['docId']).toList();
+                              if (!routesId.contains(map['docId'])) {
+                                lastroutes.add({
+                                  'docId': map['docId'],
+                                  'name': map['name'],
+                                  'address': map['address'],
+                                  'totalAccount': map['totalAccount'],
+                                });
+                                await Firestore.instance
+                                    .collection('routes')
+                                    .document(routesData[i].documentID)
+                                    .updateData({'orders': lastroutes});
+                                await Firestore.instance
+                                    .collection('orders')
+                                    .document(map['docId'])
+                                    .updateData({'status': 'routed'});
+                                Navigator.of(context)
+                                    .pushNamed('/routeItemDetails', arguments: {
+                                  'docId': routesData[i].documentID
+                                });
+                              }
+                            }
+                          } else {
+                            Navigator.of(context).pushNamed('/routeItemDetails',
+                                arguments: {'docId': routesData[i].documentID});
+                          }
+                        },
+                        child: Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
                               color: Colors.white,
@@ -108,8 +173,8 @@ class _NewRoutesState extends State<NewRoutes> {
                                 color: Colors.grey.withOpacity(0.5),
                               ),
                               borderRadius: BorderRadius.circular(12)),
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 18, vertical: 12),
                           margin:
                               EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           child: Column(
@@ -117,7 +182,8 @@ class _NewRoutesState extends State<NewRoutes> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
                                   Text(
                                     '${routesData[i].data['name']}',
@@ -140,7 +206,7 @@ class _NewRoutesState extends State<NewRoutes> {
                                     fontSize: 16),
                               ),
                               Text(
-                                'Date: ${routesData[i].data['date']}',//date
+                                'Date: ${routesData[i].data['date']}', //date
                                 style: TextStyle(
                                     color: Colors.grey,
                                     fontWeight: FontWeight.bold,

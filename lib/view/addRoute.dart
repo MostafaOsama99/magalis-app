@@ -193,6 +193,7 @@ class _AddRouteState extends State<AddRoute> {
                         'createdBy': 'Nada Ahmed',
                         'orders': [],
                         'status': 'new',
+                        'totalAmount': 0
                       });
                       await showDialog(
                         context: context,

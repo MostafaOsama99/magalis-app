@@ -1,14 +1,13 @@
 //Screen 10
 import 'package:flutter/material.dart';
-import 'package:maglis_app/widgets/gridItems.dart';
 
 class CollectedRoutes extends StatelessWidget {
   const CollectedRoutes({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
+      backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
         centerTitle: true,
@@ -43,83 +42,49 @@ class CollectedRoutes extends StatelessWidget {
           SizedBox(
             height: 10,
           ),
-          Expanded(
-            child: ListView(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/dateScreen'),
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                child: Image.asset(
-                                    'assets/images/DateIcon.png'),
-                                width: 100,
-                                height: 100,
-                              ),
-                              FittedBox(
-                                child: Text(
-                                  'Date',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: Color.fromRGBO(134, 134, 134, 1),
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            children: <Widget>[
-                              Container(
-                                child: Image.asset(
-                                  'assets/images/Person.png',
-                                ),
-                                width: 150,
-                                height: 120,
-                              ),
-                              FittedBox(
-                                child: Text(
-                                  'Person',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: Color.fromRGBO(134, 134, 134, 1),
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              )
-                            ],
-                          )),
-                    ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      color: Colors.grey.withOpacity(0.5), width: 3.25),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                width: 180,
+                height: 150,
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                    child: Image.asset('assets/images/DateItem.png'),
                   ),
                 ),
-              ],
-            ),
-          ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      color: Colors.grey.withOpacity(0.5), width: 3.25),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                width: 180,
+                height: 150,
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                    child: Image.asset('assets/images/PersonIcon.png'),
+                  ),
+                ),
+              ),
+            ],
+          )
         ],
       ),
     );

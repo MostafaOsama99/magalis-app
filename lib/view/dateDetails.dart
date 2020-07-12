@@ -60,7 +60,6 @@ class DateDetails extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: ListTile(
-                    onTap: ()=> Navigator.of(context).pushNamed('/customerItemDetails'),
                     title: Text(
                       'Mohamed Amr',
                       style: TextStyle(
@@ -71,7 +70,7 @@ class DateDetails extends StatelessWidget {
                     subtitle: Text(
                       'New Cairo',
                       style: TextStyle(
-                      color: Color.fromRGBO(96, 125, 129, 1),
+                          color: Color.fromRGBO(183, 196, 199, 1),
                           fontWeight: FontWeight.bold,
                           fontSize: 16),
                     ),

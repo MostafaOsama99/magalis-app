@@ -484,6 +484,7 @@ class _AddOrderState extends State<AddOrder> {
                         'totalAccount': amount,
                         'underAccount': downpayment,
                         'address': address,
+                        'status':'noAction',
                       });
                       await showDialog(
                         context: context,

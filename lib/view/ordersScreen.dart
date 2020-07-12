@@ -218,6 +218,7 @@ class _RevenueState extends State<OrderScreen> {
                               onTap: () => Navigator.of(context)
                                   .pushNamed('/orders', arguments: {
                                 'logo': 'assets/images/AllIcon.png',
+                                'type':0,
                                 'title': 'All'
                               }),
                               child: Container(

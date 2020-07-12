@@ -314,19 +314,36 @@ class OrderDetails extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
-                            InkWell(
-                              onTap: ()=>Navigator.of(context).pushNamed('/newRoute'),
-                              child: Text(
-                                'Add To Distribution',
-                                style: TextStyle(
-                                  color: Color.fromRGBO(96, 125, 130, 1),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
+                            Expanded(child: SizedBox()),
+                            order['status'] != 'routed'
+                                ? InkWell(
+                                    onTap: () => Navigator.of(context)
+                                        .pushNamed('/newRoute', arguments: {
+                                      'type': 2,
+                                      'docId': snapshot.data.documentID,
+                                      'address': order['address'],
+                                      'name': order['name'],
+                                      'totalAccount': order['totalAccount']
+                                    }),
+                                    child: Text(
+                                      'Add To Distribution',
+                                      style: TextStyle(
+                                        color: Color.fromRGBO(96, 125, 130, 1),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    'Routed',
+                                    style: TextStyle(
+                                      color: Color.fromRGBO(96, 125, 130, 1),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                             SizedBox(
                               width: 10,
                             ),
+                            Expanded(child: SizedBox()),
                             VerticalDivider(
                               color: Color.fromRGBO(170, 44, 94, 1),
                               thickness: 3,

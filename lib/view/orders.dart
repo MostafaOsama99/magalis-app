@@ -14,11 +14,12 @@ class _OrdersPageState extends State<OrdersPage> {
   Widget build(BuildContext context) {
     Stream orderstream;
     final map = ModalRoute.of(context).settings.arguments as Map;
-    final title = (map == null) ? 'All' : map['title'];
-    final logo = (map == null) ? 'assets/images/AllIcon.png' : map['logo'];
+    final title = (map['title'] == null) ? 'All' : map['title'];
+    final logo =
+        (map['logo'] == null) ? 'assets/images/AllIcon.png' : map['logo'];
+    print(map['type']);
     if (map != null) {
-          print(map['date']);
-
+      // print(map['date']);
       if (map['type'] == 1) {
         orderstream = Firestore.instance
             .collection('orders')
@@ -34,6 +35,12 @@ class _OrdersPageState extends State<OrdersPage> {
             .collection('orders')
             .where('line', isEqualTo: map['date'])
             .snapshots();
+      } else if (map['type'] == 4) {
+        orderstream = Firestore.instance
+            .collection('orders')
+            .where('status', isEqualTo: 'noAction')
+            .snapshots();
+        print(orderstream.toString());
       } else {
         orderstream = Firestore.instance.collection('orders').snapshots();
       }
@@ -112,28 +119,73 @@ class _OrdersPageState extends State<OrdersPage> {
             child: StreamBuilder<QuerySnapshot>(
                 stream: orderstream,
                 builder: (context, snapshot) {
-                  final ordersData = snapshot.data.documents;
                   if (snapshot.connectionState == ConnectionState.waiting)
                     return Center(
                       child: CircularProgressIndicator(),
                     );
+
+                  final ordersData = snapshot.data.documents;
+                  if (snapshot.data.documents.length <= 0) {
+                    return Center(
+                      child: Text(
+                        'No Orders to Routed',
+                        style: TextStyle(
+                            color: Color.fromRGBO(170, 44, 94, 1),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20),
+                      ),
+                    );
+                  }
                   return ListView.builder(
                     itemCount: snapshot.data.documents.length,
                     itemBuilder: (context, i) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: orderItem(
-                          id: ordersData[i].documentID,
-                          title: '${ordersData[i].data['name']}',
-                          price: ordersData[i].data['totalAccount'],
-                          line: '${ordersData[i].data['area']}', //area
-                          factoryName: '${ordersData[i].data['line']}',
-                          quantity: ordersData[i].data['quantity'],
-                          date: '${ordersData[i].data['createdAt']}',
-                          description: '${ordersData[i].data['description']}',
-                          phone: '${ordersData[i].data['phone']}',
-                          underAccount:
-                              ordersData[i].data['underAccount'], //underAccount
+                      return InkWell(
+                        onTap: () async {
+                          if (map['type'] == 4) {
+                            final lastOrders = map['lastOrders'] as List;
+                            final ordersId =
+                                lastOrders.map((e) => e['docId']).toList();
+                            if (!ordersId.contains(map['docId'])) {
+                              lastOrders.add({
+                                'docId': ordersData[i].documentID,
+                                'name': ordersData[i].data['name'],
+                                'address': ordersData[i].data['address'],
+                                'totalAccount':
+                                    ordersData[i].data['totalAccount'],
+                              });
+                              await Firestore.instance
+                                  .collection('routes')
+                                  .document(map['routeId'])
+                                  .updateData({'orders': lastOrders});
+                              await Firestore.instance
+                                  .collection('orders')
+                                  .document(ordersData[i].documentID)
+                                  .updateData({'status': 'routed'});
+                              Navigator.of(context).pushReplacementNamed(
+                                  '/routeItemDetails',
+                                  arguments: {'docId': map['routeId']});
+                            }
+                          } else {
+                            Navigator.of(context)
+                                .pushNamed('/orderDetails', arguments: {
+                              'docId': ordersData[i].documentID,
+                            });
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: orderItem(
+                            title: '${ordersData[i].data['name']}',
+                            price: ordersData[i].data['totalAccount'],
+                            line: '${ordersData[i].data['area']}', //area
+                            factoryName: '${ordersData[i].data['line']}',
+                            quantity: ordersData[i].data['quantity'],
+                            date: '${ordersData[i].data['createdAt']}',
+                            description: '${ordersData[i].data['description']}',
+                            phone: '${ordersData[i].data['phone']}',
+                            underAccount: ordersData[i]
+                                .data['underAccount'], //underAccount
+                          ),
                         ),
                       );
                     },
@@ -156,83 +208,78 @@ class _OrdersPageState extends State<OrdersPage> {
       underAccount,
       phone,
       description}) {
-    return InkWell(
-      onTap: () => Navigator.of(context).pushNamed('/orderDetails', arguments: {
-        'docId': id,
-      }),
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(
-              width: 2,
-              color: Colors.grey.withOpacity(0.5),
-            ),
-            borderRadius: BorderRadius.circular(12)),
-        padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-        margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  '${title}',
-                  style: TextStyle(
-                      color: Color.fromRGBO(170, 44, 94, 1),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18),
-                ),
-                Text(
-                  '${price} EGP',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18),
-                )
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  '${factoryName}',
-                  style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                ),
-                Text(
-                  'QTY : ${quantity}',
-                  style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                )
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  '${line}',
-                  style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                ),
-                Text(
-                  '${date}',
-                  style: TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                )
-              ],
-            ),
-          ],
-        ),
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            width: 2,
+            color: Colors.grey.withOpacity(0.5),
+          ),
+          borderRadius: BorderRadius.circular(12)),
+      padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      margin: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(
+                '${title}',
+                style: TextStyle(
+                    color: Color.fromRGBO(170, 44, 94, 1),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18),
+              ),
+              Text(
+                '${price} EGP',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18),
+              )
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(
+                '${factoryName}',
+                style: TextStyle(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16),
+              ),
+              Text(
+                'QTY : ${quantity}',
+                style: TextStyle(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16),
+              )
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(
+                '${line}',
+                style: TextStyle(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16),
+              ),
+              Text(
+                '${date}',
+                style: TextStyle(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16),
+              )
+            ],
+          ),
+        ],
       ),
     );
   }

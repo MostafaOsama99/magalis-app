@@ -7,6 +7,10 @@ class DistributionType extends StatefulWidget {
 }
 
 class _DistributionState extends State<DistributionType> {
+  List<String> dates = [];
+  List<String> person = [];
+  List<String> area = [];
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -54,150 +58,198 @@ class _DistributionState extends State<DistributionType> {
             ),
           ),
           Expanded(
-            child: ListView(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: FutureBuilder<QuerySnapshot>(
+                future: Firestore.instance.collection('routes').getDocuments(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  final documents = snapshot.data.documents;
+                  documents.forEach((element) {
+                    if (!dates.contains(element.data['date']))
+                      dates.add(element.data['date']);
+                    if (!person.contains(element.data['name']))
+                      person.add(element.data['name']);
+                    if (!area.contains(element.data['area']))
+                      area.add(element.data['area']);
+                  });
+                  print('dates:$dates');
+                  print('person:$person');
+                  print('area:$area');
+                  return ListView(
                     children: <Widget>[
-                      InkWell(
-                        onTap: () {},
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                child:
-                                    Image.asset('assets/images/DateIcon.png'),
-                                width: 100,
-                                height: 100,
-                              ),
-                              Text(
-                                'Date',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: Color.fromRGBO(134, 134, 134, 1),
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {},
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            children: <Widget>[
-                              Container(
-                                child: Image.asset(
-                                  'assets/images/Person.png',
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            InkWell(
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed('/dateScreen', arguments: {
+                                'route': '/newRoute',
+                                'date': dates,
+                                'type': 1,
+                                'logo': 'assets/images/DateIcon.png',
+                                'title': 'Date',
+                              }),
+                              child: Container(
+                                width: size.width / 2.25,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      width: 2.5, color: Colors.grey[400]),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                width: 100,
-                                height: 100,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                      child: Image.asset(
+                                          'assets/images/DateIcon.png'),
+                                      width: 100,
+                                      height: 100,
+                                    ),
+                                    Text(
+                                      'Date',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color:
+                                              Color.fromRGBO(134, 134, 134, 1),
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
                               ),
-                              Text(
-                                'Person',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: Color.fromRGBO(134, 134, 134, 1),
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          ),
+                            ),
+                            InkWell(
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed('/dateScreen', arguments: {
+                                'route': '/newRoute',
+                                'date': person,
+                                'type': 2,
+                                'logo': 'assets/images/Person.png',
+                                'title': 'Person',
+                              }),
+                              child: Container(
+                                width: size.width / 2.25,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      width: 2.5, color: Colors.grey[400]),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  children: <Widget>[
+                                    Container(
+                                      child: Image.asset(
+                                        'assets/images/Person.png',
+                                      ),
+                                      width: 100,
+                                      height: 100,
+                                    ),
+                                    Text(
+                                      'Person',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color:
+                                              Color.fromRGBO(134, 134, 134, 1),
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            InkWell(
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed('/dateScreen', arguments: {
+                                'route': '/newRoute',
+                                'date': area,
+                                'type': 3,
+                                'logo': 'assets/images/LineIcon.png',
+                                'title': 'Area',
+                              }),
+                              child: Container(
+                                width: size.width / 2.25,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      width: 2.5, color: Colors.grey[400]),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                      child: Image.asset(
+                                          'assets/images/LineIcon.png'),
+                                      width: 100,
+                                      height: 100,
+                                    ),
+                                    Text(
+                                      'Area',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color:
+                                              Color.fromRGBO(134, 134, 134, 1),
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () =>
+                                  Navigator.of(context).pushNamed('/newRoute'),
+                              child: Container(
+                                width: size.width / 2.25,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      width: 2.5, color: Colors.grey[400]),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                      child: Image.asset(
+                                          'assets/images/AllIcon.png'),
+                                      width: 100,
+                                      height: 100,
+                                    ),
+                                    Text(
+                                      'All',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color:
+                                              Color.fromRGBO(134, 134, 134, 1),
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      InkWell(
-                        onTap: () {},
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                child:
-                                    Image.asset('assets/images/LineIcon.png'),
-                                width: 100,
-                                height: 100,
-                              ),
-                              Text(
-                                'Area',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: Color.fromRGBO(134, 134, 134, 1),
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/newRoute'),
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                child: Image.asset('assets/images/AllIcon.png'),
-                                width: 100,
-                                height: 100,
-                              ),
-                              Text(
-                                'All',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: Color.fromRGBO(134, 134, 134, 1),
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+                  );
+                }),
           ),
           Material(
             elevation: 20,

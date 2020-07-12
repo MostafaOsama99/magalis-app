@@ -124,7 +124,7 @@ class RouteItemDetails extends StatelessWidget {
                             style: TextStyle(
                                 color: Color.fromRGBO(170, 44, 94, 1),
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20),
+                                fontSize: 18),
                           ),
                           subtitle: Text(
                             '${ordersList[index]['address']}',
@@ -139,6 +139,7 @@ class RouteItemDetails extends StatelessWidget {
                                 '${ordersList[index]['totalAccount']} EGP',
                                 style: TextStyle(
                                   color: Colors.black,
+                                  fontSize: 18
                                 ),
                               )
                             ],
@@ -151,22 +152,28 @@ class RouteItemDetails extends StatelessWidget {
                 ),
               ),
               InkWell(
-                    onTap: (){
-                      Navigator.of(context).pushNamed('/orders');
-                    },
-                    child: Container(
-                      color: Color.fromRGBO(170, 44, 94, 1),
-                      width: size.width,
-                      height: 50,
-                      child: Center(
-                        child: Text(
-                          'ADD Order',
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                      ),
+                onTap: () {
+                  Navigator.of(context).pushReplacementNamed('/orders', arguments: {
+                    'type': 4,
+                    'routeId': snapshot.data.documentID,
+                    'lastOrders': ordersList,
+                    'logo':'assets/images/AllIcon.png',
+                    'title': 'All'
+                  });
+                },
+                child: Container(
+                  color: Color.fromRGBO(170, 44, 94, 1),
+                  width: size.width,
+                  height: 50,
+                  child: Center(
+                    child: Text(
+                      'ADD Order',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
                     ),
-                  )
+                  ),
+                ),
+              )
             ],
           );
         },
