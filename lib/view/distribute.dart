@@ -48,7 +48,7 @@ class _DistributionState extends State<Distribution> {
                     children: <Widget>[
                       InkWell(
                         onTap: () => Navigator.of(context)
-                            .pushNamed('/distributionType'),
+                            .pushNamed('/onDistributionType'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 170,

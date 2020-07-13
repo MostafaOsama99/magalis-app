@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:maglis_app/widgets/gridItems.dart';
 
@@ -7,6 +8,11 @@ class NotApprovedOne extends StatefulWidget {
 }
 
 class _NotApprovedOneState extends State<NotApprovedOne> {
+  List<String> dates = [];
+  List<String> userName = [];
+  List<String> cairo = [];
+  List<String> cities = [];
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -37,160 +43,213 @@ class _NotApprovedOneState extends State<NotApprovedOne> {
                       fontWeight: FontWeight.bold,
                       fontSize: 20),
                 ),
+                trailing: InkWell(
+                  onTap: () => Navigator.of(context).pushNamed('/addRevenue'),
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      border: Border.all(width: 1.5, color: Colors.grey),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      size: 35,
+                    ),
+                  ),
+                ),
               ),
             ),
             SizedBox(
               height: 10,
             ),
             Expanded(
-            child: ListView(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/notApprovedDate'),
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+              child: FutureBuilder<QuerySnapshot>(
+                  future: Firestore.instance
+                      .collection('revenue')
+                      .where('approved', isEqualTo: false)
+                      .getDocuments(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+
+                    final documents = snapshot.data.documents;
+                    documents.forEach((element) {
+                      if (!dates.contains(element.data['date']))
+                        dates.add(element.data['date']);
+                      if (!userName.contains(element.data['userName']))
+                        userName.add(element.data['userName']);
+                    });
+                    print('dates:$dates');
+                    print('userNames:$userName');
+                    return ListView(
+                      children: <Widget>[
+                        Padding(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
-                              Container(
-                                child:
-                                    Image.asset('assets/images/DateIcon.png'),
-                                width: 75,
-                                height: 75,
-                              ),
-                              Text(
-                                'Date',
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    color: Color.fromRGBO(134, 134, 134, 1),
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/notApprovedDetails'),
-                        child: Container(
-                            width: size.width / 2.25,
-                            height: 150,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(
-                                  width: 2.5, color: Colors.grey[400]),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              children: <Widget>[
-                                Container(
-                                  child: Image.asset(
-                                    'assets/images/Person.png',
+                              InkWell(
+                                onTap: () => Navigator.of(context)
+                                    .pushNamed('/dateScreen', arguments: {
+                                  'route': '/revenueNotApprovedDetails',
+                                  'date': dates,
+                                  'type': 1,
+                                  'logo': 'assets/images/DateIcon.png',
+                                  'title': 'Date',
+                                }),
+                                child: Container(
+                                  width: size.width / 2.25,
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        width: 2.5, color: Colors.grey[400]),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  width: 75,
-                                  height: 75,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Container(
+                                        child: Image.asset(
+                                            'assets/images/DateIcon.png'),
+                                        width: 75,
+                                        height: 75,
+                                      ),
+                                      Text(
+                                        'Date',
+                                        style: TextStyle(
+                                            fontSize: 24,
+                                            color: Color.fromRGBO(
+                                                134, 134, 134, 1),
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                    ],
+                                  ),
                                 ),
-                                Text(
-                                  'Pickup',
-                                  style: TextStyle(
-                                      fontSize: 24,
-                                      color: Color.fromRGBO(134, 134, 134, 1),
-                                      fontWeight: FontWeight.bold),
-                                )
-                              ],
-                            )),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/cashFlow'),
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            children: <Widget>[
-                              Container(
-                                width: 75,
-                                height: 75,
-                                child:
-                                    Image.asset('assets/images/LineIcon.png'),
                               ),
-                              Text(
-                                'Cairo',
-                                style: TextStyle(
-                                    fontSize: 24,
-                                    color: Color.fromRGBO(134, 134, 134, 1),
-                                    fontWeight: FontWeight.bold),
-                              )
+                              InkWell(
+                                onTap: () => Navigator.of(context)
+                                    .pushNamed('/dateScreen', arguments: {
+                                  'route': '/revenueNotApprovedDetails',
+                                  'date': userName,
+                                  'type': 2,
+                                  'logo': 'assets/images/Person.png',
+                                  'title': 'User'
+                                }),
+                                child: Container(
+                                    width: size.width / 2.25,
+                                    height: 150,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      border: Border.all(
+                                          width: 2.5, color: Colors.grey[400]),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Column(
+                                      children: <Widget>[
+                                        Container(
+                                          child: Image.asset(
+                                            'assets/images/Person.png',
+                                          ),
+                                          width: 75,
+                                          height: 75,
+                                        ),
+                                        Text(
+                                          'Pickup',
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              color: Color.fromRGBO(
+                                                  134, 134, 134, 1),
+                                              fontWeight: FontWeight.bold),
+                                        )
+                                      ],
+                                    )),
+                              ),
                             ],
                           ),
                         ),
-                      ),
-                      Container(
-                        width: size.width / 2.25,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border:
-                              Border.all(width: 2.5, color: Colors.grey[400]),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          children: <Widget>[
-                            InkWell(
-                              onTap: () =>
-                                  Navigator.of(context).pushNamed('/loans'),
-                              child: Container(
-                                width: 75,
-                                height: 75,
-                                child: Image.asset(
-                                  'assets/images/LinesIcon.png',
-                                  fit: BoxFit.fill,
+                        Padding(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              InkWell(
+                                onTap: () => Navigator.of(context)
+                                    .pushNamed('/cashFlow'),
+                                child: Container(
+                                  width: size.width / 2.25,
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        width: 2.5, color: Colors.grey[400]),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    children: <Widget>[
+                                      Container(
+                                        width: 75,
+                                        height: 75,
+                                        child: Image.asset(
+                                            'assets/images/LineIcon.png'),
+                                      ),
+                                      Text(
+                                        'Cairo',
+                                        style: TextStyle(
+                                            fontSize: 24,
+                                            color: Color.fromRGBO(
+                                                134, 134, 134, 1),
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            Text(
-                              'Cities',
-                              style: TextStyle(
-                                  fontSize: 24,
-                                  color: Color.fromRGBO(134, 134, 134, 1),
-                                  fontWeight: FontWeight.bold),
-                            )
-                          ],
+                              Container(
+                                width: size.width / 2.25,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      width: 2.5, color: Colors.grey[400]),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  children: <Widget>[
+                                    InkWell(
+                                      onTap: () => Navigator.of(context)
+                                          .pushNamed('/loans'),
+                                      child: Container(
+                                        width: 75,
+                                        height: 75,
+                                        child: Image.asset(
+                                          'assets/images/LinesIcon.png',
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ),
+                                    Text(
+                                      'Cities',
+                                      style: TextStyle(
+                                          fontSize: 24,
+                                          color:
+                                              Color.fromRGBO(134, 134, 134, 1),
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                      ],
+                    );
+                  }),
             ),
-          ),
           ],
         ),
       ),

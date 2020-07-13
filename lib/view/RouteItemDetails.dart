@@ -2,11 +2,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class RouteItemDetails extends StatelessWidget {
+class RouteItemDetails extends StatefulWidget {
+  @override
+  _RouteItemDetailsState createState() => _RouteItemDetailsState();
+}
+
+class _RouteItemDetailsState extends State<RouteItemDetails> {
   @override
   Widget build(BuildContext context) {
     final map = ModalRoute.of(context).settings.arguments as Map;
     final size = MediaQuery.of(context).size;
+    bool loading = false;
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -138,9 +144,7 @@ class RouteItemDetails extends StatelessWidget {
                               Text(
                                 '${ordersList[index]['totalAccount']} EGP',
                                 style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 18
-                                ),
+                                    color: Colors.black, fontSize: 18),
                               )
                             ],
                           ),
@@ -151,13 +155,61 @@ class RouteItemDetails extends StatelessWidget {
                   ),
                 ),
               ),
+              loading
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : InkWell(
+                      onTap: () async {
+                        setState(() {
+                          loading = true;
+                        });
+                        await Firestore.instance
+                            .collection('routes')
+                            .document(snapshot.data.documentID)
+                            .updateData({'status': 'onDistribution'});
+                        await showDialog(
+                          context: context,
+                          child: AlertDialog(
+                            title: Text('Confirmed'),
+                            content: Text('This item has been confirmed'),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: Text('Ok'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              )
+                            ],
+                          ),
+                        );
+                        Navigator.of(context).pushReplacementNamed('/newRoute');
+                      },
+                      child: Container(
+                        color: Color.fromRGBO(170, 44, 94, 1),
+                        width: size.width,
+                        height: 50,
+                        child: Center(
+                          child: Text(
+                            'Push to On Distribution',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ),
+              SizedBox(
+                height: 8,
+              ),
               InkWell(
                 onTap: () {
-                  Navigator.of(context).pushReplacementNamed('/orders', arguments: {
+                  Navigator.of(context)
+                      .pushReplacementNamed('/orders', arguments: {
                     'type': 4,
                     'routeId': snapshot.data.documentID,
                     'lastOrders': ordersList,
-                    'logo':'assets/images/AllIcon.png',
+                    'logo': 'assets/images/AllIcon.png',
                     'title': 'All'
                   });
                 },

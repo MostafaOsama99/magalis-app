@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class DistributionType extends StatefulWidget {
+class OnDistributionType extends StatefulWidget {
   @override
-  _DistributionState createState() => _DistributionState();
+  _OnDistributionState createState() => _OnDistributionState();
 }
 
-class _DistributionState extends State<DistributionType> {
+class _OnDistributionState extends State<OnDistributionType> {
   List<String> dates = [];
   List<String> person = [];
   List<String> area = [];
@@ -32,28 +32,13 @@ class _DistributionState extends State<DistributionType> {
           Container(
             color: Colors.white,
             child: ListTile(
-              leading: Image.asset('assets/images/LinesIcon.png'),
+              leading: Image.asset('assets/images/NotApproved.png'),
               title: Text(
-                'New Routes',
+                'On Distribution Route',
                 style: TextStyle(
                     color: Color.fromRGBO(170, 44, 94, 1),
                     fontWeight: FontWeight.bold,
-                    fontSize: 20),
-              ),
-              trailing: InkWell(
-                onTap: () => Navigator.of(context).pushNamed('/addRoute'),
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    border: Border.all(width: 1.5, color: Colors.grey),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Icon(
-                    Icons.add,
-                    size: 35,
-                  ),
-                ),
+                    fontSize: 18),
               ),
             ),
           ),
@@ -61,7 +46,7 @@ class _DistributionState extends State<DistributionType> {
             child: FutureBuilder<QuerySnapshot>(
                 future: Firestore.instance
                     .collection('routes')
-                    .where('status', isEqualTo: 'new')
+                    .where('status', isEqualTo: 'onDistribution')
                     .getDocuments(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting)
@@ -91,7 +76,7 @@ class _DistributionState extends State<DistributionType> {
                             InkWell(
                               onTap: () => Navigator.of(context)
                                   .pushNamed('/dateScreen', arguments: {
-                                'route': '/newRoute',
+                                'route': '/onDistributionRoutes',
                                 'date': dates,
                                 'type': 1,
                                 'logo': 'assets/images/DateIcon.png',
@@ -130,7 +115,7 @@ class _DistributionState extends State<DistributionType> {
                             InkWell(
                               onTap: () => Navigator.of(context)
                                   .pushNamed('/dateScreen', arguments: {
-                                'route': '/newRoute',
+                                'route': '/onDistributionRoutes',
                                 'date': person,
                                 'type': 2,
                                 'logo': 'assets/images/Person.png',
@@ -178,7 +163,7 @@ class _DistributionState extends State<DistributionType> {
                             InkWell(
                               onTap: () => Navigator.of(context)
                                   .pushNamed('/dateScreen', arguments: {
-                                'route': '/newRoute',
+                                'route': '/onDistributionRoutes',
                                 'date': area,
                                 'type': 3,
                                 'logo': 'assets/images/LineIcon.png',
@@ -215,8 +200,8 @@ class _DistributionState extends State<DistributionType> {
                               ),
                             ),
                             InkWell(
-                              onTap: () =>
-                                  Navigator.of(context).pushNamed('/newRoute'),
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed('/onDistributionRoutes'),
                               child: Container(
                                 width: size.width / 2.25,
                                 height: 150,

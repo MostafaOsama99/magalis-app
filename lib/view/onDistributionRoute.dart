@@ -4,12 +4,12 @@ import 'package:intl/intl.dart';
 
 import 'package:maglis_app/widgets/orderTile.dart';
 
-class NewRoutes extends StatefulWidget {
+class OnDistributionRoutes extends StatefulWidget {
   @override
-  _NewRoutesState createState() => _NewRoutesState();
+  _OnDistributionRoutesState createState() => _OnDistributionRoutesState();
 }
 
-class _NewRoutesState extends State<NewRoutes> {
+class _OnDistributionRoutesState extends State<OnDistributionRoutes> {
   @override
   Widget build(BuildContext context) {
     final map = ModalRoute.of(context).settings.arguments as Map;
@@ -20,30 +20,30 @@ class _NewRoutesState extends State<NewRoutes> {
         routestream = Firestore.instance
             .collection('routes')
             .where('createdAt', isEqualTo: map['date'])
-            .where('status', isEqualTo: 'new')
+            .where('status', isEqualTo: 'onDistribution')
             .snapshots();
       } else if (map['type'] == 2) {
         routestream = Firestore.instance
             .collection('routes')
             .where('name', isEqualTo: map['date'])
-            .where('status', isEqualTo: 'new')
+            .where('status', isEqualTo: 'onDistribution')
             .snapshots();
       } else if (map['type'] == 3) {
         routestream = Firestore.instance
             .collection('routes')
             .where('area', isEqualTo: map['date'])
-            .where('status', isEqualTo: 'new')
+            .where('status', isEqualTo: 'onDistribution')
             .snapshots();
       } else {
         routestream = Firestore.instance
             .collection('routes')
-            .where('status', isEqualTo: 'new')
+            .where('status', isEqualTo: 'onDistribution')
             .snapshots();
       }
     } else {
       routestream = Firestore.instance
           .collection('routes')
-          .where('status', isEqualTo: 'new')
+          .where('status', isEqualTo: 'onDistribution')
           .snapshots();
     }
 
@@ -66,13 +66,13 @@ class _NewRoutesState extends State<NewRoutes> {
           Container(
             color: Colors.white,
             child: ListTile(
-              leading: Image.asset('assets/images/LineIcon.png'),
+              leading: Image.asset('assets/images/NotApproved.png'),
               title: Text(
-                'New Routes',
+                'On Distribution Routes',
                 style: TextStyle(
                     color: Color.fromRGBO(170, 44, 94, 1),
                     fontWeight: FontWeight.bold,
-                    fontSize: 20),
+                    fontSize: 16),
               ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -154,13 +154,13 @@ class _NewRoutesState extends State<NewRoutes> {
                                     .document(map['docId'])
                                     .updateData({'status': 'routed'});
                                 Navigator.of(context)
-                                    .pushNamed('/routeItemDetails', arguments: {
+                                    .pushNamed('/onDistributionItem', arguments: {
                                   'docId': routesData[i].documentID
                                 });
                               }
                             }
                           } else {
-                            Navigator.of(context).pushNamed('/routeItemDetails',
+                            Navigator.of(context).pushNamed('/onDistributionItem',
                                 arguments: {'docId': routesData[i].documentID});
                           }
                         },

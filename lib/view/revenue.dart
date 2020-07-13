@@ -25,17 +25,19 @@ class _RevenueState extends State<Revenue> {
             height: 10,
           ),
           Container(
-              color: Colors.white,
-              child: ListTile(
-                leading: Image.asset('assets/images/Revenue.png'),
-                title: Text(
-                  'Revenue',
-                  style: TextStyle(
-                      color: Color.fromRGBO(170, 44, 94, 1),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20),
-                ),
-                trailing: Container(
+            color: Colors.white,
+            child: ListTile(
+              leading: Image.asset('assets/images/Revenue.png'),
+              title: Text(
+                'Revenue',
+                style: TextStyle(
+                    color: Color.fromRGBO(170, 44, 94, 1),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20),
+              ),
+              trailing: InkWell(
+                onTap: () => Navigator.of(context).pushNamed('/addRevenue'),
+                child: Container(
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
@@ -47,7 +49,9 @@ class _RevenueState extends State<Revenue> {
                     size: 35,
                   ),
                 ),
-              )),
+              ),
+            ),
+          ),
           Expanded(
             child: ListView(
               children: <Widget>[

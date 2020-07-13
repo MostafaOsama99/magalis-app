@@ -4,6 +4,7 @@ import 'package:maglis_app/view/addExpense.dart';
 import 'package:maglis_app/view/addLoan.dart';
 import 'package:maglis_app/view/addOrder.dart';
 import 'package:maglis_app/view/addRepresentatives.dart';
+import 'package:maglis_app/view/addRevenue.dart';
 import 'package:maglis_app/view/addRoute.dart';
 import 'package:maglis_app/view/addSalary.dart';
 import 'package:maglis_app/view/adminPage.dart';
@@ -11,6 +12,7 @@ import 'package:maglis_app/view/allScreens.dart';
 import 'package:maglis_app/view/approved-one.dart';
 import 'package:maglis_app/view/approvedData.dart';
 import 'package:maglis_app/view/approvedDetails.dart';
+import 'package:maglis_app/view/approvedRevenue.dart';
 import 'package:maglis_app/view/approvedTwo.dart';
 import 'package:maglis_app/view/beforeLogin.dart';
 import 'package:maglis_app/view/distribute.dart';
@@ -36,6 +38,9 @@ import 'package:maglis_app/view/notApproved-one.dart';
 import 'package:maglis_app/view/notApprovedDate.dart';
 import 'package:maglis_app/view/notApprovedDetails.dart';
 import 'package:maglis_app/view/notApprovedTwo.dart';
+import 'package:maglis_app/view/onDistributionItemDetails.dart';
+import 'package:maglis_app/view/onDistributionRoute.dart';
+import 'package:maglis_app/view/onDistributionType.dart';
 import 'package:maglis_app/view/operations.dart';
 import 'package:maglis_app/view/orderCustormerScreen.dart';
 import 'package:maglis_app/view/orders.dart';
@@ -46,6 +51,7 @@ import 'package:maglis_app/view/reports.dart';
 import 'package:maglis_app/view/representativePage.dart';
 import 'package:maglis_app/view/representatives.dart';
 import 'package:maglis_app/view/revenue.dart';
+import 'package:maglis_app/view/revenueNotApprovedDetails.dart';
 import 'package:maglis_app/view/salaries.dart';
 import 'package:maglis_app/view/sales.dart';
 import 'package:maglis_app/view/salesAll.dart';
@@ -75,7 +81,11 @@ class _MyAppState extends State<MyApp> {
         "/allScreens": (ctx) => AllScreens(),
         "/addOrder": (ctx) => AddOrder(),
         "/addRoute": (ctx) => AddRoute(),
-        "/newRoute": (ctx)=> NewRoutes(),
+        "/addRevenue": (ctx) => AddRevenue(),
+        "/approvedRevenue": (ctx) => ApprovedRevenue(),
+        "/newRoute": (ctx) => NewRoutes(),
+        "/onDistributionRoutes":(ctx)=> OnDistributionRoutes(),
+        "/onDistributionItem":(ctx)=>OnDistributionDetails(),
         "/beforeLogin": (ctx) => BeforeLogin(),
         "/home": (ctx) => HomePage(),
         "/login": (ctx) => LoginPage(),
@@ -85,6 +95,7 @@ class _MyAppState extends State<MyApp> {
         "/distribution": (ctx) => Distribution(),
         "/distributionCities": (ctx) => DistributionCities(),
         "/distributionType": (ctx) => DistributionType(),
+        "/onDistributionType":(ctx) => OnDistributionType(),
         "/reprePage": (ctx) => ReprePage(),
         "/representatives": (ctx) => RepresentativesPage(),
         "/addRepresentatives": (ctx) => AddRepresentatives(),
@@ -95,6 +106,7 @@ class _MyAppState extends State<MyApp> {
         "/revenue": (ctx) => Revenue(),
         "/expense": (ctx) => Expense(),
         "/expensesNotApprovedDetails": (ctx) => ExpensesNotApprovedDetails(),
+        "/revenueNotApprovedDetails": (ctx) => RevenueNotApprovedDetails(),
         "/cashFlow": (ctx) => CashFlow(),
         "/cashFlowDetails": (ctx) => CashFlowDetails(),
         "/collectedRoutes": (ctx) => CollectedRoutes(),
