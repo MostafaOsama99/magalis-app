@@ -80,7 +80,7 @@ class _DistributionState extends State<Distribution> {
                         ),
                       ),
                       InkWell(
-                        onTap: () {},
+                        onTap: () => Navigator.of(context).pushNamed('/collectedRoutes'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 170,
@@ -153,7 +153,7 @@ class _DistributionState extends State<Distribution> {
                         ),
                       ),
                       InkWell(
-                        onTap: () {},
+                        onTap: ()=> Navigator.of(context).pushNamed('/shippedRoute'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 170,

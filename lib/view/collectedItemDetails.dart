@@ -1,8 +1,15 @@
-//Screen 10
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class CollectedRoutes extends StatelessWidget {
+import 'package:maglis_app/widgets/orderTile.dart';
+
+class CollectedRoutes extends StatefulWidget {
+  @override
+  _CollectedRoutesState createState() => _CollectedRoutesState();
+}
+
+class _CollectedRoutesState extends State<CollectedRoutes> {
   @override
   Widget build(BuildContext context) {
     final map = ModalRoute.of(context).settings.arguments as Map;
@@ -61,11 +68,11 @@ class CollectedRoutes extends StatelessWidget {
             child: ListTile(
               leading: Image.asset('assets/images/PersonCheck.png'),
               title: Text(
-                'collected Routes',
+                'Collected Routes',
                 style: TextStyle(
                     color: Color.fromRGBO(170, 44, 94, 1),
                     fontWeight: FontWeight.bold,
-                    fontSize: 20),
+                    fontSize: 16),
               ),
             ),
           ),
@@ -86,43 +93,8 @@ class CollectedRoutes extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: InkWell(
                         onTap: () async {
-                          if (map != null) {
-                            if (map['type'] == 2) {
-                              final lastroutes =
-                                  routesData[i].data['orders'] as List;
-                              final routesId =
-                                  lastroutes.map((e) => e['docId']).toList();
-                              if (!routesId.contains(map['docId'])) {
-                                lastroutes.add({
-                                  'docId': map['docId'],
-                                  'name': map['name'],
-                                  'address': map['address'],
-                                  'totalAccount': map['totalAccount'],
-                                });
-                                final totalAmount =
-                                    routesData[i].data['totalAmount'] +
-                                        map['totalAccount'];
-                                await Firestore.instance
-                                    .collection('routes')
-                                    .document(routesData[i].documentID)
-                                    .updateData({
-                                  'orders': lastroutes,
-                                  'totalAmount': totalAmount,
-                                });
-                                await Firestore.instance
-                                    .collection('orders')
-                                    .document(map['docId'])
-                                    .updateData({'status': 'routed'});
-                                Navigator.of(context)
-                                    .pushNamed('/collectedItemDetails', arguments: {
-                                  'docId': routesData[i].documentID
-                                });
-                              }
-                            }
-                          } else {
-                            Navigator.of(context).pushNamed('/collectedItemDetails',
-                                arguments: {'docId': routesData[i].documentID});
-                          }
+                          Navigator.of(context).pushNamed('/collectedItemDetails',
+                              arguments: {'docId': routesData[i].documentID});
                         },
                         child: Container(
                           width: double.infinity,

@@ -145,10 +145,16 @@ class _NewRoutesState extends State<NewRoutes> {
                                   'address': map['address'],
                                   'totalAccount': map['totalAccount'],
                                 });
+                                final totalAmount =
+                                    routesData[i].data['totalAmount'] +
+                                        map['totalAccount'];
                                 await Firestore.instance
                                     .collection('routes')
                                     .document(routesData[i].documentID)
-                                    .updateData({'orders': lastroutes});
+                                    .updateData({
+                                  'orders': lastroutes,
+                                  'totalAmount': totalAmount,
+                                });
                                 await Firestore.instance
                                     .collection('orders')
                                     .document(map['docId'])

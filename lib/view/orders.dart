@@ -143,6 +143,7 @@ class _OrdersPageState extends State<OrdersPage> {
                         onTap: () async {
                           if (map['type'] == 4) {
                             final lastOrders = map['lastOrders'] as List;
+                            final totalAmount = map['amount'];
                             final ordersId =
                                 lastOrders.map((e) => e['docId']).toList();
                             if (!ordersId.contains(map['docId'])) {
@@ -153,10 +154,15 @@ class _OrdersPageState extends State<OrdersPage> {
                                 'totalAccount':
                                     ordersData[i].data['totalAccount'],
                               });
+                              final orderAmount = totalAmount +
+                                  ordersData[i].data['totalAccount'];
                               await Firestore.instance
                                   .collection('routes')
                                   .document(map['routeId'])
-                                  .updateData({'orders': lastOrders});
+                                  .updateData({
+                                'orders': lastOrders,
+                                'totalAmount': orderAmount
+                              });
                               await Firestore.instance
                                   .collection('orders')
                                   .document(ordersData[i].documentID)

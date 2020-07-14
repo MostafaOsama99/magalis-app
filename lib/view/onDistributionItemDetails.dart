@@ -8,12 +8,15 @@ class OnDistributionDetails extends StatefulWidget {
 }
 
 class _OnDistributionDetailsState extends State<OnDistributionDetails> {
+  TextEditingController textEditingController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final map = ModalRoute.of(context).settings.arguments as Map;
     final size = MediaQuery.of(context).size;
     bool loading = false;
     bool allShippedConfirmed = false;
+    GlobalKey scaffoldKey = GlobalKey();
     List<bool> shipped = [];
     return Scaffold(
       backgroundColor: Colors.grey[200],
@@ -26,11 +29,12 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
           width: 150,
         ),
       ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: Firestore.instance
+      resizeToAvoidBottomPadding: false,
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: Firestore.instance
             .collection('routes')
             .document(map['docId'])
-            .get(),
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting)
             return Center(
@@ -44,14 +48,17 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
           ordersList.forEach((element) {
             if (element['shipped'] == null) {
               allShippedConfirmed = false;
+              print('not called');
               return;
             }
             if (allShippedConfirmed) {
-              if (element['shipped']) {
+              if (element['shipped'] != null) {
+                print('called');
                 allShippedConfirmed = true;
                 return;
               }
             }
+            print('dont called');
             allShippedConfirmed = false;
           });
           return Column(
@@ -79,7 +86,7 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                 height: 10,
               ),
               Container(
-                height: 150,
+                height: 180,
                 width: MediaQuery.of(context).size.width,
                 color: Colors.white,
                 padding: EdgeInsets.only(left: 12),
@@ -111,6 +118,13 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                     ),
                     Text(
                       'Orders: ${ordersList.length} Orders',
+                      style: TextStyle(
+                          color: Color.fromRGBO(96, 125, 130, 1),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                    ),
+                    Text(
+                      'Total Amount: ${routeData['totalAmount']} EGP',
                       style: TextStyle(
                           color: Color.fromRGBO(96, 125, 130, 1),
                           fontWeight: FontWeight.bold,
@@ -190,70 +204,95 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                       children: <Widget>[
                                         Expanded(child: SizedBox()),
                                         InkWell(
-                                          onTap: () async {
-                                            final reasonController =
-                                                TextEditingController();
-                                            bool confirmed = await showDialog(
-                                              context: context,
-                                              child: AlertDialog(
-                                                title: Text('Give The Reason:'),
-                                                content: TextField(
-                                                  controller: reasonController,
-                                                  decoration: InputDecoration(
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderSide: BorderSide(
-                                                            color: Colors.grey,
-                                                            width: 1.5),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(25),
-                                                      ),
-                                                      labelText: 'Reason'),
-                                                ),
-                                                actions: <Widget>[
-                                                  FlatButton(
-                                                    onPressed: () {
-                                                      Navigator.of(context)
-                                                          .pop(false);
-                                                    },
-                                                    child: Text(
-                                                      'Cancel',
-                                                      style: TextStyle(
-                                                          color: Colors.red),
+                                          onTap: () {
+                                            showDialog(
+                                                useRootNavigator: true,
+                                                context: context,
+                                                builder: (context) {
+                                                  return AlertDialog(
+                                                    title: Text(
+                                                        'Give The Reason:'),
+                                                    content: TextField(
+                                                      controller:
+                                                          textEditingController,
+                                                      textInputAction:
+                                                          TextInputAction.done,
+                                                      decoration:
+                                                          InputDecoration(
+                                                              border:
+                                                                  OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                    color: Colors
+                                                                        .grey,
+                                                                    width: 1.5),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            25),
+                                                              ),
+                                                              labelText:
+                                                                  'Reason'),
                                                     ),
-                                                  ),
-                                                  FlatButton(
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop(true);
-                                                      },
-                                                      child: Text(
-                                                        'Send',
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.green),
-                                                      ))
-                                                ],
-                                              ),
-                                            );
-                                            if (reasonController.text.isEmpty &&
-                                                !confirmed) {
-                                              Navigator.of(context).pop();
-                                              return;
-                                            }
-                                            ordersList[index]['shipped'] =
-                                                false;
-                                            ordersList[index]['reason'] =
-                                                reasonController.text;
-                                            Firestore.instance
-                                                .collection('routes')
-                                                .document(
-                                                    snapshot.data.documentID)
-                                                .updateData(
-                                                    {'orders': ordersList});
-                                            setState(() {});
-                                            Navigator.of(context).pop();
+                                                    actions: <Widget>[
+                                                      FlatButton(
+                                                        onPressed: () {
+                                                          textEditingController
+                                                              .clear();
+
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        child: Text(
+                                                          'Cancel',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.red),
+                                                        ),
+                                                      ),
+                                                      FlatButton(
+                                                          onPressed: () async {
+                                                            ordersList[index][
+                                                                    'shipped'] =
+                                                                false;
+                                                            final totalAmount = routeData[
+                                                                    'totalAmount'] -
+                                                                ordersList[
+                                                                        index][
+                                                                    'totalAccount'];
+                                                            ordersList[index]
+                                                                    ['reason'] =
+                                                                textEditingController
+                                                                    .text;
+                                                            textEditingController
+                                                                .clear();
+                                                            Firestore.instance
+                                                                .collection(
+                                                                    'routes')
+                                                                .document(snapshot
+                                                                    .data
+                                                                    .documentID)
+                                                                .updateData(
+                                                              {
+                                                                'orders':
+                                                                    ordersList,
+                                                                'totalAmount':
+                                                                    totalAmount
+                                                              },
+                                                            );
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                            setState(() {});
+                                                          },
+                                                          child: Text(
+                                                            'Send',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .green),
+                                                          ))
+                                                    ],
+                                                  );
+                                                });
                                           },
                                           child: Text(
                                             'Not Shipped',
@@ -310,14 +349,15 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                             if (confirmation) {
                                               ordersList[index]['shipped'] =
                                                   true;
+
                                               Firestore.instance
                                                   .collection('routes')
                                                   .document(
                                                       snapshot.data.documentID)
                                                   .updateData(
                                                       {'orders': ordersList});
+                                              setState(() {});
                                             }
-                                            setState(() {});
                                           },
                                           child: Text(
                                             'Shipped',
@@ -360,9 +400,6 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                   : allShippedConfirmed
                       ? InkWell(
                           onTap: () async {
-                            setState(() {
-                              loading = true;
-                            });
                             final amountController = TextEditingController();
                             final confirm = await showDialog(
                               context: context,
@@ -377,16 +414,10 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                             color: Colors.grey, width: 1.5),
                                         borderRadius: BorderRadius.circular(25),
                                       ),
-                                      labelText: 'Fees',hintText: 'Enter The Distribution Fees:'),
+                                      labelText: 'Fees',
+                                      hintText: 'Enter The Distribution Fees:'),
                                 ),
                                 actions: <Widget>[
-                                  FlatButton(
-                                    child: Text('Ok',
-                                        style: TextStyle(color: Colors.green)),
-                                    onPressed: () {
-                                      Navigator.of(context).pop(true);
-                                    },
-                                  ),
                                   FlatButton(
                                     child: Text(
                                       'Cancel',
@@ -395,7 +426,14 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                     onPressed: () {
                                       Navigator.of(context).pop(false);
                                     },
-                                  )
+                                  ),
+                                  FlatButton(
+                                    child: Text('Ok',
+                                        style: TextStyle(color: Colors.green)),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true);
+                                    },
+                                  ),
                                 ],
                               ),
                             );
@@ -409,22 +447,7 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                 'fees': double.parse(amountController.text)
                               },
                             );
-                            await showDialog(
-                              context: context,
-                              child: AlertDialog(
-                                title: Text('Confirmed'),
-                                content: Text('This item has been confirmed'),
-                                actions: <Widget>[
-                                  FlatButton(
-                                    child: Text('Ok'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  )
-                                ],
-                              ),
-                            );
-                            Navigator.of(context)
+                            Navigator.of(context, rootNavigator: true)
                                 .pushReplacementNamed('/newRoute');
                           },
                           child: Container(

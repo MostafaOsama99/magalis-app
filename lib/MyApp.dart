@@ -15,6 +15,7 @@ import 'package:maglis_app/view/approvedDetails.dart';
 import 'package:maglis_app/view/approvedRevenue.dart';
 import 'package:maglis_app/view/approvedTwo.dart';
 import 'package:maglis_app/view/beforeLogin.dart';
+import 'package:maglis_app/view/collectedRouteDetails.dart';
 import 'package:maglis_app/view/distribute.dart';
 import 'package:maglis_app/view/cashFlow.dart';
 import 'package:maglis_app/view/cashFlowDetails.dart';
@@ -59,6 +60,7 @@ import 'package:maglis_app/view/salesHome.dart';
 import 'package:maglis_app/view/OrderDetails.dart';
 import 'package:maglis_app/view/sentPage.dart';
 import 'package:maglis_app/view/shipment.dart';
+import 'package:maglis_app/view/shippedRouteScreen.dart';
 import 'package:maglis_app/view/splashscreen.dart';
 import 'package:maglis_app/view/RouteItemDetails.dart';
 import 'package:maglis_app/view/OrderRouteDetails.dart';
@@ -84,8 +86,8 @@ class _MyAppState extends State<MyApp> {
         "/addRevenue": (ctx) => AddRevenue(),
         "/approvedRevenue": (ctx) => ApprovedRevenue(),
         "/newRoute": (ctx) => NewRoutes(),
-        "/onDistributionRoutes":(ctx)=> OnDistributionRoutes(),
-        "/onDistributionItem":(ctx)=>OnDistributionDetails(),
+        "/onDistributionRoutes": (ctx) => OnDistributionRoutes(),
+        "/onDistributionItem": (ctx) => OnDistributionDetails(),
         "/beforeLogin": (ctx) => BeforeLogin(),
         "/home": (ctx) => HomePage(),
         "/login": (ctx) => LoginPage(),
@@ -95,12 +97,13 @@ class _MyAppState extends State<MyApp> {
         "/distribution": (ctx) => Distribution(),
         "/distributionCities": (ctx) => DistributionCities(),
         "/distributionType": (ctx) => DistributionType(),
-        "/onDistributionType":(ctx) => OnDistributionType(),
+        "/onDistributionType": (ctx) => OnDistributionType(),
         "/reprePage": (ctx) => ReprePage(),
         "/representatives": (ctx) => RepresentativesPage(),
         "/addRepresentatives": (ctx) => AddRepresentatives(),
         "/financeAndShipments": (ctx) => FinanceAndShipments(),
         "/shipments": (ctx) => Shipments(),
+        "/shippedRoute": (ctx) => ShippedRouteScreen(),
         "/admin": (ctx) => AdminPage(),
         "/finance": (ctx) => Finance(),
         "/revenue": (ctx) => Revenue(),
@@ -110,6 +113,7 @@ class _MyAppState extends State<MyApp> {
         "/cashFlow": (ctx) => CashFlow(),
         "/cashFlowDetails": (ctx) => CashFlowDetails(),
         "/collectedRoutes": (ctx) => CollectedRoutes(),
+        "/collectedItemDetails":(ctx)=> CollectedDetails(),
         "/dateScreen": (ctx) => DateScreen(),
         "/dateDetails": (ctx) => DateDetails(),
         "/routeItemDetails": (ctx) => RouteItemDetails(),

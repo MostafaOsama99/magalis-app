@@ -12,31 +12,32 @@ class _ApprovedRevenueState extends State<ApprovedRevenue> {
     final size = MediaQuery.of(context).size;
     final map = ModalRoute.of(context).settings.arguments as Map;
     Stream revenuetream;
-    print(map['date']);
 
-    if (map['type'] == 1) {
-      revenuetream = Firestore.instance
-          .collection('revenue')
-          .where('date', isEqualTo: map['date'])
-          .where('approved', isEqualTo: true)
-          .snapshots();
-    } else if (map['type'] == 2) {
-      revenuetream = Firestore.instance
-          .collection('revenue')
-          .where('userName', isEqualTo: map['date'])
-          .where('approved', isEqualTo: true)
-          .snapshots();
-    } else if (map['type'] == 3) {
-      revenuetream = Firestore.instance
-          .collection('revenue')
-          .where('supplier', isEqualTo: map['date'])
-          .where('approved', isEqualTo: true)
-          .snapshots();
-    } else {
-      revenuetream = Firestore.instance
-          .collection('revenue')
-          .where('approved', isEqualTo: true)
-          .snapshots();
+    if (map != null) {
+      if (map['type'] == 1) {
+        revenuetream = Firestore.instance
+            .collection('revenue')
+            .where('date', isEqualTo: map['date'])
+            .where('approved', isEqualTo: true)
+            .snapshots();
+      } else if (map['type'] == 2) {
+        revenuetream = Firestore.instance
+            .collection('revenue')
+            .where('userName', isEqualTo: map['date'])
+            .where('approved', isEqualTo: true)
+            .snapshots();
+      } else if (map['type'] == 3) {
+        revenuetream = Firestore.instance
+            .collection('revenue')
+            .where('supplier', isEqualTo: map['date'])
+            .where('approved', isEqualTo: true)
+            .snapshots();
+      } else {
+        revenuetream = Firestore.instance
+            .collection('revenue')
+            .where('approved', isEqualTo: true)
+            .snapshots();
+      }
     }
     return Scaffold(
       backgroundColor: Colors.grey[200],
@@ -61,7 +62,7 @@ class _ApprovedRevenueState extends State<ApprovedRevenue> {
               color: Colors.white,
               child: ListTile(
                 title: Text(
-                  'Approved ',
+                  'Approved',
                   style: TextStyle(
                       color: Color.fromRGBO(170, 44, 94, 1),
                       fontWeight: FontWeight.bold,
@@ -74,7 +75,10 @@ class _ApprovedRevenueState extends State<ApprovedRevenue> {
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: revenuetream,
+                stream: Firestore.instance
+                    .collection('revenue')
+                    .where('approved', isEqualTo: true)
+                    .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting)
                     return Center(
@@ -112,7 +116,7 @@ class _ApprovedRevenueState extends State<ApprovedRevenue> {
       {String suplierName,
       String userName,
       String date,
-      int amount,
+      double amount,
       String documentId}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),

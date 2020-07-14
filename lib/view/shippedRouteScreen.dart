@@ -1,52 +1,14 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'package:maglis_app/widgets/orderTile.dart';
-
-class OnDistributionRoutes extends StatefulWidget {
+class ShippedRouteScreen extends StatefulWidget {
   @override
-  _OnDistributionRoutesState createState() => _OnDistributionRoutesState();
+  _ShippedRouteScreenState createState() => _ShippedRouteScreenState();
 }
 
-class _OnDistributionRoutesState extends State<OnDistributionRoutes> {
+class _ShippedRouteScreenState extends State<ShippedRouteScreen> {
   @override
   Widget build(BuildContext context) {
-    final map = ModalRoute.of(context).settings.arguments as Map;
-    Stream routestream;
-    if (map != null) {
-      print(map['date']);
-      if (map['type'] == 1) {
-        routestream = Firestore.instance
-            .collection('routes')
-            .where('createdAt', isEqualTo: map['date'])
-            .where('status', isEqualTo: 'onDistribution')
-            .snapshots();
-      } else if (map['type'] == 2) {
-        routestream = Firestore.instance
-            .collection('routes')
-            .where('name', isEqualTo: map['date'])
-            .where('status', isEqualTo: 'onDistribution')
-            .snapshots();
-      } else if (map['type'] == 3) {
-        routestream = Firestore.instance
-            .collection('routes')
-            .where('area', isEqualTo: map['date'])
-            .where('status', isEqualTo: 'onDistribution')
-            .snapshots();
-      } else {
-        routestream = Firestore.instance
-            .collection('routes')
-            .where('status', isEqualTo: 'onDistribution')
-            .snapshots();
-      }
-    } else {
-      routestream = Firestore.instance
-          .collection('routes')
-          .where('status', isEqualTo: 'onDistribution')
-          .snapshots();
-    }
-
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -68,7 +30,7 @@ class _OnDistributionRoutesState extends State<OnDistributionRoutes> {
             child: ListTile(
               leading: Image.asset('assets/images/NotApproved.png'),
               title: Text(
-                'On Distribution Routes',
+                'Shipped Routes',
                 style: TextStyle(
                     color: Color.fromRGBO(170, 44, 94, 1),
                     fontWeight: FontWeight.bold,
@@ -117,7 +79,10 @@ class _OnDistributionRoutesState extends State<OnDistributionRoutes> {
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: routestream,
+              stream: Firestore.instance
+                  .collection('routes')
+                  .where('status', isEqualTo: 'shipped')
+                  .snapshots(),
               builder: (context, snapshot) {
                 final routesData = snapshot.data.documents;
                 if (snapshot.connectionState == ConnectionState.waiting)
@@ -126,15 +91,14 @@ class _OnDistributionRoutesState extends State<OnDistributionRoutes> {
                   );
 
                 return ListView.builder(
-                  itemCount: snapshot.data.documents.length,
+                  itemCount: routesData.length,
                   itemBuilder: (context, i) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: InkWell(
-                        onTap: () async {
-                          Navigator.of(context).pushNamed('/onDistributionItem',
-                              arguments: {'docId': routesData[i].documentID});
-                        },
+                        onTap: () => Navigator.of(context).pushNamed(
+                            '/onDistributionItem',
+                            arguments: {'docId': routesData[i].documentID}),
                         child: Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
@@ -162,26 +126,71 @@ class _OnDistributionRoutesState extends State<OnDistributionRoutes> {
                                         color: Color.fromRGBO(170, 44, 94, 1),
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18),
-                                  ),
-                                  Icon(
-                                    Icons.info,
-                                    color: Colors.amber,
+                                  ), //rgb(130, 34, 94)
+                                  RaisedButton(
+                                    onPressed: () {
+                                      Firestore.instance
+                                          .collection('routes')
+                                          .document(routesData[i].documentID)
+                                          .updateData({'status': 'cashed'});
+                                      Navigator.of(context)
+                                          .pushReplacementNamed('/cashFlow');
+                                    },
+                                    child: Text(
+                                      'Add to Finance',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    color: Color.fromRGBO(130, 34, 94, 1),
+                                    elevation: 8,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    padding: EdgeInsets.all(8),
                                   )
                                 ],
                               ),
-                              Text(
-                                'Area: ${routesData[i].data['area']}',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16),
+                              Divider(
+                                color: Colors.black.withOpacity(0.6),
+                                thickness: 2,
                               ),
-                              Text(
-                                'Date: ${routesData[i].data['date']}', //date
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(
+                                    'Area: ${routesData[i].data['area']}',
+                                    style: TextStyle(
+                                        color: Color.fromRGBO(170, 44, 94, 1),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                  Text(
+                                    'Date: ${routesData[i].data['date']}', //date
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 16),
+                                  )
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(
+                                    'Cash: ${routesData[i].data['totalAmount']} EGP',
+                                    style: TextStyle(
+                                        color: Color.fromRGBO(170, 44, 94, 1),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                  Text(
+                                    'Fee: ${routesData[i].data['fees']} EGP', //date
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 16),
+                                  )
+                                ],
                               )
                             ],
                           ),

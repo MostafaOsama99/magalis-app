@@ -112,7 +112,7 @@ class _ApprovedDetailsState extends State<ApprovedDetails> {
       {String suplierName,
       String userName,
       String date,
-      int amount,
+      double amount,
       String documentId}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),

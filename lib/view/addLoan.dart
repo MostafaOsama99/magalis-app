@@ -9,14 +9,20 @@ class AddLoans extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final docId = (ModalRoute.of(context).settings.arguments as Map)['id'];
-    final docName = (ModalRoute.of(context).settings.arguments as Map)['name'];
-    final docMoney =
-        (ModalRoute.of(context).settings.arguments as Map)['money'];
-
-    if (docId != null) {
-      nameController.text = docName;
-      moneyController.text = docMoney;
+    var map = (ModalRoute.of(context).settings.arguments as Map);
+    var docId;
+    var docName;
+    var docMoney;
+    if (map != null) {
+      docId = map['id'];
+      docName = map['name'];
+      docMoney = map['money'];
+      if (docId != null) {
+        nameController.text = docName;
+        moneyController.text = docMoney;
+      } else {
+        moneyController.text = docMoney;
+      }
     }
     return Scaffold(
       backgroundColor: Colors.grey[200],

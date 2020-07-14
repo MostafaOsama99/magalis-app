@@ -90,7 +90,7 @@ class _ApprovedOneState extends State<ApprovedOne> {
                           children: <Widget>[
                             InkWell(
                               onTap: () => Navigator.of(context)
-                                  .pushNamed('/dateScreen', arguments: {
+                                  .pushNamed('/approvedRevenue', arguments: {
                                 'route': '/approvedRevenue',
                                 'date': dates,
                                 'type': 1,
@@ -129,7 +129,7 @@ class _ApprovedOneState extends State<ApprovedOne> {
                             ),
                             InkWell(
                               onTap: () => Navigator.of(context)
-                                    .pushNamed('/dateScreen', arguments: {
+                                    .pushNamed('/approvedRevenue', arguments: {
                                   'route': '/approvedRevenue',
                                   'date': userName,
                                   'type': 2,

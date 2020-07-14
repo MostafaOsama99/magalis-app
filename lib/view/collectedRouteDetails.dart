@@ -2,17 +2,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class RouteItemDetails extends StatefulWidget {
+class CollectedDetails extends StatefulWidget {
   @override
-  _RouteItemDetailsState createState() => _RouteItemDetailsState();
+  _CollectedDetailsState createState() => _CollectedDetailsState();
 }
 
-class _RouteItemDetailsState extends State<RouteItemDetails> {
+class _CollectedDetailsState extends State<CollectedDetails> {
+  TextEditingController textEditingController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final map = ModalRoute.of(context).settings.arguments as Map;
     final size = MediaQuery.of(context).size;
-    bool loading = false;
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -24,11 +25,12 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
           width: 150,
         ),
       ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: Firestore.instance
+      resizeToAvoidBottomPadding: false,
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: Firestore.instance
             .collection('routes')
             .document(map['docId'])
-            .get(),
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting)
             return Center(
@@ -36,6 +38,7 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
             );
           final routeData = snapshot.data.data;
           final ordersList = routeData['orders'] as List;
+
           return Column(
             children: <Widget>[
               SizedBox(
@@ -61,7 +64,7 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                 height: 10,
               ),
               Container(
-                height: 150,
+                height: 180,
                 width: MediaQuery.of(context).size.width,
                 color: Colors.white,
                 padding: EdgeInsets.only(left: 12),
@@ -99,6 +102,20 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                           fontSize: 16),
                     ),
                     Text(
+                      'Total Amount: ${routeData['totalAmount']} EGP',
+                      style: TextStyle(
+                          color: Color.fromRGBO(96, 125, 130, 1),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                    ),
+                    Text(
+                      'Fees: ${routeData['fees']} EGP',
+                      style: TextStyle(
+                          color: Color.fromRGBO(96, 125, 130, 1),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                    ),
+                    Text(
                       'Status: ${routeData['status']}',
                       style: TextStyle(
                           color: Color.fromRGBO(96, 125, 130, 1),
@@ -121,33 +138,65 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: ListTile(
-                          onTap: () => Navigator.of(context).pushNamed(
-                              '/orderRouteDetails',
-                              arguments: {'docId': ordersList[index]['docId']}),
-                          title: Text(
-                            '${ordersList[index]['name']}',
-                            style: TextStyle(
-                                color: Color.fromRGBO(170, 44, 94, 1),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18),
-                          ),
-                          subtitle: Text(
-                            '${ordersList[index]['address']}',
-                            style: TextStyle(
-                                color: Color.fromRGBO(96, 125, 130, 1),
-                                fontSize: 14),
-                          ),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
+                        child: Column(
+                          children: <Widget>[
+                            ListTile(
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed('/orderRouteDetails', arguments: {
+                                'docId': ordersList[index]['docId']
+                              }),
+                              title: Row(
+                                children: <Widget>[
+                                  Text(
+                                    '${ordersList[index]['name']}',
+                                    style: TextStyle(
+                                        color: Color.fromRGBO(170, 44, 94, 1),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18),
+                                  ),
+                                ],
+                              ),
+                              subtitle: Text(
+                                '${ordersList[index]['address']}',
+                                style: TextStyle(
+                                    color: Color.fromRGBO(96, 125, 130, 1),
+                                    fontSize: 14),
+                              ),
+                              trailing: Text(
                                 '${ordersList[index]['totalAccount']} EGP',
                                 style: TextStyle(
                                     color: Colors.black, fontSize: 18),
-                              )
-                            ],
-                          ),
+                              ),
+                            ),
+                            Container(
+                              width: MediaQuery.of(context).size.width,
+                              height: 50,
+                              margin: EdgeInsets.symmetric(horizontal: 12),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 6),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border:
+                                      Border.all(color: Colors.grey, width: 2),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(15),
+                                    topRight: Radius.circular(15),
+                                  )),
+                              child: ordersList[index]['shipped'] 
+                                  ? Center(
+                                      child: Text(
+                                        'Shipped',
+                                        style: TextStyle(color: Colors.green),
+                                      ),
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        'Not Shipped',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                            ),
+                          ],
                         ),
                       );
                     },
@@ -155,78 +204,6 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                   ),
                 ),
               ),
-              loading
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : InkWell(
-                      onTap: () async {
-                        setState(() {
-                          loading = true;
-                        });
-                        await Firestore.instance
-                            .collection('routes')
-                            .document(snapshot.data.documentID)
-                            .updateData({'status': 'onDistribution'});
-                        await showDialog(
-                          context: context,
-                          child: AlertDialog(
-                            title: Text('Confirmed'),
-                            content: Text('This item has been confirmed'),
-                            actions: <Widget>[
-                              FlatButton(
-                                child: Text('Ok'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              )
-                            ],
-                          ),
-                        );
-                        Navigator.of(context).pushReplacementNamed('/newRoute');
-                      },
-                      child: Container(
-                        color: Color.fromRGBO(170, 44, 94, 1),
-                        width: size.width,
-                        height: 50,
-                        child: Center(
-                          child: Text(
-                            'Push to On Distribution',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                    ),
-              SizedBox(
-                height: 8,
-              ),
-              InkWell(
-                onTap: () {
-                  Navigator.of(context)
-                      .pushReplacementNamed('/orders', arguments: {
-                    'type': 4,
-                    'routeId': snapshot.data.documentID,
-                    'lastOrders': ordersList,
-                    'amount': snapshot.data.data['totalAmount'],
-                    'logo': 'assets/images/AllIcon.png',
-                    'title': 'All'
-                  });
-                },
-                child: Container(
-                  color: Color.fromRGBO(170, 44, 94, 1),
-                  width: size.width,
-                  height: 50,
-                  child: Center(
-                    child: Text(
-                      'ADD Order',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              )
             ],
           );
         },
