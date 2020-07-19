@@ -15,6 +15,9 @@ import 'package:maglis_app/view/approvedDetails.dart';
 import 'package:maglis_app/view/approvedRevenue.dart';
 import 'package:maglis_app/view/approvedTwo.dart';
 import 'package:maglis_app/view/beforeLogin.dart';
+import 'package:maglis_app/view/blCalculation.dart';
+import 'package:maglis_app/view/citiesOrders.dart';
+import 'package:maglis_app/view/citiyOrderDetails.dart';
 import 'package:maglis_app/view/collectedRouteDetails.dart';
 import 'package:maglis_app/view/distribute.dart';
 import 'package:maglis_app/view/cashFlow.dart';
@@ -24,7 +27,9 @@ import 'package:maglis_app/view/customerServicesHome.dart';
 import 'package:maglis_app/view/dateDetails.dart';
 import 'package:maglis_app/view/dateScreen.dart';
 import 'package:maglis_app/view/distributionCities.dart';
+import 'package:maglis_app/view/distributionHome.dart';
 import 'package:maglis_app/view/distributionType.dart';
+import 'package:maglis_app/view/editOrder.dart';
 import 'package:maglis_app/view/expenses.dart';
 import 'package:maglis_app/view/expensesNotApprobedDetails.dart';
 import 'package:maglis_app/view/finance.dart';
@@ -64,6 +69,7 @@ import 'package:maglis_app/view/shippedRouteScreen.dart';
 import 'package:maglis_app/view/splashscreen.dart';
 import 'package:maglis_app/view/RouteItemDetails.dart';
 import 'package:maglis_app/view/OrderRouteDetails.dart';
+import 'package:maglis_app/view/orderHome.dart';
 
 import 'view/allScreens.dart';
 
@@ -85,6 +91,7 @@ class _MyAppState extends State<MyApp> {
         "/addRoute": (ctx) => AddRoute(),
         "/addRevenue": (ctx) => AddRevenue(),
         "/approvedRevenue": (ctx) => ApprovedRevenue(),
+        "/blCalc": (ctx) => BlCalc(),
         "/newRoute": (ctx) => NewRoutes(),
         "/onDistributionRoutes": (ctx) => OnDistributionRoutes(),
         "/onDistributionItem": (ctx) => OnDistributionDetails(),
@@ -92,12 +99,16 @@ class _MyAppState extends State<MyApp> {
         "/home": (ctx) => HomePage(),
         "/login": (ctx) => LoginPage(),
         "/orders": (ctx) => OrdersPage(),
-        "/orderScreen": (ctx) => OrderScreen(),
+        "/orderScreen": (ctx) => OrderHomeScreen(),
         "/orderDetails": (ctx) => OrderDetails(),
+        "/citiesOrders": (ctx) => CitiesOrders(),
+        "/citiyOrderDetails": (ctx) => CitiyOrderDetails(),
         "/distribution": (ctx) => Distribution(),
+        "/distributionHome": (ctx) => DistributionHome(),
         "/distributionCities": (ctx) => DistributionCities(),
         "/distributionType": (ctx) => DistributionType(),
         "/onDistributionType": (ctx) => OnDistributionType(),
+        "/editOrder": (ctx) => EditOrder(),
         "/reprePage": (ctx) => ReprePage(),
         "/representatives": (ctx) => RepresentativesPage(),
         "/addRepresentatives": (ctx) => AddRepresentatives(),
@@ -113,7 +124,7 @@ class _MyAppState extends State<MyApp> {
         "/cashFlow": (ctx) => CashFlow(),
         "/cashFlowDetails": (ctx) => CashFlowDetails(),
         "/collectedRoutes": (ctx) => CollectedRoutes(),
-        "/collectedItemDetails":(ctx)=> CollectedDetails(),
+        "/collectedItemDetails": (ctx) => CollectedDetails(),
         "/dateScreen": (ctx) => DateScreen(),
         "/dateDetails": (ctx) => DateDetails(),
         "/routeItemDetails": (ctx) => RouteItemDetails(),

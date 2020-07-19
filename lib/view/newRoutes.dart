@@ -155,14 +155,34 @@ class _NewRoutesState extends State<NewRoutes> {
                                   'orders': lastroutes,
                                   'totalAmount': totalAmount,
                                 });
-                                await Firestore.instance
-                                    .collection('orders')
-                                    .document(map['docId'])
-                                    .updateData({'status': 'routed'});
-                                Navigator.of(context)
-                                    .pushNamed('/routeItemDetails', arguments: {
-                                  'docId': routesData[i].documentID
-                                });
+                                Navigator.of(context).pushReplacementNamed(
+                                  '/distribution',
+                                );
+                              } else {
+                                showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                          content: Text(
+                                              'This item is already exit in this route'),
+                                          actions: <Widget>[
+                                            FlatButton(
+                                                onPressed: () {
+                                                  Firestore.instance
+                                                      .collection('orders')
+                                                      .document(map['docId'])
+                                                      .updateData({
+                                                    'status': 'onDistribution'
+                                                  }).then(
+                                                    (value) => Navigator.of(
+                                                            context)
+                                                        .pushReplacementNamed(
+                                                      '/distribution',
+                                                    ),
+                                                  );
+                                                },
+                                                child: Text('OK!'))
+                                          ],
+                                        ));
                               }
                             }
                           } else {

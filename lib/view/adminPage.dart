@@ -49,7 +49,7 @@ class AdminPage extends StatelessWidget {
                       ),
                       InkWell(
                         onTap: () =>
-                            Navigator.of(context).pushNamed('/distribution'),
+                            Navigator.of(context).pushNamed('/distributionHome'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 150,

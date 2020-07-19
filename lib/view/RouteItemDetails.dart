@@ -168,6 +168,12 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                             .collection('routes')
                             .document(snapshot.data.documentID)
                             .updateData({'status': 'onDistribution'});
+                        ordersList.forEach((element) async{
+                         await Firestore.instance
+                              .collection('orders')
+                              .document(element['docId'])
+                              .updateData({'status': 'onDistribution'});
+                        });
                         await showDialog(
                           context: context,
                           child: AlertDialog(
@@ -209,6 +215,7 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                     'type': 4,
                     'routeId': snapshot.data.documentID,
                     'lastOrders': ordersList,
+                    'status':'noAction',
                     'amount': snapshot.data.data['totalAmount'],
                     'logo': 'assets/images/AllIcon.png',
                     'title': 'All'

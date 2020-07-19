@@ -80,14 +80,15 @@ class _FinanceState extends State<Finance> {
                         ),
                       ),
                       InkWell(
-                        onTap: ()=>Navigator.of(context).pushNamed('/expense'),
-                                              child: Container(
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/expense'),
+                        child: Container(
                             width: size.width / 2.25,
                             height: 150,
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              border:
-                                  Border.all(width: 2.5, color: Colors.grey[400]),
+                              border: Border.all(
+                                  width: 2.5, color: Colors.grey[400]),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
@@ -148,6 +149,46 @@ class _FinanceState extends State<Finance> {
                           ),
                         ),
                       ),
+                      InkWell(
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/blCalc'),
+                        child: Container(
+                          width: size.width / 2.25,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border:
+                                Border.all(width: 2.5, color: Colors.grey[400]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: <Widget>[
+                              Container(
+                                width: 100,
+                                height: 100,
+                                child:
+                                    Image.asset('assets/images/CashFlow.png'),
+                              ),
+                              Text(
+                                'B/L Calc',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    color: Color.fromRGBO(134, 134, 134, 1),
+                                    fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
                       Container(
                         width: size.width / 2.25,
                         height: 150,
@@ -181,14 +222,6 @@ class _FinanceState extends State<Finance> {
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
                       InkWell(
                         onTap: () =>
                             Navigator.of(context).pushNamed('/salaries'),

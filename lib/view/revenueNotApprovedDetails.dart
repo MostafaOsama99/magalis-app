@@ -19,18 +19,18 @@ class _ApprovedDetailsState extends State<RevenueNotApprovedDetails> {
       revenuetream = Firestore.instance
           .collection('revenue')
           .where('date', isEqualTo: map['date'])
-          .where('approved', isEqualTo: false)
+          .where('status', isEqualTo: 'notApproved')
           .snapshots();
     } else if (map['type'] == 2) {
       revenuetream = Firestore.instance
           .collection('revenue')
           .where('userName', isEqualTo: map['date'])
-          .where('approved', isEqualTo: false)
+          .where('status', isEqualTo: 'notApproved')
           .snapshots();
     } else {
       revenuetream = Firestore.instance
           .collection('revenue')
-          .where('approved', isEqualTo: false)
+          .where('status', isEqualTo: 'notApproved')
           .snapshots();
     }
     return Scaffold(

@@ -36,6 +36,8 @@ dependencies:
   firebase_storage:
   file_picker:
   image_picker:
+  autocomplete_textfield: ^1.7.3
+
   
 
 dev_dependencies:

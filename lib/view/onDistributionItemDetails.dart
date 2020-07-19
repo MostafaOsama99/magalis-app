@@ -9,6 +9,7 @@ class OnDistributionDetails extends StatefulWidget {
 
 class _OnDistributionDetailsState extends State<OnDistributionDetails> {
   TextEditingController textEditingController = TextEditingController();
+  List<Map> orderState = [];
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +17,7 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
     final size = MediaQuery.of(context).size;
     bool loading = false;
     bool allShippedConfirmed = false;
-    GlobalKey scaffoldKey = GlobalKey();
-    List<bool> shipped = [];
+
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -265,6 +265,13 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                                                     .text;
                                                             textEditingController
                                                                 .clear();
+                                                            orderState.add({
+                                                              'docId':
+                                                                  ordersList[
+                                                                          index]
+                                                                      ['docId'],
+                                                              'shipped': false,
+                                                            });
                                                             Firestore.instance
                                                                 .collection(
                                                                     'routes')
@@ -350,6 +357,11 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                               ordersList[index]['shipped'] =
                                                   true;
 
+                                              orderState.add({
+                                                'docId': ordersList[index]
+                                                    ['docId'],
+                                                'shipped': true,
+                                              });
                                               Firestore.instance
                                                   .collection('routes')
                                                   .document(
@@ -438,6 +450,22 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                               ),
                             );
                             if (!confirm) return;
+                            ordersList.forEach((element) async {
+                              print(element);
+                              if (element['shipped']) {
+                                print('shipped');
+                                await Firestore.instance
+                                    .collection('orders')
+                                    .document(element['docId'])
+                                    .updateData({'status': 'shipped'});
+                              } else {
+                                print('canceled');
+                                await Firestore.instance
+                                    .collection('orders')
+                                    .document(element['docId'])
+                                    .updateData({'status': 'canceled'});
+                              }
+                            });
                             await Firestore.instance
                                 .collection('routes')
                                 .document(snapshot.data.documentID)

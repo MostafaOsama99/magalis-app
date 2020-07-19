@@ -30,7 +30,7 @@ class _ApprovedDetailsState extends State<NotApprovedDetails> {
             color: Colors.white,
             child: ListTile(
               title: Text(
-                'Not Approved ',
+                'Not Approved',
                 style: TextStyle(
                     color: Color.fromRGBO(170, 44, 94, 1),
                     fontWeight: FontWeight.bold,
@@ -42,16 +42,22 @@ class _ApprovedDetailsState extends State<NotApprovedDetails> {
             height: 10,
           ),
           StreamBuilder<QuerySnapshot>(
-              stream: Firestore.instance.collection('expenses').snapshots(),
+              stream: Firestore.instance
+                  .collection('expenses')
+                  .where('status', isEqualTo: 'notApproved')
+                  .snapshots(),
               builder: (context, snapshot) {
                 return ListView.builder(
                   itemBuilder: (ctx, index) {
+                    print(index);
                     final userName =
                         snapshot.data.documents[index].data['userName'];
                     final supplier =
                         snapshot.data.documents[index].data['supplier'];
                     final date = snapshot.data.documents[index].data['date'];
-                    final amount = snapshot.data.documents[index].data['amount'];
+                    final amount =
+                        snapshot.data.documents[index].data['amount'];
+                    return approvedTile(supplier, userName, date, amount);
                   },
                   itemCount: snapshot.data.documents.length,
                 );

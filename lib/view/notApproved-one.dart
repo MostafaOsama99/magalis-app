@@ -67,7 +67,7 @@ class _NotApprovedOneState extends State<NotApprovedOne> {
               child: FutureBuilder<QuerySnapshot>(
                   future: Firestore.instance
                       .collection('revenue')
-                      .where('approved', isEqualTo: false)
+                      .where('status', isEqualTo: 'approved')
                       .getDocuments(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {

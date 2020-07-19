@@ -369,7 +369,7 @@ class _AddExpenseState extends State<AddExpense> {
                           'supplier': suplierNameController.text,
                           'amount': amount,
                           'attachments': imageUrls,
-                          'approved':false,
+                          'status':'notApproved',
                         };
                         await Firestore.instance
                             .collection('expenses')

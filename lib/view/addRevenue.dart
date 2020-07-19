@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-
 class AddRevenue extends StatefulWidget {
   @override
   _AddRevenueState createState() => _AddRevenueState();
@@ -218,7 +217,7 @@ class _AddRevenueState extends State<AddRevenue> {
                           'date': finalDate,
                           'source': revenueSorce.text,
                           'amount': amount,
-                          'approved': false,
+                          'status': 'notApproved',
                         };
                         await Firestore.instance
                             .collection('revenue')

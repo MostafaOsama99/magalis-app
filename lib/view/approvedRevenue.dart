@@ -18,24 +18,24 @@ class _ApprovedRevenueState extends State<ApprovedRevenue> {
         revenuetream = Firestore.instance
             .collection('revenue')
             .where('date', isEqualTo: map['date'])
-            .where('approved', isEqualTo: true)
+            .where('status', isEqualTo: 'approved')
             .snapshots();
       } else if (map['type'] == 2) {
         revenuetream = Firestore.instance
             .collection('revenue')
             .where('userName', isEqualTo: map['date'])
-            .where('approved', isEqualTo: true)
+            .where('status', isEqualTo: 'approved')
             .snapshots();
       } else if (map['type'] == 3) {
         revenuetream = Firestore.instance
             .collection('revenue')
             .where('supplier', isEqualTo: map['date'])
-            .where('approved', isEqualTo: true)
+            .where('status', isEqualTo: 'approved')
             .snapshots();
       } else {
         revenuetream = Firestore.instance
             .collection('revenue')
-            .where('approved', isEqualTo: true)
+            .where('status', isEqualTo: 'approved')
             .snapshots();
       }
     }
@@ -77,7 +77,7 @@ class _ApprovedRevenueState extends State<ApprovedRevenue> {
               child: StreamBuilder<QuerySnapshot>(
                 stream: Firestore.instance
                     .collection('revenue')
-                    .where('approved', isEqualTo: true)
+                    .where('status', isEqualTo: 'approved')
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting)
@@ -97,7 +97,7 @@ class _ApprovedRevenueState extends State<ApprovedRevenue> {
                         userName: userName,
                         suplierName: supplier,
                         date: date,
-                        amount: amount,
+                        amount: (amount as int).roundToDouble(),
                         documentId: snapshot.data.documents[index].documentID,
                       );
                     },

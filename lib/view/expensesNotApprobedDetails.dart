@@ -19,24 +19,24 @@ class _ApprovedDetailsState extends State<ExpensesNotApprovedDetails> {
       expenseStream = Firestore.instance
           .collection('expenses')
           .where('date', isEqualTo: map['date'])
-          .where('approved', isEqualTo: false)
+          .where('status', isEqualTo: 'notApproved')
           .snapshots();
     } else if (map['type'] == 2) {
       expenseStream = Firestore.instance
           .collection('expenses')
           .where('userName', isEqualTo: map['date'])
-          .where('approved', isEqualTo: false)
+          .where('status', isEqualTo: 'notApproved')
           .snapshots();
     } else if (map['type'] == 3) {
       expenseStream = Firestore.instance
           .collection('expenses')
           .where('supplier', isEqualTo: map['date'])
-          .where('approved', isEqualTo: false)
+          .where('status', isEqualTo: 'notApproved')
           .snapshots();
     } else {
       expenseStream = Firestore.instance
           .collection('expenses')
-          .where('approved', isEqualTo: false)
+          .where('status', isEqualTo: 'notApproved')
           .snapshots();
     }
     return Scaffold(
@@ -122,7 +122,7 @@ class _ApprovedDetailsState extends State<ExpensesNotApprovedDetails> {
           borderRadius: BorderRadius.circular(5),
           border: Border.all(
             width: 2.5,
-            color: Color.fromRGBO(170, 44, 94, 1),
+            color: Colors.black,
           ),
           color: Colors.white,
         ),
@@ -187,7 +187,7 @@ class _ApprovedDetailsState extends State<ExpensesNotApprovedDetails> {
                             .collection('expenses')
                             .document(documentId)
                             .updateData({
-                          'approved': true,
+                          'status': 'cashed',
                         });
                         await showDialog(
                             context: context,
@@ -217,7 +217,7 @@ class _ApprovedDetailsState extends State<ExpensesNotApprovedDetails> {
                           ),
                         ),
                         decoration: BoxDecoration(
-                          color: Color.fromRGBO(170, 44, 94, 1),
+                          color: Colors.black,
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),

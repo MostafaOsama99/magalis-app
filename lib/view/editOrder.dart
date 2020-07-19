@@ -3,12 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class AddOrder extends StatefulWidget {
-  @override
-  _AddOrderState createState() => _AddOrderState();
-}
-
-class _AddOrderState extends State<AddOrder> {
+class EditOrder extends StatelessWidget {
   TextEditingController nameController = TextEditingController();
 
   TextEditingController descriptionConroller = TextEditingController();
@@ -27,6 +22,8 @@ class _AddOrderState extends State<AddOrder> {
 
   TextEditingController noteController = TextEditingController();
   TextEditingController cityController = TextEditingController();
+
+  String selected = '';
 
   String lineType = 'Bean Bags';
 
@@ -61,14 +58,35 @@ class _AddOrderState extends State<AddOrder> {
   ];
 
   bool enableArea = false;
+  bool called = false;
   GlobalKey key = new GlobalKey<AutoCompleteTextFieldState<String>>();
 
-  String selected = '';
   @override
   Widget build(BuildContext context) {
-    cityController.text = selected;
     final size = MediaQuery.of(context).size;
+    final map = (ModalRoute.of(context).settings.arguments as Map);
+    final id = map['id'];
+    final orderMap = map['orderMap'] as Map;
+    cityController.text = selected;
+
+    if (!called) {
+      nameController.text = orderMap['name'];
+      quantityController.text = '${orderMap['quantity']}';
+      cityController.text = orderMap['city'];
+      if (orderMap['isCairo']) {
+        enableArea = true;
+        areaController.text = orderMap['area'];
+      }
+      addressController.text = orderMap['address'];
+      lineType = orderMap['line'];
+      descriptionConroller.text = orderMap['description'];
+      phoneController.text = orderMap['phone'];
+      priceController.text = '${orderMap['totalAccount']}';
+      underAccountController.text = '${orderMap['underAccount']}';
+      called = true;
+    }
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
@@ -91,7 +109,7 @@ class _AddOrderState extends State<AddOrder> {
               color: Colors.white,
               child: ListTile(
                 title: Text(
-                  'Add new Order',
+                  'Edit Order',
                   style: TextStyle(
                       color: Color.fromRGBO(170, 44, 94, 1),
                       fontWeight: FontWeight.bold,
@@ -200,35 +218,38 @@ class _AddOrderState extends State<AddOrder> {
                           color: Color.fromRGBO(128, 151, 155, 0.6),
                           thickness: 2.5,
                         ),
-                        AutoCompleteTextField<String>(
-                          controller: cityController,
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 1.5),
-                              ),
-                              hintText: 'Search goverment',
-                              suffixIcon: Icon(Icons.search)),
-                          itemSubmitted: (item) =>
-                              setState(() => selected = item),
-                          key: key,
-                          suggestions: goverments,
-                          itemBuilder: (context, suggestion) => new Padding(
-                              child: new ListTile(
-                                title: new Text(suggestion),
-                              ),
-                              padding: EdgeInsets.all(8.0)),
-                          itemFilter: (suggestion, input) => suggestion
-                              .toLowerCase()
-                              .startsWith(input.toLowerCase()),
-                          itemSorter: (a, b) =>
-                              a == b ? 0 : a.length > b.length ? -1 : 1,
-                        )
+                        StatefulBuilder(builder: (context, stateCalled) {
+                          cityController.text = selected;
+                          return AutoCompleteTextField<String>(
+                            controller: cityController,
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                      color: Colors.grey, width: 1.5),
+                                ),
+                                hintText: 'Search goverment',
+                                suffixIcon: Icon(Icons.search)),
+                            itemSubmitted: (item) =>
+                                stateCalled(() => selected = item),
+                            key: key,
+                            suggestions: goverments,
+                            itemBuilder: (context, suggestion) => new Padding(
+                                child: new ListTile(
+                                  title: new Text(suggestion),
+                                ),
+                                padding: EdgeInsets.all(8.0)),
+                            itemFilter: (suggestion, input) => suggestion
+                                .toLowerCase()
+                                .startsWith(input.toLowerCase()),
+                            itemSorter: (a, b) =>
+                                a == b ? 0 : a.length > b.length ? -1 : 1,
+                          );
+                        }),
                       ],
                     ),
                   ),
-                  selected == 'Cairo'
+                  cityController.text == 'Cairo'
                       ? Container(
                           padding: EdgeInsets.all(16),
                           margin: EdgeInsets.all(10),
@@ -315,69 +336,71 @@ class _AddOrderState extends State<AddOrder> {
                         border: Border.all(
                             width: 3.5, color: Colors.grey.withOpacity(0.5)),
                         borderRadius: BorderRadius.circular(10)),
-                    child: Center(
-                      child: DropdownButton<String>(
-                        value: lineType,
-                        disabledHint: Text('Production line'),
-                        hint: Text('Production line'),
-                        icon: Icon(
-                          Icons.arrow_drop_down,
-                          color: Color.fromRGBO(170, 44, 94, 1),
-                          size: 35,
+                    child: StatefulBuilder(
+                      builder: (ctx, setStated) => Center(
+                        child: DropdownButton<String>(
+                          value: lineType,
+                          disabledHint: Text('Production line'),
+                          hint: Text('Production line'),
+                          icon: Icon(
+                            Icons.arrow_drop_down,
+                            color: Color.fromRGBO(170, 44, 94, 1),
+                            size: 35,
+                          ),
+                          //value: lineType,
+                          items: [
+                            DropdownMenuItem(
+                              child: Text('Bean Bags'),
+                              value: 'Bean Bags',
+                              onTap: () {
+                                setStated(() {
+                                  lineType = 'Bean Bags';
+                                });
+                              },
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Rattan'),
+                              value: 'Rattan',
+                              onTap: () {
+                                setStated(() {
+                                  lineType = 'Rattan';
+                                });
+                              },
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Travel accessories'),
+                              value: 'Travel accessories',
+                              onTap: () {
+                                setStated(() {
+                                  lineType = 'Travel accessories';
+                                });
+                              },
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Luxurious chairs'),
+                              value: 'Luxurious chairs',
+                              onTap: () {
+                                setStated(() {
+                                  lineType = 'Luxurious chairs';
+                                });
+                              },
+                            ),
+                            DropdownMenuItem(
+                              child: Text('Wooden products'),
+                              value: 'Wooden products',
+                              onTap: () {
+                                setStated(() {
+                                  lineType = 'Wooden products';
+                                });
+                              },
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setStated(() {
+                              lineType = value;
+                            });
+                          },
                         ),
-                        //value: lineType,
-                        items: [
-                          DropdownMenuItem(
-                            child: Text('Bean Bags'),
-                            value: 'Bean Bags',
-                            onTap: () {
-                              setState(() {
-                                lineType = 'Bean Bags';
-                              });
-                            },
-                          ),
-                          DropdownMenuItem(
-                            child: Text('Rattan'),
-                            value: 'Rattan',
-                            onTap: () {
-                              setState(() {
-                                lineType = 'Rattan';
-                              });
-                            },
-                          ),
-                          DropdownMenuItem(
-                            child: Text('Travel accessories'),
-                            value: 'Travel accessories',
-                            onTap: () {
-                              setState(() {
-                                lineType = 'Travel accessories';
-                              });
-                            },
-                          ),
-                          DropdownMenuItem(
-                            child: Text('Luxurious chairs'),
-                            value: 'Luxurious chairs',
-                            onTap: () {
-                              setState(() {
-                                lineType = 'Luxurious chairs';
-                              });
-                            },
-                          ),
-                          DropdownMenuItem(
-                            child: Text('Wooden products'),
-                            value: 'Wooden products',
-                            onTap: () {
-                              setState(() {
-                                lineType = 'Wooden products';
-                              });
-                            },
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            lineType = value;
-                          });
-                        },
                       ),
                     ),
                   ),
@@ -534,6 +557,74 @@ class _AddOrderState extends State<AddOrder> {
                     ),
                   ),
                   Container(
+                    height: 200,
+                    width: MediaQuery.of(context).size.width,
+                    margin: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        width: 2,
+                        color: Colors.grey.withOpacity(0.5),
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          'Notes',
+                          style: TextStyle(
+                              color: Color.fromRGBO(
+                                  170, 44, 94, 1), //rgb(96, 125, 130)
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 4),
+                          child: Divider(
+                            color: Colors.grey,
+                            thickness: 4,
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                            itemBuilder: (ctx, index) => Column(
+                              children: <Widget>[
+                                ListTile(
+                                  title: Text(
+                                    '${orderMap['notes'][index]['note']}',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  trailing: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Text(
+                                        '${orderMap['notes'][index]['from']}',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Divider(
+                                  thickness: 2.5,
+                                )
+                              ],
+                            ),
+                            itemCount: (orderMap['notes'] as List).length,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
                     padding: EdgeInsets.all(16),
                     margin: EdgeInsets.all(10),
                     decoration: BoxDecoration(
@@ -574,101 +665,132 @@ class _AddOrderState extends State<AddOrder> {
                 ],
               ),
             ),
-            loading
-                ? Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : InkWell(
-                    onTap: () async {
-                      if (nameController.text.isEmpty ||
-                          quantityController.text.isEmpty ||
-                          descriptionConroller.text.isEmpty ||
-                          phoneController.text.isEmpty ||
-                          priceController.text.isEmpty ||
-                          underAccountController.text.isEmpty ||
-                          addressController.text.isEmpty) {
-                        print('complete all field');
-                        return;
-                      }
-                      String name = nameController.text;
-                      int quantity = int.parse(quantityController.text);
-                      String area = areaController.text;
-                      String address = addressController.text;
+            StatefulBuilder(
+              builder: (ctx, stateCalled) => loading
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : InkWell(
+                      onTap: () async {
+                        if (nameController.text.isEmpty ||
+                            quantityController.text.isEmpty ||
+                            descriptionConroller.text.isEmpty ||
+                            phoneController.text.isEmpty ||
+                            priceController.text.isEmpty ||
+                            underAccountController.text.isEmpty ||
+                            addressController.text.isEmpty) {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: Text('Validation Error'),
+                              content: Text(
+                                  'Complete All Fields is required to processed'),
+                              actions: <Widget>[
+                                FlatButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    child: Text('Ok!'))
+                              ],
+                            ),
+                          );
+                          return;
+                        }
+                        String name = nameController.text;
+                        int quantity = int.parse(quantityController.text);
+                        String area = areaController.text;
+                        String address = addressController.text;
 
-                      String description = descriptionConroller.text;
-                      String phoneNumber = phoneController.text;
-                      double amount = double.parse(priceController.text);
-                      double downpayment =
-                          double.parse(underAccountController.text);
-                      String date = DateFormat.yMd().format(DateTime.now());
-                      setState(() {
-                        loading = true;
-                      });
-                      if (areaController.text.isNotEmpty) {
-                        await Firestore.instance.collection('orders').add({
-                          'city': selected,
-                          'note': [
-                            {'note': noteController.text, 'from': 'Ahmed Omar'}
-                          ],
-                          'area': area,
-                          'createdAt': date,
-                          'description': description,
-                          'line': lineType,
-                          'name': name,
-                          'phone': phoneNumber,
-                          'quantity': quantity,
-                          'totalAccount': amount,
-                          'underAccount': downpayment,
-                          'address': address,
-                          'status': 'noAction',
-                          'isCairo': true,
+                        String description = descriptionConroller.text;
+                        String phoneNumber = phoneController.text;
+                        double amount = double.parse(priceController.text);
+                        double downpayment =
+                            double.parse(underAccountController.text);
+                        String date = DateFormat.yMd().format(DateTime.now());
+                        stateCalled(() {
+                          loading = true;
                         });
-                      } else {
-                        await Firestore.instance.collection('orders').add({
-                          'city': selected,
-                          'note': noteController.text,
-                          'createdAt': date,
-                          'description': description,
-                          'line': lineType,
-                          'name': name,
-                          'phone': phoneNumber,
-                          'quantity': quantity,
-                          'totalAccount': amount,
-                          'underAccount': downpayment,
-                          'address': address,
-                          'status': 'noAction',
-                          'isCairo': false,
-                        });
-                      }
-                      await showDialog(
-                        context: context,
-                        child: AlertDialog(
-                          title: Text('Operation Succeeded'),
-                          content:
-                              Text('The Order has beeen added successfully'),
-                          actions: <Widget>[
-                            FlatButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: Text('OK!'),
-                            )
-                          ],
-                        ),
-                      );
-                      Navigator.of(context).pop();
-                    },
-                    child: Container(
-                      color: Color.fromRGBO(170, 44, 94, 1),
-                      width: size.width,
-                      height: 50,
-                      child: Center(
-                        child: Text(
-                          'ADD',
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                        List notes = (orderMap['notes'] as List);
+                        if (noteController.text.isNotEmpty) {
+                          notes.add({
+                            'from': 'Ahmed Karim',
+                            'note': noteController.text
+                          });
+                        }
+                        if (areaController.text.isNotEmpty) {
+                          await Firestore.instance
+                              .collection('orders')
+                              .document(id)
+                              .updateData({
+                            'city': cityController.text,
+                            'area': area,
+                            'createdAt': date,
+                            'description': description,
+                            'line': lineType,
+                            'name': name,
+                            'phone': phoneNumber,
+                            'quantity': quantity,
+                            'totalAccount': amount,
+                            'underAccount': downpayment,
+                            'address': address,
+                            'status': 'noAction',
+                            'isCairo': true,
+                            'notes': notes,
+                            'edited': true,
+                            'editedBy': "Ahmed Omar",
+                          });
+                        } else {
+                          await Firestore.instance
+                              .collection('orders')
+                              .document(id)
+                              .updateData({
+                            'city': cityController.text,
+                            'createdAt': date,
+                            'description': description,
+                            'line': lineType,
+                            'name': name,
+                            'phone': phoneNumber,
+                            'quantity': quantity,
+                            'totalAccount': amount,
+                            'underAccount': downpayment,
+                            'address': address,
+                            'status': 'noAction',
+                            'notes': notes,
+                            'isCairo': false,
+                            'edited': true,
+                            'editedBy': "Ahmed Omar",
+                          });
+                        }
+                        await showDialog(
+                          context: context,
+                          child: AlertDialog(
+                            title: Text('Operation Succeeded'),
+                            content:
+                                Text('The Order has beeen added successfully'),
+                            actions: <Widget>[
+                              FlatButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: Text('OK!'),
+                              )
+                            ],
+                          ),
+                        );
+                        Navigator.of(context).pop();
+                      },
+                      child: Container(
+                        color: Color.fromRGBO(170, 44, 94, 1),
+                        width: size.width,
+                        height: 50,
+                        child: Center(
+                          child: Text(
+                            'EDIT',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
                     ),
-                  )
+            )
           ],
         ),
       ),

@@ -4,25 +4,18 @@ import 'package:flutter/material.dart';
 
 class AddLoans extends StatelessWidget {
   final nameController = TextEditingController();
-  final moneyController = TextEditingController();
-
+  final issueController = TextEditingController();
+  final numberController = TextEditingController();
+  bool called = false;
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    var map = (ModalRoute.of(context).settings.arguments as Map);
-    var docId;
-    var docName;
-    var docMoney;
-    if (map != null) {
-      docId = map['id'];
-      docName = map['name'];
-      docMoney = map['money'];
-      if (docId != null) {
-        nameController.text = docName;
-        moneyController.text = docMoney;
-      } else {
-        moneyController.text = '$docMoney';
-      }
+    final routeMap = ModalRoute.of(context).settings.arguments as Map;
+    final id  = routeMap['id'];
+    final number = '${routeMap['orderNumber']}';
+    if(!called){
+      numberController.text = number;
+      called = true;
     }
     return Scaffold(
       backgroundColor: Colors.grey[200],
@@ -47,7 +40,7 @@ class AddLoans extends StatelessWidget {
               color: Colors.white,
               child: ListTile(
                 title: Text(
-                  'Add new Loans',
+                  'Add new Issue',
                   style: TextStyle(
                       color: Color.fromRGBO(170, 44, 94, 1),
                       fontWeight: FontWeight.bold,
@@ -71,7 +64,44 @@ class AddLoans extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text(
-                          'Name',
+                          'Order Number',
+                          style: TextStyle(
+                              color: Color.fromRGBO(170, 44, 94, 1),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                        ),
+                        Divider(
+                          color: Color.fromRGBO(128, 151, 155, 0.6),
+                          thickness: 2.5,
+                        ),
+                        TextField(
+                          controller: numberController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide:
+                                  BorderSide(color: Colors.grey, width: 1.5),
+                            ),
+                            hintText: 'Write Here',
+                          ),
+                        ) //rgb(128, 151, 155)
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    margin: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                            width: 3.5, color: Colors.grey.withOpacity(0.5)),
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          'To:',
                           style: TextStyle(
                               color: Color.fromRGBO(170, 44, 94, 1),
                               fontWeight: FontWeight.bold,
@@ -108,7 +138,7 @@ class AddLoans extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text(
-                          'Money',
+                          'Issue Description',
                           style: TextStyle(
                               color: Color.fromRGBO(170, 44, 94, 1),
                               fontWeight: FontWeight.bold,
@@ -119,8 +149,7 @@ class AddLoans extends StatelessWidget {
                           thickness: 2.5,
                         ),
                         TextField(
-                          keyboardType: TextInputType.number,
-                          controller: moneyController,
+                          controller: issueController,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -137,29 +166,14 @@ class AddLoans extends StatelessWidget {
               ),
             ),
             InkWell(
-              onTap: () async {
-                final name = nameController.text;
-                final money = moneyController.text;
-                final date = DateTime.now();
-                if (docId == null) {
-                  await Firestore.instance
-                      .collection('loans')
-                      .add({'name': name, 'date': date, 'money': money});
-                } else {
-                  await Firestore.instance
-                      .collection('loans')
-                      .document(docId)
-                      .updateData({'name': name, 'money': money});
-                }
-                Navigator.of(context).pop();
-              },
+              onTap: () {},
               child: Container(
                 color: Color.fromRGBO(170, 44, 94, 1),
                 width: size.width,
                 height: 50,
                 child: Center(
                   child: Text(
-                    'ADD',
+                    'Report The Issue',
                     style: TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),

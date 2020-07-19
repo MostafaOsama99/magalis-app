@@ -2,21 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 //Screen 39
-class OrderDetails extends StatefulWidget {
+class CitiyOrderDetails extends StatefulWidget {
   @override
-  _OrderDetailsState createState() => _OrderDetailsState();
+  _CitiyOrderDetailsState createState() => _CitiyOrderDetailsState();
 }
 
-class _OrderDetailsState extends State<OrderDetails> {
+class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
   String docId = '';
-
   bool showMenu = false;
-
   bool isCalled = false;
-
-  bool isIssue = false;
-
-  int orderNumber;
   @override
   Widget build(BuildContext context) {
     final orderData =
@@ -33,17 +27,9 @@ class _OrderDetailsState extends State<OrderDetails> {
           width: 150,
         ),
         actions: <Widget>[
-          isIssue
-              ? IconButton(
-                  icon: Icon(
-                    Icons.error,
-                    color: Colors.red,
-                  ),
-                  onPressed: null,
-                )
-              : SizedBox(),
           showMenu
               ? PopupMenuButton<String>(
+                  color: Colors.white,
                   icon: Icon(
                     Icons.more_vert,
                     color: Colors.black,
@@ -61,14 +47,10 @@ class _OrderDetailsState extends State<OrderDetails> {
                           .document(docId)
                           .updateData({'status': 'archived'}).then(
                               (value) => Navigator.of(context).pop());
-                    } else if (val == 'Report an Issue') {
-                      Navigator.of(context).pushNamed('/addIssue',
-                          arguments: {'id': docId, 'orderNumber': orderNumber});
                     }
                   },
                   itemBuilder: ((BuildContext context) {
-                    return {'Cancel', 'Archive', 'Report an Issue'}
-                        .map((String choice) {
+                    return {'Cancel', 'Archive'}.map((String choice) {
                       return PopupMenuItem<String>(
                         value: choice,
                         child: Text(choice),
@@ -76,7 +58,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                     }).toList();
                   }),
                 )
-              : SizedBox(),
+              : SizedBox()
         ],
       ),
       body: FutureBuilder<DocumentSnapshot>(
@@ -92,18 +74,11 @@ class _OrderDetailsState extends State<OrderDetails> {
             }
             final order = snapshot.data.data;
             docId = snapshot.data.documentID;
-            orderNumber = snapshot.data.data['orderNumber'];
-
             Future.delayed(Duration(milliseconds: 50)).then((value) {
-              if (order['status'] == 'noAction' && !isCalled) {
-                isCalled = true;
-                if (order['isIssue']) {
-                  isIssue = true;
-                }
+              if (order['status'] == 'noAction' && !isCalled)
                 setState(() {
                   showMenu = true;
                 });
-              }
             });
             return Column(
               children: <Widget>[
@@ -120,17 +95,10 @@ class _OrderDetailsState extends State<OrderDetails> {
                           fontWeight: FontWeight.bold,
                           fontSize: 20),
                     ),
-                    trailing: InkWell(
-                      onTap: () => Navigator.of(context).pushNamed('/editOrder',
-                          arguments: {
-                            'id': snapshot.data.documentID,
-                            'orderMap': snapshot.data.data
-                          }),
-                      child: Image.asset(
-                        'assets/images/noteAdd.png',
-                        width: 50,
-                        height: 50,
-                      ),
+                    trailing: Image.asset(
+                      'assets/images/noteAdd.png',
+                      width: 50,
+                      height: 50,
                     ),
                   ),
                 ),
@@ -180,7 +148,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                                 fontSize: 16),
                           ),*/
                             Text(
-                              'Area: ${order['isCairo'] ? order['area'] : order['city']}',
+                              'Area: ${order['city']}',
                               style: TextStyle(
                                   color: Color.fromRGBO(170, 44, 94, 1),
                                   fontWeight: FontWeight.bold,
@@ -271,6 +239,48 @@ class _OrderDetailsState extends State<OrderDetails> {
                             ),
                             Text(
                               '${order['phone']}',
+                              style: TextStyle(
+                                color: Color.fromRGBO(96, 125, 130, 1),
+                                fontSize: 14,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Container(
+                        height: 100,
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                            width: 2,
+                            color: Colors.grey.withOpacity(0.5),
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: EdgeInsets.all(12),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              'Note',
+                              style: TextStyle(
+                                  color: Color.fromRGBO(
+                                      170, 44, 94, 1), //rgb(96, 125, 130)
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 4),
+                              child: Divider(
+                                color: Colors.grey,
+                                thickness: 4,
+                              ),
+                            ),
+                            Text(
+                              '${order['note']}',
                               style: TextStyle(
                                 color: Color.fromRGBO(96, 125, 130, 1),
                                 fontSize: 14,
@@ -379,148 +389,6 @@ class _OrderDetailsState extends State<OrderDetails> {
                           ],
                         ),
                       ),
-                     isIssue? Container(
-                        height: 200,
-                        width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(
-                            width: 2,
-                            color: Colors.grey.withOpacity(0.5),
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: EdgeInsets.all(12),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              'Issues',
-                              style: TextStyle(
-                                  color: Color.fromRGBO(
-                                      170, 44, 94, 1), //rgb(96, 125, 130)
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 4),
-                              child: Divider(
-                                color: Colors.grey,
-                                thickness: 4,
-                              ),
-                            ),
-                            Expanded(
-                              child: ListView.builder(
-                                itemBuilder: (ctx, index) => Column(
-                                  children: <Widget>[
-                                    ListTile(
-                                      title: Text(
-                                        '${order['issues'][index]['issue']}',
-                                        style: TextStyle(
-                                          color:
-                                              Color.fromRGBO(96, 125, 130, 1),
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                      trailing: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          Text(
-                                            '${order['issues'][index]['from']}',
-                                            style: TextStyle(
-                                              color: Color.fromRGBO(
-                                                  96, 125, 130, 1),
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Divider(
-                                      thickness: 2.5,
-                                    )
-                                  ],
-                                ),
-                                itemCount: (order['issues'] as List).length,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ):SizedBox(),
-                       Container(
-                        height: 200,
-                        width: MediaQuery.of(context).size.width,
-                        margin: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(
-                            width: 2,
-                            color: Colors.grey.withOpacity(0.5),
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: EdgeInsets.all(12),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              'Notes',
-                              style: TextStyle(
-                                  color: Color.fromRGBO(
-                                      170, 44, 94, 1), //rgb(96, 125, 130)
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 4),
-                              child: Divider(
-                                color: Colors.grey,
-                                thickness: 4,
-                              ),
-                            ),
-                            Expanded(
-                              child: ListView.builder(
-                                itemBuilder: (ctx, index) => Column(
-                                  children: <Widget>[
-                                    ListTile(
-                                      title: Text(
-                                        '${order['notes'][index]['note']}',
-                                        style: TextStyle(
-                                          color:
-                                              Color.fromRGBO(96, 125, 130, 1),
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                      trailing: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          Text(
-                                            '${order['notes'][index]['from']}',
-                                            style: TextStyle(
-                                              color: Color.fromRGBO(
-                                                  96, 125, 130, 1),
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Divider(
-                                      thickness: 2.5,
-                                    )
-                                  ],
-                                ),
-                                itemCount: (order['notes'] as List).length,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                       Container(
                         width: MediaQuery.of(context).size.width,
                         height: 50,
@@ -540,51 +408,63 @@ class _OrderDetailsState extends State<OrderDetails> {
                             Expanded(child: SizedBox()),
                             order['status'] == 'noAction'
                                 ? InkWell(
-                                    onTap: () async {
-                                      if (order['isCairo']) {
-                                        await Navigator.of(context)
-                                            .pushNamed('/newRoute', arguments: {
-                                          'type': 2,
-                                          'docId': snapshot.data.documentID,
-                                          'address': order['address'],
-                                          'name': order['name'],
-                                          'totalAccount': order['totalAccount']
-                                        });
-                                        Navigator.of(context).pop();
-                                      } else {
-                                        Firestore.instance
-                                            .collection('orders')
-                                            .document(snapshot.data.documentID)
-                                            .updateData({
-                                          'status': 'onShipping',
-                                        }).then((value) =>
-                                                Navigator.of(context).pop());
-                                      }
+                                    onTap: () {
+                                      Firestore.instance
+                                          .collection('orders')
+                                          .document(snapshot.data.documentID)
+                                          .updateData({
+                                        'status': 'shipped',
+                                      }).then((value) =>
+                                              Navigator.of(context).pop());
                                     },
                                     child: Text(
-                                      'Add To Distribution',
+                                      'Shipped',
                                       style: TextStyle(
                                         color: Color.fromRGBO(96, 125, 130, 1),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   )
-                                : order['status'] == 'onDistribution'
-                                    ? Text(
-                                        'On Distribution',
-                                        style: TextStyle(
-                                          color:
-                                              Color.fromRGBO(96, 125, 130, 1),
-                                          fontWeight: FontWeight.bold,
+                                : order['status'] == 'onShipping'
+                                    ? InkWell(
+                                        onTap: () {
+                                          Firestore.instance
+                                              .collection('orders')
+                                              .document(
+                                                  snapshot.data.documentID)
+                                              .updateData({
+                                            'status': 'canceled',
+                                          }).then((value) =>
+                                                  Navigator.of(context).pop());
+                                        },
+                                        child: Text(
+                                          'Canceled',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       )
                                     : order['status'] == 'shipped'
-                                        ? Text(
-                                            'Shipped',
-                                            style: TextStyle(
-                                              color:
-                                                  Colors.green.withOpacity(0.7),
-                                              fontWeight: FontWeight.bold,
+                                        ? InkWell(
+                                            onTap: () {
+                                              Firestore.instance
+                                                  .collection('orders')
+                                                  .document(
+                                                      snapshot.data.documentID)
+                                                  .updateData({
+                                                'status': 'cashed',
+                                              }).then((value) =>
+                                                      Navigator.of(context)
+                                                          .pop());
+                                            },
+                                            child: Text(
+                                              'Add to Finance',
+                                              style: TextStyle(
+                                                color: Colors.green
+                                                    .withOpacity(0.7),
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
                                           )
                                         : order['status'] == 'canceled'
@@ -622,13 +502,32 @@ class _OrderDetailsState extends State<OrderDetails> {
                               thickness: 3,
                             ),
                             Expanded(child: SizedBox()),
-                            Text(
-                              'Call',
-                              style: TextStyle(
-                                color: Colors.green,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            order['status'] == 'onShipping'
+                                ? InkWell(
+                                    onTap: () {
+                                      Firestore.instance
+                                          .collection('orders')
+                                          .document(snapshot.data.documentID)
+                                          .updateData({
+                                        'status': 'shipped',
+                                      }).then((value) =>
+                                              Navigator.of(context).pop());
+                                    },
+                                    child: Text(
+                                      'Shipped',
+                                      style: TextStyle(
+                                        color: Colors.green,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                                : Text(
+                                    'Call',
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                             Expanded(child: SizedBox()),
                           ],
                         ),

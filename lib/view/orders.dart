@@ -14,35 +14,45 @@ class _OrdersPageState extends State<OrdersPage> {
   Widget build(BuildContext context) {
     Stream orderstream;
     final map = ModalRoute.of(context).settings.arguments as Map;
-    final title = (map['title'] == null) ? 'All' : map['title'];
-    final logo =
-        (map['logo'] == null) ? 'assets/images/AllIcon.png' : map['logo'];
-    print(map['type']);
+    final title = (map == null) ? 'All' : map['title'];
+    final logo = (map == null) ? 'assets/images/AllIcon.png' : map['logo'];
+    // print(map['type']);
     if (map != null) {
       // print(map['date']);
       if (map['type'] == 1) {
         orderstream = Firestore.instance
             .collection('orders')
+            .where('status', isEqualTo: map['status'])
             .where('area', isEqualTo: map['date'])
             .snapshots();
       } else if (map['type'] == 2) {
         orderstream = Firestore.instance
             .collection('orders')
+            .where('status', isEqualTo: map['status'])
             .where('createdAt', isEqualTo: map['date'])
             .snapshots();
       } else if (map['type'] == 3) {
         orderstream = Firestore.instance
             .collection('orders')
+            .where('status', isEqualTo: map['status'])
             .where('line', isEqualTo: map['date'])
             .snapshots();
       } else if (map['type'] == 4) {
         orderstream = Firestore.instance
             .collection('orders')
-            .where('status', isEqualTo: 'noAction')
+            .where('status', isEqualTo: map['status'])
+            .where('isCairo', isEqualTo: true)
             .snapshots();
-        print(orderstream.toString());
+      } else if (map['type'] == 7) {
+        orderstream = Firestore.instance
+            .collection('orders')
+            .where('status', whereIn: map['status'])
+            .snapshots();
       } else {
-        orderstream = Firestore.instance.collection('orders').snapshots();
+        orderstream = Firestore.instance
+            .collection('orders')
+            .where('status', isEqualTo: map['status'])
+            .snapshots();
       }
     } else {
       orderstream = Firestore.instance.collection('orders').snapshots();
@@ -139,38 +149,61 @@ class _OrdersPageState extends State<OrdersPage> {
                   return ListView.builder(
                     itemCount: snapshot.data.documents.length,
                     itemBuilder: (context, i) {
+                      final line = ordersData[i].data['area'] == null
+                          ? ordersData[i].data['city']
+                          : ordersData[i].data['area'];
+
                       return InkWell(
+                        onDoubleTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: Text('Description:'),
+                              content:
+                                  Text('${ordersData[i].data['description']}'),
+                              actions: <Widget>[
+                                FlatButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('OK!'))
+                              ],
+                            ),
+                          );
+                        },
                         onTap: () async {
                           if (map['type'] == 4) {
                             final lastOrders = map['lastOrders'] as List;
                             final totalAmount = map['amount'];
                             final ordersId =
                                 lastOrders.map((e) => e['docId']).toList();
-                            if (!ordersId.contains(map['docId'])) {
-                              lastOrders.add({
-                                'docId': ordersData[i].documentID,
-                                'name': ordersData[i].data['name'],
-                                'address': ordersData[i].data['address'],
-                                'totalAccount':
-                                    ordersData[i].data['totalAccount'],
-                              });
-                              final orderAmount = totalAmount +
-                                  ordersData[i].data['totalAccount'];
-                              await Firestore.instance
-                                  .collection('routes')
-                                  .document(map['routeId'])
-                                  .updateData({
-                                'orders': lastOrders,
-                                'totalAmount': orderAmount
-                              });
-                              await Firestore.instance
-                                  .collection('orders')
-                                  .document(ordersData[i].documentID)
-                                  .updateData({'status': 'routed'});
-                              Navigator.of(context).pushReplacementNamed(
-                                  '/routeItemDetails',
-                                  arguments: {'docId': map['routeId']});
+                            if (ordersId.contains(map['docId'])) {
+                              return;
                             }
+                            lastOrders.add({
+                              'docId': ordersData[i].documentID,
+                              'name': ordersData[i].data['name'],
+                              'address': ordersData[i].data['address'],
+                              'totalAccount':
+                                  ordersData[i].data['totalAccount'],
+                            });
+                            final orderAmount = totalAmount +
+                                ordersData[i].data['totalAccount'];
+                            await Firestore.instance
+                                .collection('routes')
+                                .document(map['routeId'])
+                                .updateData({
+                              'orders': lastOrders,
+                              'totalAmount': orderAmount
+                            });
+                            await Firestore.instance
+                                .collection('orders')
+                                .document(ordersData[i].documentID)
+                                .updateData({'status': 'onDistribution'});
+                                
+                            await Navigator.of(context).pushReplacementNamed(
+                              '/newRoute',
+                            );
                           } else {
                             Navigator.of(context)
                                 .pushNamed('/orderDetails', arguments: {
@@ -183,7 +216,7 @@ class _OrdersPageState extends State<OrdersPage> {
                           child: orderItem(
                             title: '${ordersData[i].data['name']}',
                             price: ordersData[i].data['totalAccount'],
-                            line: '${ordersData[i].data['area']}', //area
+                            line: '${line}', //area
                             factoryName: '${ordersData[i].data['line']}',
                             quantity: ordersData[i].data['quantity'],
                             date: '${ordersData[i].data['createdAt']}',

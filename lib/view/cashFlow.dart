@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class CashFlow extends StatefulWidget {
   @override
@@ -10,7 +9,9 @@ class CashFlow extends StatefulWidget {
 class _CashFlowState extends State<CashFlow> {
   double cashOut = 0;
   double cashIn = 0;
-  double net = 3000;
+  double net = 0;
+  List<DocumentSnapshot> allDocs = [];
+  List<DocumentSnapshot> savedDocs = [];
   TextEditingController collectedAmount = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -28,294 +29,405 @@ class _CashFlowState extends State<CashFlow> {
       body: StreamBuilder<QuerySnapshot>(
         stream: Firestore.instance
             .collection('expenses')
-            .where('approved', isEqualTo: false)
+            .where('status', isEqualTo: 'cashed')
             .snapshots(),
         builder: (context, expensesSnapshot) {
-          expensesSnapshot.data.documents.forEach((element) {
-            cashOut += double.parse(element.data['amount']);
-          });
           return StreamBuilder<QuerySnapshot>(
             stream: Firestore.instance
                 .collection('routes')
                 .where('status', isEqualTo: 'cashed')
                 .snapshots(),
             builder: (context, routesSnapshot) {
-              routesSnapshot.data.documents.forEach((element) {
-                cashIn += (element.data['totalAmount'] - element.data['fees']);
-              });
               print('in:$cashIn');
               print('out$cashOut');
               //net = cashIn - cashOut;
-              return Column(
-                children: [
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    color: Colors.white,
-                    child: ListTile(
-                      title: Text(
-                        'Cash Flow',
-                        style: TextStyle(
-                            color: Color.fromRGBO(170, 44, 94, 1),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 0,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Color.fromRGBO(170, 44, 94, 1),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            width: MediaQuery.of(context).size.width,
-                            child: Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: Text(
-                                "Cash In\n${cashIn.round()} EGP",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20),
-                              ),
+              return StreamBuilder<QuerySnapshot>(
+                  stream: Firestore.instance
+                      .collection('revenue')
+                      .where('status', isEqualTo: 'cashed')
+                      .snapshots(),
+                  builder: (context, revenueSnapshot) {
+                    allDocs = routesSnapshot.data.documents +
+                        expensesSnapshot.data.documents +
+                        revenueSnapshot.data.documents;
+                    print('length1:${expensesSnapshot.data.documents.length}');
+                    print('length2:${routesSnapshot.data.documents.length}');
+                    print('length3:${revenueSnapshot.data.documents.length}');
+
+                    print('length:${allDocs.length}');
+                    allDocs.forEach((elemen) {
+                      print('${elemen.data}');
+                    });
+                    return Column(
+                      children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          color: Colors.white,
+                          child: ListTile(
+                            title: Text(
+                              'Cash Flow',
+                              style: TextStyle(
+                                  color: Color.fromRGBO(170, 44, 94, 1),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20),
                             ),
                           ),
                         ),
                         SizedBox(
-                          width: 20,
+                          height: 0,
                         ),
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[800],
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            width: MediaQuery.of(context).size.width,
-                            child: Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: Text(
-                                "Cash Out\n${cashOut.round()} EGP",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20),
+                        Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Color.fromRGBO(170, 44, 94, 1),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(15.0),
+                                    child: Text(
+                                      "Cash In\n${cashIn.round()} EGP",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[800],
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(15.0),
+                                    child: Text(
+                                      "Cash Out\n${cashOut.round()} EGP",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.orange,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            width: MediaQuery.of(context).size.width,
-                            child: Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: Text(
-                                "NET\n${(net).round()} EGP",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                          child: Row(
+                            children: <Widget>[
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  width: MediaQuery.of(context).size.width,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(15.0),
+                                    child: Text(
+                                      "NET\n${(cashIn - cashOut).round()} EGP",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: expensesSnapshot.data.documents.length +
-                                routesSnapshot.data.documents.length ==
-                            0
-                        ? Center(
-                            child: Text(
-                            'No Cash Flow Exist!!',
-                            style: TextStyle(
-                                color: Color.fromRGBO(170, 44, 94, 1),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 26),
-                          ))
-                        : ListView.builder(
-                            itemBuilder: (ctx, index) {
-                              final userName = routesSnapshot
-                                  .data.documents[index].data['name'];
-                              final supplier = 'Distribution Route';
-                              final date = routesSnapshot
-                                  .data.documents[index].data['date'];
-                              final amount = routesSnapshot.data
-                                      .documents[index].data['totalAmount'] -
-                                  routesSnapshot
-                                      .data.documents[index].data['fees'];
-                              return revenueCashFlowTile(
-                                userName: userName,
-                                suplierName: supplier,
-                                date: date,
-                                amount: amount,
-                                fee: (routesSnapshot
-                                        .data.documents[index].data['fees'])
-                                    .roundToDouble(),
-                                total: (routesSnapshot.data.documents[index]
-                                        .data['totalAmount'])
-                                    .roundToDouble(),
-                                documentId: routesSnapshot
-                                    .data.documents[index].documentID,
-                              );
-                              /*} else {
-                                      final userName = expensesSnapshot.data
-                                          .documents[index].data['userName'];
-                                      final supplier = expensesSnapshot.data
-                                          .documents[index].data['supplier'];
-                                      final date = expensesSnapshot
-                                          .data.documents[index].data['date'];
-                                      final amount = expensesSnapshot
-                                          .data.documents[index].data['amount'];
+                        Expanded(
+                          child: allDocs.length == 0
+                              ? Center(
+                                  child: Text(
+                                  'No Cash Flow Exist!!',
+                                  style: TextStyle(
+                                      color: Color.fromRGBO(170, 44, 94, 1),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 26),
+                                ))
+                              : ListView.builder(
+                                  itemBuilder: (ctx, index) {
+                                    print('data: ${allDocs[index].data}');
+                                    print(
+                                        'data: ${savedDocs.indexWhere((ele) => ele.documentID == allDocs[index].documentID) == -1}');
+                                    final path = allDocs[index]
+                                        .reference
+                                        .path
+                                        .split('/')[0];
+                                    print(index);
+                                    savedDocs.forEach((element) {
+                                      print(element.data);
+                                    });
+                                    if (path == 'routes') {
+                                      final userName =
+                                          allDocs[index].data['name'];
+                                      final supplier = 'Distribution Route';
+                                      final date = allDocs[index].data['date'];
+                                      final amount =
+                                          allDocs[index].data['totalAmount'] -
+                                              allDocs[index].data['fees'];
+                                      return routeCashFlowTile(
+                                        userName: userName,
+                                        suplierName: supplier,
+                                        date: date,
+                                        amount: amount,
+                                        fee: allDocs[index].data['fees'],
+                                        total:
+                                            allDocs[index].data['totalAmount'],
+                                        documentId: allDocs[index].documentID,
+                                        index: index,
+                                        isSelcted: savedDocs.indexWhere((ele) =>
+                                                ele.documentID ==
+                                                allDocs[index].documentID) ==
+                                            -1,
+                                      );
+                                    } else if (path == 'expenses') {
+                                      print('its an expenses');
+                                      final userName =
+                                          allDocs[index].data['userName'];
+                                      final supplier =
+                                          allDocs[index].data['supplier'];
+                                      final date = allDocs[index].data['date'];
+                                      final amount =
+                                          allDocs[index].data['amount'];
+                                      print('its an expenses2');
+
                                       return expensesCashFlowTile(
                                         userName: userName,
                                         suplierName: supplier,
                                         date: date,
                                         amount: amount,
-                                        documentId: expensesSnapshot
-                                            .data.documents[index].documentID,
+                                        documentId: allDocs[index].documentID,
+                                        index: index,
+                                        isSelcted: savedDocs.indexWhere((ele) =>
+                                                ele.documentID ==
+                                                allDocs[index].documentID) ==
+                                            -1,
                                       );
-                                    }*/
-                            },
-                            itemCount: expensesSnapshot.data.documents.length +
-                                routesSnapshot.data.documents.length,
-                          ),
-                  ),
-                  InkWell(
-                    onTap: () async {
-                      final amountCollected = await showDialog<double>(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text('Collected Amount?'),
-                            content: TextField(
-                              controller: collectedAmount,
-                              keyboardType: TextInputType.number,
-                              textInputAction: TextInputAction.done,
-                              decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.grey, width: 1.5),
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                  labelText: 'Collected:'),
-                            ),
-                            actions: <Widget>[
-                              FlatButton(
-                                onPressed: () {
-                                  collectedAmount.clear();
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text(
-                                  'Cancel',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                              FlatButton(
-                                  onPressed: () async {
-                                    final collected =
-                                        double.parse(collectedAmount.text);
-                                    collectedAmount.clear();
-                                    Navigator.of(context).pop(collected);
+                                    } else if (path == 'revenue') {
+                                      final userName =
+                                          allDocs[index].data['userName'];
+                                      final supplier =
+                                          allDocs[index].data['source'];
+                                      final date = allDocs[index].data['date'];
+                                      final amount =
+                                          allDocs[index].data['amount'];
 
+                                      return revenueCashFlowTile(
+                                        userName: userName,
+                                        suplierName: supplier,
+                                        date: date,
+                                        amount: amount,
+                                        documentId: allDocs[index].documentID,
+                                        index: index,
+                                        isSelcted: savedDocs.indexWhere((ele) =>
+                                                ele.documentID ==
+                                                allDocs[index].documentID) ==
+                                            -1,
+                                      );
+                                    } else {
+                                      return Container();
+                                    }
                                   },
-                                  child: Text(
-                                    'Send',
-                                    style: TextStyle(color: Colors.green),
-                                  ))
-                            ],
-                          );
-                        },
-                      );
-                      if (amountCollected == null) {
-                        print('not clear');
-
-                        return;
-                      }
-                      if (amountCollected == net) {
-                        print('clear');
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text('Successed'),
-                            content:
-                                Text('The Cashes were collected Succefuly'),
-                            actions: <Widget>[
-                              FlatButton(
-                                onPressed: () {
-                                  collectedAmount.clear();
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text(
-                                  'Ok',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                        return;
-                      } else {
-                        print('fucked');
-
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text('Fiscal deficit'),
-                            content:
-                                Text('There is a loan has to be determined'),
-                            actions: <Widget>[
-                              FlatButton(
-                                onPressed: () {
-                                  Navigator.of(context)
-                                      .pushNamed('/addLoans', arguments: {
-                                    'money': '${net - amountCollected}',
-                                  });
-                                },
-                                child: Text(
-                                  'Ok',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }
-                    },
-                    child: Container(
-                      color: Color.fromRGBO(170, 44, 94, 1),
-                      width: double.infinity,
-                      height: 50,
-                      child: Center(
-                        child: Text(
-                          'Collect',
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                                  itemCount: allDocs.length),
                         ),
-                      ),
-                    ),
-                  )
-                ],
-              );
+                        InkWell(
+                          onTap: () async {
+                            net = cashIn - cashOut;
+                            final amountCollected = await showDialog<double>(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text('Collected Amount?'),
+                                  content: TextField(
+                                    controller: collectedAmount,
+                                    keyboardType: TextInputType.number,
+                                    textInputAction: TextInputAction.done,
+                                    decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                              color: Colors.grey, width: 1.5),
+                                          borderRadius:
+                                              BorderRadius.circular(25),
+                                        ),
+                                        labelText: 'Collected:'),
+                                  ),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                      onPressed: () {
+                                        collectedAmount.clear();
+                                        Navigator.of(context).pop(null);
+                                      },
+                                      child: Text(
+                                        'Cancel',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                    FlatButton(
+                                        onPressed: () async {
+                                          final collected = double.parse(
+                                              collectedAmount.text);
+                                          collectedAmount.clear();
+                                          Navigator.of(context).pop(collected);
+                                        },
+                                        child: Text(
+                                          'Send',
+                                          style: TextStyle(color: Colors.green),
+                                        ))
+                                  ],
+                                );
+                              },
+                            );
+
+                            if (amountCollected == null) {
+                              print('not clear');
+                              return;
+                            }
+                            savedDocs.forEach((element) {
+                              if (element.reference.path.split('/')[0] ==
+                                  'revenue') {
+                                Firestore.instance
+                                    .collection('revenue')
+                                    .document(element.documentID)
+                                    .updateData({
+                                  'status': 'approved',
+                                });
+                              } else if (element.reference.path.split('/')[0] ==
+                                  'expenses') {
+                                Firestore.instance
+                                    .collection('expenses')
+                                    .document(element.documentID)
+                                    .updateData({
+                                  'status': 'approved',
+                                });
+                              } else if (element.reference.path.split('/')[0] ==
+                                  'routes') {
+                                final expensesDocument = {
+                                  'userName': element.data['name'],
+                                  'date': element.data['date'],
+                                  'supplier': 'Distribution',
+                                  'amount': element.data['fees'],
+                                  'status': 'approved',
+                                };
+
+                                final revenueDocument = {
+                                  'userName': element.data['name'],
+                                  'date': element.data['date'],
+                                  'source': 'Cairo Distribution',
+                                  'amount': element.data['totalAmount'],
+                                  'status': 'approved',
+                                };
+
+                                Firestore.instance
+                                    .collection('expenses')
+                                    .add(expensesDocument);
+                                print('expeses are added');
+                                Firestore.instance
+                                    .collection('revenue')
+                                    .add(revenueDocument);
+                                print('revenue are added');
+                                Firestore.instance
+                                    .collection('routes')
+                                    .document(element.documentID)
+                                    .updateData({
+                                  'status': 'collected',
+                                });
+                              }
+                            });
+                            if (amountCollected >= (cashIn - cashOut)) {
+                              print('clear');
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text('Successed'),
+                                  content: Text(
+                                      'The Cashes were collected Succefuly'),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                      onPressed: () {
+                                        collectedAmount.clear();
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text(
+                                        'Ok',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              return;
+                            } else {
+                              print('bad');
+                              print(cashIn);
+                              print(cashOut);
+                              print(amountCollected);
+                              double loan = cashIn - cashOut - amountCollected;
+                              print(loan);
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text('Fiscal deficit'),
+                                  content: Text(
+                                      'There is a loan has to be determined'),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                      onPressed: () async {
+                                        await Navigator.of(context)
+                                            .pushNamed('/addLoans', arguments: {
+                                          'money': loan,
+                                        });
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text(
+                                        'Ok',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            setState(() {
+                              cashIn = 0;
+                              cashOut = 0;
+                              net = 0;
+                            });
+                          },
+                          child: Container(
+                            color: Color.fromRGBO(170, 44, 94, 1),
+                            width: double.infinity,
+                            height: 50,
+                            child: Center(
+                              child: Text(
+                                'Collect',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    );
+                  });
             },
           );
         },
@@ -327,8 +439,10 @@ class _CashFlowState extends State<CashFlow> {
       {String suplierName,
       String userName,
       String date,
-      double amount,
-      String documentId}) {
+      amount,
+      String documentId,
+      index,
+      bool isSelcted}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -395,47 +509,53 @@ class _CashFlowState extends State<CashFlow> {
                     SizedBox(
                       height: 10,
                     ),
-                    InkWell(
-                      onTap: () async {
-                        await Firestore.instance
+                    isSelcted
+                        ? InkWell(
+                            onTap: () async {
+                              /*await Firestore.instance
                             .collection('expenses')
                             .document(documentId)
                             .updateData({
                           'approved': true,
-                        });
-                        await showDialog(
-                            context: context,
-                            child: AlertDialog(
-                              title: Text('Confirmed'),
-                              content: Text('This item has been confirmed'),
-                              actions: <Widget>[
-                                FlatButton(
-                                  child: Text('Ok'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                )
-                              ],
-                            ));
-                      },
-                      child: Container(
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(
-                              "ADD",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
+                        });*/
+                              cashOut += amount;
+                              savedDocs.add(allDocs[index]);
+                              await showDialog(
+                                  context: context,
+                                  child: AlertDialog(
+                                    title: Text('Confirmed'),
+                                    content:
+                                        Text('This item has been confirmed'),
+                                    actions: <Widget>[
+                                      FlatButton(
+                                        child: Text('Ok'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      )
+                                    ],
+                                  ));
+                              setState(() {});
+                            },
+                            child: Container(
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Text(
+                                    "ADD",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                              decoration: BoxDecoration(
+                                color: Color.fromRGBO(170, 44, 94, 1),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
                             ),
-                          ),
-                        ),
-                        decoration: BoxDecoration(
-                          color: Color.fromRGBO(170, 44, 94, 1),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    )
+                          )
+                        : SizedBox()
                   ],
                 ),
               ],
@@ -450,11 +570,14 @@ class _CashFlowState extends State<CashFlow> {
     String suplierName,
     String userName,
     String date,
-    double amount,
-    double fee,
-    double total,
+    amount,
+    fee,
+    total,
     String documentId,
+    index,
+    bool isSelcted,
   }) {
+    print('isItEnable$isSelcted');
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -506,7 +629,7 @@ class _CashFlowState extends State<CashFlow> {
                     Row(
                       children: <Widget>[
                         Text(
-                          '${amount} EGP',
+                          '${amount.round()} EGP',
                           style: TextStyle(
                               color: Color.fromRGBO(170, 44, 94, 1),
                               fontSize: 18,
@@ -521,74 +644,199 @@ class _CashFlowState extends State<CashFlow> {
                     SizedBox(
                       height: 10,
                     ),
-                    InkWell(
-                      onTap: () async {
-                        await Firestore.instance
-                            .collection('routes')
+                    isSelcted
+                        ? InkWell(
+                            onTap: () async {
+                              /* await Firestore.instance
+                            .collection('revenue')
                             .document(documentId)
                             .updateData({
-                          'status': 'collected',
-                        });
-                        final expensesDocument = {
-                          'userName': userName,
-                          'date': date,
-                          'supplier': 'Distribution',
-                          'amount': fee,
-                          'approved': true,
-                        };
+                          'status': 'approved',
+                        });*/
+                              cashIn += amount.round();
+                              savedDocs.add(allDocs[index]);
 
-                        final revenueDocument = {
-                          'userName': userName,
-                          'date': date,
-                          'source': 'Distribution',
-                          'amount': total,
-                          'approved': true,
-                        };
-
-                        await Firestore.instance
-                            .collection('expenses')
-                            .add(expensesDocument);
-                        print('expeses are added');
-                        await Firestore.instance
-                            .collection('revenue')
-                            .add(revenueDocument);
-                        print('revenue are added');
-                        await showDialog(
-                            context: context,
-                            child: AlertDialog(
-                              title: Text('Confirmed'),
-                              content: Text('This item has been confirmed'),
-                              actions: <Widget>[
-                                FlatButton(
-                                  child: Text('Ok'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                )
-                              ],
-                            ));
-                      },
-                      child: Container(
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(
-                              "ADD",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
+                              await showDialog(
+                                  context: context,
+                                  child: AlertDialog(
+                                    title: Text('Confirmed'),
+                                    content:
+                                        Text('This item has been confirmed'),
+                                    actions: <Widget>[
+                                      FlatButton(
+                                        child: Text('Ok'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      )
+                                    ],
+                                  ));
+                              setState(() {});
+                            },
+                            child: Container(
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Text(
+                                    "ADD",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                              decoration: BoxDecoration(
+                                color: Color.fromRGBO(170, 44, 94, 1),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
                             ),
-                          ),
-                        ),
-                        decoration: BoxDecoration(
-                          color: Color.fromRGBO(170, 44, 94, 1),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                    )
+                          )
+                        : SizedBox()
                   ],
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  routeCashFlowTile({
+    String suplierName,
+    String userName,
+    String date,
+    amount,
+    fee,
+    total,
+    String documentId,
+    index,
+    bool isSelcted,
+  }) {
+    return InkWell(
+      onTap: (){
+        Navigator.of(context).pushNamed('routeItemDetails',arguments: {
+          'docId':documentId,
+        });
+      },
+          child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(
+              width: 2.5,
+              color: Color.fromRGBO(170, 44, 94, 1),
+            ),
+            color: Colors.white,
+          ),
+          width: MediaQuery.of(context).size.width,
+          child: Container(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(
+                    child: RichText(
+                        text: TextSpan(
+                      text: "${suplierName}\n",
+                      children: [
+                        TextSpan(
+                          text: '${userName}\n',
+                          style: TextStyle(
+                            color: Color.fromRGBO(96, 125, 129, 1),
+                          ),
+                        ),
+                        TextSpan(
+                          text: '${date}',
+                          style: TextStyle(
+                              color: Color.fromRGBO(96, 125, 129, 1),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16),
+                        ),
+                      ],
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromRGBO(170, 44, 94, 1)),
+                    )),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            '${amount.round()} EGP',
+                            style: TextStyle(
+                                color: Color.fromRGBO(170, 44, 94, 1),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Color.fromRGBO(170, 44, 94, 1),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      isSelcted
+                          ? InkWell(
+                              onTap: () async {
+                                cashIn += amount.round();
+                                /* await Firestore.instance
+                              .collection('routes')
+                              .document(documentId)
+                              .updateData({
+                            'status': 'collected',
+                          });*/
+                                savedDocs.add(allDocs[index]);
+
+                                await showDialog(
+                                    context: context,
+                                    child: AlertDialog(
+                                      title: Text('Confirmed'),
+                                      content:
+                                          Text('This item has been confirmed'),
+                                      actions: <Widget>[
+                                        FlatButton(
+                                          child: Text('Ok'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        )
+                                      ],
+                                    ));
+                                setState(() {});
+                              },
+                              child: Container(
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Text(
+                                      "ADD",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(170, 44, 94, 1),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                            )
+                          : SizedBox()
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

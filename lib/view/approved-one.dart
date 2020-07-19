@@ -65,7 +65,7 @@ class _ApprovedOneState extends State<ApprovedOne> {
             ),
             Expanded(
               child: FutureBuilder<QuerySnapshot>(
-                future: Firestore.instance.collection('revenue').where('approved', isEqualTo: true).getDocuments(),
+                future: Firestore.instance.collection('revenue').where('status', isEqualTo: 'approved').getDocuments(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
