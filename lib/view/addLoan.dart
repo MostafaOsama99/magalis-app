@@ -19,7 +19,7 @@ class _AddLoansState extends State<AddLoans> {
   String empName;
   String empId = '';
 
-  List names = [];
+  List<Map> names = [];
   var totalLoans;
   @override
   Widget build(BuildContext context) {
@@ -183,21 +183,28 @@ class _AddLoansState extends State<AddLoans> {
                 double totalLoans = double.parse(moneyController.text) == null
                     ? 0
                     : double.parse(moneyController.text);
-
-
-                Map loanData =
-                    names.firstWhere((element) => element['name'] == name);
-                    if(loanData['loans'] != null){
-                      totalLoans += loanData['loans']+0.0;
+                print(names);
+                int loanIndex =
+                    names.indexWhere((element) => element['name'] == name);
+                if (loanIndex != -1) {
+                  final loanData =names[loanIndex];
+                  if (loanData != null) {
+                    if (loanData['loans'] != null) {
+                      totalLoans += loanData['loans'] + 0.0;
                     }
-
-                Firestore.instance
-                    .collection('employee')
-                    .document(loanData['docId'])
-                    .updateData({
-                  'loan': totalLoans,
-                  'lastDate': date,
-                });
+                    Firestore.instance
+                        .collection('employee')
+                        .document(loanData['docId'])
+                        .updateData({
+                      'loan': totalLoans,
+                      'lastDate': date,
+                    });
+                  }
+                } else {
+                  Firestore.instance
+                      .collection('employee')
+                      .add({'name': name, 'loan': money, 'lastDate': date});
+                }
 
                 Navigator.of(context).pop();
               },

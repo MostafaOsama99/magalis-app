@@ -16,7 +16,9 @@ class _CashFlowState extends State<CashFlow> {
   TextEditingController collectedAmount = TextEditingController();
   bool done = false;
   var shortage = 0.0;
+  var excess = 0.0;
   int shortageIndex = 0;
+  int excessIndex = 0;
   @override
   Widget build(BuildContext context) {
     if (!done) {
@@ -26,12 +28,20 @@ class _CashFlowState extends State<CashFlow> {
           .get()
           .then((value) {
         var money = value.data['cashMoney'];
+        var cash = value.data['cashed'];
+        cashIn += cash;
         cashOut += money;
         shortage += money;
+        excess += cash;
         if (shortage > 0)
           shortageIndex = 1;
         else
           shortageIndex = 0;
+
+        if (excess > 0)
+          excessIndex = 1;
+        else
+          excessIndex = 0;
         print('shortage:$cashOut');
         print('shortage:$shortage');
         setState(() {
@@ -84,6 +94,9 @@ class _CashFlowState extends State<CashFlow> {
                     });
                     print('indexes');
                     print(allDocs.length + shortageIndex);
+                    print(
+                        'All indexess:${allDocs.length + shortageIndex + excessIndex}');
+
                     return Column(
                       children: [
                         SizedBox(
@@ -179,7 +192,8 @@ class _CashFlowState extends State<CashFlow> {
                           ),
                         ),
                         Expanded(
-                          child: allDocs.length == 0
+                          child: allDocs.length + shortageIndex + excessIndex ==
+                                  0
                               ? Center(
                                   child: Text(
                                   'No Cash Flow Exist!!',
@@ -190,14 +204,23 @@ class _CashFlowState extends State<CashFlow> {
                                 ))
                               : ListView.builder(
                                   itemBuilder: (ctx, index) {
-                                    if (shortageIndex == 1 &&
-                                        index == allDocs.length) {
+                                    if (shortageIndex == 1 && index == 1) {
                                       print('shortagessss');
                                       return expensesCashFlowTile(
                                         userName: 'Shortage',
                                         suplierName: '',
                                         date: '',
                                         amount: '${shortage}',
+                                        isSelcted: false,
+                                      );
+                                    }
+                                    if (excessIndex == 1 && index == 0) {
+                                      print('Excessesss');
+                                      return revenueCashFlowTile(
+                                        userName: 'Excess',
+                                        suplierName: '',
+                                        date: '',
+                                        amount: excess,
                                         isSelcted: false,
                                       );
                                     }
@@ -283,7 +306,9 @@ class _CashFlowState extends State<CashFlow> {
                                       return Container();
                                     }
                                   },
-                                  itemCount: allDocs.length + shortageIndex),
+                                  itemCount: allDocs.length +
+                                      shortageIndex +
+                                      excessIndex),
                         ),
                         InkWell(
                           onTap: () async {
@@ -294,19 +319,22 @@ class _CashFlowState extends State<CashFlow> {
                               builder: (context) {
                                 return AlertDialog(
                                   title: Text('Collected Amount?'),
-                                  content: TextField(
-                                    controller: collectedAmount,
-                                    keyboardType: TextInputType.number,
-                                    textInputAction: TextInputAction.done,
-                                    decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.grey, width: 1.5),
-                                          borderRadius:
-                                              BorderRadius.circular(25),
-                                        ),
-                                        labelText: 'Collected:'),
-                                  ),
+                                  content: net >= 0
+                                      ? TextField(
+                                          controller: collectedAmount,
+                                          keyboardType: TextInputType.number,
+                                          textInputAction: TextInputAction.done,
+                                          decoration: InputDecoration(
+                                              border: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.grey,
+                                                    width: 1.5),
+                                                borderRadius:
+                                                    BorderRadius.circular(25),
+                                              ),
+                                              labelText: 'Collected:'),
+                                        )
+                                      : Text('Do you want to processed?'),
                                   actions: <Widget>[
                                     FlatButton(
                                       onPressed: () {
@@ -320,8 +348,10 @@ class _CashFlowState extends State<CashFlow> {
                                     ),
                                     FlatButton(
                                         onPressed: () async {
-                                          final collected = double.parse(
-                                              collectedAmount.text);
+                                          final collected = net >= 0
+                                              ? double.parse(
+                                                  collectedAmount.text)
+                                              : 0.0;
                                           collectedAmount.clear();
                                           Navigator.of(context).pop(collected);
                                         },
@@ -478,7 +508,9 @@ class _CashFlowState extends State<CashFlow> {
                                         Navigator.of(context).pop(true);
                                       },
                                       icon: Icon(Icons.person),
-                                      label: Text('Save as a Loan'),
+                                      label: (amountCollected > net && net > 0)
+                                          ? Text('Remove a Loan')
+                                          : Text('Save as a Loan'),
                                     ),
                                   ],
                                 ),
@@ -564,33 +596,66 @@ class _CashFlowState extends State<CashFlow> {
                                   });
                                 }
                               });
-                              if (type && amountCollected > net) {
-                                Navigator.of(context).pushNamed('/addLoan',
-                                    arguments: {'money': -net});
+                              if (type && amountCollected > net && net < 0) {
                                 Firestore.instance
                                     .collection('myInfo')
                                     .document('info')
-                                    .updateData({'cashMoney': 0});
+                                    .updateData({'cashMoney': 0, 'cashed': 0});
+                                Navigator.of(context)
+                                    .pushNamed('/addLoans', arguments: {
+                                  'money': -net
+                                }).then((value) => Navigator.of(context).pop());
+                              } else if (type &&
+                                  amountCollected > net &&
+                                  net > 0) {
+                                Firestore.instance
+                                    .collection('myInfo')
+                                    .document('info')
+                                    .updateData({'cashMoney': 0, 'cashed': 0});
+                                Navigator.of(context)
+                                    .pushNamed('/loans', arguments: {
+                                  'money': amountCollected - net,
+                                  'type': 2
+                                }).then((value) => Navigator.of(context).pop());
                               } else if (type && amountCollected < net) {
-                                Navigator.of(context).pushNamed('/addLoan',
-                                    arguments: {
-                                      'money': net - amountCollected
-                                    });
+                                Navigator.of(context)
+                                    .pushNamed('/addLoans', arguments: {
+                                  'money': net - amountCollected
+                                }).then((value) => Navigator.of(context).pop());
                                 Firestore.instance
                                     .collection('myInfo')
                                     .document('info')
-                                    .updateData({'cashMoney': 0});
-                              } else if (!type && amountCollected > net) {
+                                    .updateData({'cashMoney': 0, 'cashed': 0});
+                              } else if (!type &&
+                                  amountCollected > net &&
+                                  net < 0) {
                                 Firestore.instance
                                     .collection('myInfo')
                                     .document('info')
-                                    .updateData({'cashMoney': -net});
+                                    .updateData({
+                                  'cashMoney': -net,
+                                  'cashed': 0
+                                }).then((value) => Navigator.of(context).pop());
+                                ;
+                              } else if (!type &&
+                                  amountCollected > net &&
+                                  net > 0) {
+                                Firestore.instance
+                                    .collection('myInfo')
+                                    .document('info')
+                                    .updateData({
+                                  'cashMoney': 0,
+                                  'cashed': amountCollected - net
+                                }).then((value) => Navigator.of(context).pop());
+                                ;
                               } else {
                                 Firestore.instance
                                     .collection('myInfo')
                                     .document('info')
-                                    .updateData(
-                                        {'cashMoney': net - amountCollected});
+                                    .updateData({
+                                  'cashMoney': net - amountCollected,
+                                  'cashed': 0
+                                }).then((value) => Navigator.of(context).pop());
                               }
                             }
 
