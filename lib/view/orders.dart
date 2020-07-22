@@ -196,11 +196,24 @@ class _OrdersPageState extends State<OrdersPage> {
                               'orders': lastOrders,
                               'totalAmount': orderAmount
                             });
+                            final issuesDocs = await Firestore.instance
+                                .collection('orders')
+                                .document(ordersData[i].documentID)
+                                .collection('issues')
+                                .getDocuments();
+                            issuesDocs.documents.forEach((element) {
+                              Firestore.instance
+                                  .collection('orders')
+                                  .document(ordersData[i].documentID)
+                                  .collection('issues')
+                                  .document(element.documentID)
+                                  .updateData({'isSolved': true});
+                            });
                             await Firestore.instance
                                 .collection('orders')
                                 .document(ordersData[i].documentID)
                                 .updateData({'status': 'onDistribution'});
-                                
+
                             await Navigator.of(context).pushReplacementNamed(
                               '/newRoute',
                             );

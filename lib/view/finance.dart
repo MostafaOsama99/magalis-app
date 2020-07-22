@@ -120,7 +120,7 @@ class _FinanceState extends State<Finance> {
                     children: <Widget>[
                       InkWell(
                         onTap: () =>
-                            Navigator.of(context).pushNamed('/cashFlow'),
+                            Navigator.of(context).pushNamed('/cashFlowHome'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 150,

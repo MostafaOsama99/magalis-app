@@ -18,24 +18,24 @@ class _ApprovedDetailsState extends State<ApprovedDetails> {
       expenseStream = Firestore.instance
           .collection('expenses')
           .where('date', isEqualTo: map['date'])
-          .where('approved', isEqualTo: true)
+          .where('status', isEqualTo: 'approved')
           .snapshots();
     } else if (map['type'] == 2) {
       expenseStream = Firestore.instance
           .collection('expenses')
           .where('userName', isEqualTo: map['date'])
-          .where('approved', isEqualTo: true)
+          .where('status', isEqualTo: 'approved')
           .snapshots();
     } else if (map['type'] == 3) {
       expenseStream = Firestore.instance
           .collection('expenses')
           .where('supplier', isEqualTo: map['date'])
-          .where('approved', isEqualTo: true)
+          .where('status', isEqualTo: 'approved')
           .snapshots();
     } else {
       expenseStream = Firestore.instance
           .collection('expenses')
-          .where('approved', isEqualTo: true)
+          .where('status', isEqualTo: 'approved')
           .snapshots();
     }
     return Scaffold(
@@ -112,7 +112,7 @@ class _ApprovedDetailsState extends State<ApprovedDetails> {
       {String suplierName,
       String userName,
       String date,
-      double amount,
+      amount,
       String documentId}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),

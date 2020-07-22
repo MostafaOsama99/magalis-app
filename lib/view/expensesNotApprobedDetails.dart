@@ -113,118 +113,123 @@ class _ApprovedDetailsState extends State<ExpensesNotApprovedDetails> {
       {String suplierName,
       String userName,
       String date,
-      int amount,
+      amount,
       String documentId}) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          border: Border.all(
-            width: 2.5,
-            color: Colors.black,
-          ),
-          color: Colors.white,
-        ),
-        width: MediaQuery.of(context).size.width,
+    return InkWell(
+      onTap: () => Navigator.of(context)
+          .pushNamed('/expensesDetails', arguments: {'id': documentId}),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
         child: Container(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                  child: RichText(
-                      text: TextSpan(
-                    text: "${suplierName}\n",
-                    children: [
-                      TextSpan(
-                        text: '${userName}\n',
-                        style: TextStyle(
-                          color: Color.fromRGBO(96, 125, 129, 1),
-                        ),
-                      ),
-                      TextSpan(
-                        text: '${date}',
-                        style: TextStyle(
-                            color: Color.fromRGBO(96, 125, 129, 1),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16),
-                      ),
-                    ],
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromRGBO(170, 44, 94, 1)),
-                  )),
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Text(
-                          '${amount} EGP',
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(
+              width: 2.5,
+              color: Colors.black,
+            ),
+            color: Colors.white,
+          ),
+          width: MediaQuery.of(context).size.width,
+          child: Container(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(
+                    child: RichText(
+                        text: TextSpan(
+                      text: "${suplierName}\n",
+                      children: [
+                        TextSpan(
+                          text: '${userName}\n',
                           style: TextStyle(
-                              color: Color.fromRGBO(170, 44, 94, 1),
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Color.fromRGBO(170, 44, 94, 1),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    InkWell(
-                      onTap: () async {
-                        await Firestore.instance
-                            .collection('expenses')
-                            .document(documentId)
-                            .updateData({
-                          'status': 'cashed',
-                        });
-                        await showDialog(
-                            context: context,
-                            child: AlertDialog(
-                              title: Text('Confirmed'),
-                              content: Text('This item has been confirmed'),
-                              actions: <Widget>[
-                                FlatButton(
-                                  child: Text('Ok'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                )
-                              ],
-                            ));
-                      },
-                      child: Container(
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(
-                              "ADD",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                            color: Color.fromRGBO(96, 125, 129, 1),
                           ),
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(5),
+                        TextSpan(
+                          text: '${date}',
+                          style: TextStyle(
+                              color: Color.fromRGBO(96, 125, 129, 1),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16),
                         ),
+                      ],
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromRGBO(170, 44, 94, 1)),
+                    )),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            '${amount} EGP',
+                            style: TextStyle(
+                                color: Color.fromRGBO(170, 44, 94, 1),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Color.fromRGBO(170, 44, 94, 1),
+                          )
+                        ],
                       ),
-                    )
-                  ],
-                ),
-              ],
+                      SizedBox(
+                        height: 10,
+                      ),
+                      InkWell(
+                        onTap: () async {
+                          await Firestore.instance
+                              .collection('expenses')
+                              .document(documentId)
+                              .updateData({
+                            'status': 'cashed',
+                          });
+                          await showDialog(
+                              context: context,
+                              child: AlertDialog(
+                                title: Text('Confirmed'),
+                                content: Text('This item has been confirmed'),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    child: Text('Ok'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  )
+                                ],
+                              ));
+                        },
+                        child: Container(
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Text(
+                                "ADD",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -56,7 +56,7 @@ class Loans extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: StreamBuilder<QuerySnapshot>(
-                  stream: Firestore.instance.collection('loans').snapshots(),
+                  stream: Firestore.instance.collection('employee').snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting)
                       return Center(
@@ -66,7 +66,7 @@ class Loans extends StatelessWidget {
                       itemCount: snapshot.data.documents.length,
                       itemBuilder: (ctx, index) {
                         Timestamp timestamp =
-                            snapshot.data.documents[index]['date'] as Timestamp;
+                            snapshot.data.documents[index]['lastDate'] as Timestamp;
                         DateTime dateStamp = timestamp.toDate();
                         final date = DateFormat.yMd().format(dateStamp);
                         return Container(
@@ -94,7 +94,7 @@ class Loans extends StatelessWidget {
                                           fontSize: 18),
                                     ),
                                     Text(
-                                      '${snapshot.data.documents[index]['money']}',
+                                      '${snapshot.data.documents[index]['loan']}',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16),

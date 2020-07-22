@@ -10,6 +10,48 @@ class NotApprovedDetails extends StatefulWidget {
 class _ApprovedDetailsState extends State<NotApprovedDetails> {
   @override
   Widget build(BuildContext context) {
+    final map = ModalRoute.of(context).settings.arguments as Map;
+    Stream revenuetream;
+
+    if (map != null) {
+      if (map['type'] == 1) {
+        revenuetream = Firestore.instance
+            .collection('revenue')
+            .where('date', isEqualTo: map['date'])
+            .where('status', isEqualTo: 'notApproved')
+            .snapshots();
+      } else if (map['type'] == 2) {
+        revenuetream = Firestore.instance
+            .collection('revenue')
+            .where('userName', isEqualTo: map['date'])
+            .where('status', isEqualTo: 'notApproved')
+            .snapshots();
+      } else if (map['type'] == 3) {
+        print('cairo');
+        revenuetream = Firestore.instance
+            .collection('revenue')
+            .where('isCairo', isEqualTo: true)
+            .where('status', isEqualTo: 'notApproved')
+            .snapshots();
+      } else if (map['type'] == 4) {
+        print('Cities');
+        revenuetream = Firestore.instance
+            .collection('revenue')
+            .where('isCairo', isEqualTo: false)
+            .where('status', isEqualTo: 'notApproved')
+            .snapshots();
+      } else {
+        revenuetream = Firestore.instance
+            .collection('revenue')
+            .where('status', isEqualTo: 'notApproved')
+            .snapshots();
+      }
+    } else {
+      revenuetream = Firestore.instance
+          .collection('revenue')
+          .where('status', isEqualTo: 'notApproved')
+          .snapshots();
+    }
     return Scaffold(
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
@@ -42,10 +84,7 @@ class _ApprovedDetailsState extends State<NotApprovedDetails> {
             height: 10,
           ),
           StreamBuilder<QuerySnapshot>(
-              stream: Firestore.instance
-                  .collection('expenses')
-                  .where('status', isEqualTo: 'notApproved')
-                  .snapshots(),
+              stream: revenuetream,
               builder: (context, snapshot) {
                 return ListView.builder(
                   itemBuilder: (ctx, index) {
@@ -57,7 +96,8 @@ class _ApprovedDetailsState extends State<NotApprovedDetails> {
                     final date = snapshot.data.documents[index].data['date'];
                     final amount =
                         snapshot.data.documents[index].data['amount'];
-                    return approvedTile(supplier, userName, date, amount);
+                    return approvedTile(supplier, userName, date, amount,
+                        snapshot.data.documents[index].documentID);
                   },
                   itemCount: snapshot.data.documents.length,
                 );
@@ -65,96 +105,101 @@ class _ApprovedDetailsState extends State<NotApprovedDetails> {
         ])));
   }
 
-  approvedTile(
-      String suplierName, String userName, Timestamp itemStamp, int amount) {
+  approvedTile(String suplierName, String userName, Timestamp itemStamp, amount,
+      String id) {
     DateTime itemDate = itemStamp.toDate();
     String date = DateFormat.yMd().format(itemDate);
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          border: Border.all(
-            width: 2.5,
-            color: Color.fromRGBO(170, 44, 94, 1),
-          ),
-          color: Colors.white,
-        ),
-        width: MediaQuery.of(context).size.width,
+    return InkWell(
+      onTap: () => Navigator.of(context)
+          .pushNamed('/expensesDetails', arguments: {'id': id}),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
         child: Container(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                  child: RichText(
-                      text: TextSpan(
-                    text: "${suplierName}\n",
-                    children: [
-                      TextSpan(
-                        text: '${userName}\n',
-                        style: TextStyle(
-                          color: Color.fromRGBO(96, 125, 129, 1),
-                        ),
-                      ),
-                      TextSpan(
-                        text: '${date}',
-                        style: TextStyle(
-                            color: Color.fromRGBO(96, 125, 129, 1),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16),
-                      ),
-                    ],
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color.fromRGBO(170, 44, 94, 1)),
-                  )),
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Text(
-                          '${amount} EGP',
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(
+              width: 2.5,
+              color: Color.fromRGBO(170, 44, 94, 1),
+            ),
+            color: Colors.white,
+          ),
+          width: MediaQuery.of(context).size.width,
+          child: Container(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(
+                    child: RichText(
+                        text: TextSpan(
+                      text: "${suplierName}\n",
+                      children: [
+                        TextSpan(
+                          text: '${userName}\n',
                           style: TextStyle(
-                              color: Color.fromRGBO(170, 44, 94, 1),
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Color.fromRGBO(170, 44, 94, 1),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            "ADD",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                            color: Color.fromRGBO(96, 125, 129, 1),
                           ),
                         ),
+                        TextSpan(
+                          text: '${date}',
+                          style: TextStyle(
+                              color: Color.fromRGBO(96, 125, 129, 1),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16),
+                        ),
+                      ],
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromRGBO(170, 44, 94, 1)),
+                    )),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            '${amount} EGP',
+                            style: TextStyle(
+                                color: Color.fromRGBO(170, 44, 94, 1),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Color.fromRGBO(170, 44, 94, 1),
+                          )
+                        ],
                       ),
-                      decoration: BoxDecoration(
-                        color: Color.fromRGBO(170, 44, 94, 1),
-                        borderRadius: BorderRadius.circular(5),
+                      SizedBox(
+                        height: 10,
                       ),
-                    )
-                  ],
-                ),
-              ],
+                      Container(
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              "ADD",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                        decoration: BoxDecoration(
+                          color: Color.fromRGBO(170, 44, 94, 1),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

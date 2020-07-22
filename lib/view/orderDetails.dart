@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:intl/intl.dart';
 
 //Screen 39
 class OrderDetails extends StatefulWidget {
@@ -22,90 +24,98 @@ class _OrderDetailsState extends State<OrderDetails> {
     final orderData =
         ModalRoute.of(context).settings.arguments as Map<dynamic, dynamic>;
 
-    return Scaffold(
-      backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        elevation: 10,
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        title: Image.asset(
-          'assets/images/logo.png',
-          width: 150,
-        ),
-        actions: <Widget>[
-          isIssue
-              ? IconButton(
-                  icon: Icon(
-                    Icons.error,
-                    color: Colors.red,
-                  ),
-                  onPressed: null,
-                )
-              : SizedBox(),
-          showMenu
-              ? PopupMenuButton<String>(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: Colors.black,
-                  ),
-                  onSelected: (val) {
-                    if (val == 'Cancel') {
-                      Firestore.instance
-                          .collection('orders')
-                          .document(docId)
-                          .updateData({'status': 'canceled'}).then(
-                              (value) => Navigator.of(context).pop());
-                    } else if (val == 'Archive') {
-                      Firestore.instance
-                          .collection('orders')
-                          .document(docId)
-                          .updateData({'status': 'archived'}).then(
-                              (value) => Navigator.of(context).pop());
-                    } else if (val == 'Report an Issue') {
-                      Navigator.of(context).pushNamed('/addIssue',
-                          arguments: {'id': docId, 'orderNumber': orderNumber});
-                    }
-                  },
-                  itemBuilder: ((BuildContext context) {
-                    return {'Cancel', 'Archive', 'Report an Issue'}
-                        .map((String choice) {
-                      return PopupMenuItem<String>(
-                        value: choice,
-                        child: Text(choice),
-                      );
-                    }).toList();
-                  }),
-                )
-              : SizedBox(),
-        ],
-      ),
-      body: FutureBuilder<DocumentSnapshot>(
-          future: Firestore.instance
-              .collection('orders')
-              .document(orderData['docId'])
-              .get(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            final order = snapshot.data.data;
-            docId = snapshot.data.documentID;
-            orderNumber = snapshot.data.data['orderNumber'];
+    return StreamBuilder<DocumentSnapshot>(
+        stream: Firestore.instance
+            .collection('orders')
+            .document(orderData['docId'])
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          final order = snapshot.data.data;
+          docId = snapshot.data.documentID;
+          orderNumber = snapshot.data.data['orderNumber'];
+          isIssue = order['issued'];
+          showMenu = order['status'] == 'noAction' ? true : false;
 
-            Future.delayed(Duration(milliseconds: 50)).then((value) {
-              if (order['status'] == 'noAction' && !isCalled) {
-                isCalled = true;
-                if (order['isIssue']) {
-                  isIssue = true;
-                }
-                setState(() {
-                  showMenu = true;
-                });
-              }
-            });
-            return Column(
+          return Scaffold(
+            backgroundColor: Colors.grey[200],
+            appBar: AppBar(
+              elevation: 10,
+              centerTitle: true,
+              backgroundColor: Colors.white,
+              title: Image.asset(
+                'assets/images/logo.png',
+                width: 150,
+              ),
+              actions: <Widget>[
+                isIssue
+                    ? Icon(
+                        Icons.error,
+                        color: Colors.red,
+                      )
+                    : Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                      ),
+                showMenu
+                    ? PopupMenuButton<String>(
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: Colors.black,
+                        ),
+                        onSelected: (val) async {
+                          if (val == 'Cancel') {
+                            Firestore.instance
+                                .collection('orders')
+                                .document(docId)
+                                .updateData({'status': 'canceled'}).then(
+                                    (value) => Navigator.of(context).pop());
+                          } else if (val == 'Archive') {
+                            //canceled  archived
+                            final issuesDocs = await Firestore.instance
+                                .collection('orders')
+                                .document(snapshot.data.documentID)
+                                .collection('issues')
+                                .getDocuments();
+                            issuesDocs.documents.forEach((element) {
+                              Firestore.instance
+                                  .collection('orders')
+                                  .document(snapshot.data.documentID)
+                                  .collection('issues')
+                                  .document(element.documentID)
+                                  .updateData({'isSolved': true});
+                            });
+                            Firestore.instance
+                                .collection('orders')
+                                .document(docId)
+                                .updateData({'status': 'archived'}).then(
+                                    (value) => Navigator.of(context).pop());
+                          } else if (val == 'Report an Issue') {
+                            Navigator.of(context).pushNamed('/addIssue',
+                                arguments: {
+                                  'id': docId,
+                                  'orderNumber': orderNumber
+                                });
+                          }
+                        },
+                        itemBuilder: ((BuildContext context) {
+                          return {'Cancel', 'Archive', 'Report an Issue'}
+                              .map((String choice) {
+                            return PopupMenuItem<String>(
+                              value: choice,
+                              child: Text(choice),
+                            );
+                          }).toList();
+                        }),
+                      )
+                    : SizedBox(),
+              ],
+            ),
+            body: Column(
               children: <Widget>[
                 SizedBox(
                   height: 10,
@@ -173,12 +183,12 @@ class _OrderDetailsState extends State<OrderDetails> {
                                   fontSize: 16),
                             ),
                             /*Text(
-                            'Received Date: 18/5/2020',
-                            style: TextStyle(
-                                color: Color.fromRGBO(170, 44, 94, 1),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16),
-                          ),*/
+                                'Received Date: 18/5/2020',
+                                style: TextStyle(
+                                    color: Color.fromRGBO(170, 44, 94, 1),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16),
+                              ),*/
                             Text(
                               'Area: ${order['isCairo'] ? order['area'] : order['city']}',
                               style: TextStyle(
@@ -379,7 +389,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                           ],
                         ),
                       ),
-                     isIssue? Container(
+                      Container(
                         height: 200,
                         width: MediaQuery.of(context).size.width,
                         margin: EdgeInsets.all(12),
@@ -396,13 +406,114 @@ class _OrderDetailsState extends State<OrderDetails> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(
-                              'Issues',
-                              style: TextStyle(
-                                  color: Color.fromRGBO(
-                                      170, 44, 94, 1), //rgb(96, 125, 130)
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  'Notes',
+                                  style: TextStyle(
+                                      color: Color.fromRGBO(
+                                          170, 44, 94, 1), //rgb(96, 125, 130)
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18),
+                                ),
+                                (order['status'] !=
+                                            'collected' && //canceled  archived
+                                        order['status'] != 'archived' &&
+                                        order['status'] != 'canceled')
+                                    ? RaisedButton(
+                                        onPressed: () async {
+                                          TextEditingController noteController =
+                                              TextEditingController();
+                                          bool confrimation = await showDialog(
+                                            context: context,
+                                            builder: (ctx) => AlertDialog(
+                                              title: Text('Add New Note'),
+                                              content: TextField(
+                                                controller: noteController,
+                                                decoration: InputDecoration(
+                                                  labelText: 'Note',
+                                                  hintText:
+                                                      'Write the Note here:',
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    borderSide: BorderSide(
+                                                        color: Colors.blue,
+                                                        width: 1.5),
+                                                  ),
+                                                ),
+                                              ),
+                                              actions: <Widget>[
+                                                FlatButton(
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(false),
+                                                  child: Text(
+                                                    'Cancel',
+                                                    style: TextStyle(
+                                                        color: Colors.red),
+                                                  ),
+                                                ),
+                                                FlatButton(
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(true),
+                                                  child: Text(
+                                                    'Send',
+                                                    style: TextStyle(
+                                                        color: Colors.green),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                          if (confrimation) {
+                                            if (noteController.text.isEmpty) {
+                                              await showDialog(
+                                                context: context,
+                                                builder: (ctx) => AlertDialog(
+                                                  title:
+                                                      Text('Validation Error'),
+                                                  content: Text(
+                                                      'You must define the note\'s description'),
+                                                  actions: <Widget>[
+                                                    FlatButton(
+                                                        onPressed: () =>
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop(),
+                                                        child: Text('Ok!'))
+                                                  ],
+                                                ),
+                                              );
+                                              return;
+                                            }
+                                            List notes = order['notes'];
+                                            notes.add({
+                                              'from': 'Ahmed Omar',
+                                              'note': noteController.text
+                                            });
+                                            Firestore.instance
+                                                .collection('orders')
+                                                .document(
+                                                    snapshot.data.documentID)
+                                                .updateData({'notes': notes});
+                                          }
+                                        },
+                                        child: Text(
+                                          'Add Note',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        color: Color.fromRGBO(170, 44, 94, 1),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                      )
+                                    : SizedBox(),
+                              ],
                             ),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 4),
@@ -412,45 +523,51 @@ class _OrderDetailsState extends State<OrderDetails> {
                               ),
                             ),
                             Expanded(
-                              child: ListView.builder(
-                                itemBuilder: (ctx, index) => Column(
-                                  children: <Widget>[
-                                    ListTile(
-                                      title: Text(
-                                        '${order['issues'][index]['issue']}',
-                                        style: TextStyle(
-                                          color:
-                                              Color.fromRGBO(96, 125, 130, 1),
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                      trailing: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                              child: (order['notes'] != null &&
+                                      (order['notes'] as List).isNotEmpty)
+                                  ? ListView.builder(
+                                      itemBuilder: (ctx, index) => Column(
                                         children: <Widget>[
-                                          Text(
-                                            '${order['issues'][index]['from']}',
-                                            style: TextStyle(
-                                              color: Color.fromRGBO(
-                                                  96, 125, 130, 1),
-                                              fontSize: 14,
+                                          ListTile(
+                                            title: Text(
+                                              '${order['notes'][index]['note']}',
+                                              style: TextStyle(
+                                                color: Color.fromRGBO(
+                                                    96, 125, 130, 1),
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                            trailing: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                Text(
+                                                  '${order['notes'][index]['from']}',
+                                                  style: TextStyle(
+                                                    color: Color.fromRGBO(
+                                                        96, 125, 130, 1),
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
+                                          Divider(
+                                            thickness: 2.5,
+                                          )
                                         ],
                                       ),
-                                    ),
-                                    Divider(
-                                      thickness: 2.5,
+                                      itemCount:
+                                          (order['notes'] as List).length,
                                     )
-                                  ],
-                                ),
-                                itemCount: (order['issues'] as List).length,
-                              ),
-                            ),
+                                  : Center(
+                                      child: Text('No note to show'),
+                                    ),
+                            )
                           ],
                         ),
-                      ):SizedBox(),
-                       Container(
+                      ),
+                      Container(
                         height: 200,
                         width: MediaQuery.of(context).size.width,
                         margin: EdgeInsets.all(12),
@@ -467,13 +584,115 @@ class _OrderDetailsState extends State<OrderDetails> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(
-                              'Notes',
-                              style: TextStyle(
-                                  color: Color.fromRGBO(
-                                      170, 44, 94, 1), //rgb(96, 125, 130)
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  'Issues',
+                                  style: TextStyle(
+                                      color: Color.fromRGBO(
+                                          170, 44, 94, 1), //rgb(96, 125, 130)
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18),
+                                ),
+                                order['status'] == 'noAction'
+                                    ? RaisedButton(
+                                        onPressed: () async {
+                                          TextEditingController
+                                              issueDescription =
+                                              TextEditingController();
+                                          bool confirmation = await showDialog(
+                                            context: context,
+                                            builder: (ctx) => AlertDialog(
+                                              title: Text('Add New Issue'),
+                                              content: TextField(
+                                                controller: issueDescription,
+                                                decoration: InputDecoration(
+                                                  labelText: 'Description',
+                                                  hintText:
+                                                      'Write the Description here:',
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                    borderSide: BorderSide(
+                                                        color: Colors.blue,
+                                                        width: 1.5),
+                                                  ),
+                                                ),
+                                              ),
+                                              actions: <Widget>[
+                                                FlatButton(
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(false),
+                                                  child: Text(
+                                                    'Cancel',
+                                                    style: TextStyle(
+                                                        color: Colors.red),
+                                                  ),
+                                                ),
+                                                FlatButton(
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(true),
+                                                  child: Text(
+                                                    'Send',
+                                                    style: TextStyle(
+                                                        color: Colors.green),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                          if (confirmation) {
+                                            if (issueDescription.text.isEmpty) {
+                                              await showDialog(
+                                                context: context,
+                                                builder: (ctx) => AlertDialog(
+                                                  title:
+                                                      Text('Validation Error'),
+                                                  content: Text(
+                                                      'You must define the issue\'s description'),
+                                                  actions: <Widget>[
+                                                    FlatButton(
+                                                        onPressed: () =>
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop(),
+                                                        child: Text('Ok!'))
+                                                  ],
+                                                ),
+                                              );
+                                              return;
+                                            }
+                                            Firestore.instance
+                                                .collection('issues')
+                                                .add({
+                                              'description':
+                                                  issueDescription.text,
+                                              'createdUser': 'Ahmed Omar',
+                                              'createdDate': DateFormat.yMd()
+                                                  .format(DateTime.now()),
+                                              'isCairo': order['isCairo'],
+                                              'isSolved': false,
+                                              'orderId':
+                                                  snapshot.data.documentID
+                                            });
+                                          }
+                                        },
+                                        child: Text(
+                                          'Add Issue',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        color: Color.fromRGBO(170, 44, 94, 1),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                      )
+                                    : SizedBox(),
+                              ],
                             ),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 4),
@@ -483,40 +702,217 @@ class _OrderDetailsState extends State<OrderDetails> {
                               ),
                             ),
                             Expanded(
-                              child: ListView.builder(
-                                itemBuilder: (ctx, index) => Column(
-                                  children: <Widget>[
-                                    ListTile(
-                                      title: Text(
-                                        '${order['notes'][index]['note']}',
-                                        style: TextStyle(
-                                          color:
-                                              Color.fromRGBO(96, 125, 130, 1),
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                      trailing: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          Text(
-                                            '${order['notes'][index]['from']}',
-                                            style: TextStyle(
-                                              color: Color.fromRGBO(
-                                                  96, 125, 130, 1),
-                                              fontSize: 14,
+                              child: StreamBuilder<QuerySnapshot>(
+                                  stream: Firestore.instance
+                                      .collection('orders')
+                                      .document(snapshot.data.documentID)
+                                      .collection('issues')
+                                      .snapshots(),
+                                  builder: (context, issueSnapshot) {
+                                    if (issueSnapshot.connectionState ==
+                                        ConnectionState.waiting)
+                                      return Center(
+                                          child: CircularProgressIndicator());
+                                    final issueDocument =
+                                        issueSnapshot.data.documents;
+
+                                    return issueSnapshot
+                                                .data.documents.length ==
+                                            0
+                                        ? Center(
+                                            child: Text('No Issue Exit'),
+                                          )
+                                        : ListView.builder(
+                                            itemBuilder: (ctx, index) => Column(
+                                              children: <Widget>[
+                                                Slidable(
+                                                  actionPane:
+                                                      SlidableDrawerActionPane(),
+                                                  actionExtentRatio: 0.25,
+                                                  actions: <Widget>[
+                                                    IconSlideAction(
+                                                      onTap: () async {
+                                                        bool confirm =
+                                                            await showDialog(
+                                                          context: context,
+                                                          builder: (ctx) =>
+                                                              AlertDialog(
+                                                            title: Text(
+                                                                'Confirmation?'),
+                                                            content: Text(
+                                                                'Are You sure about consdiring this issue as solved?'),
+                                                            actions: <Widget>[
+                                                              FlatButton(
+                                                                onPressed: () =>
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop(
+                                                                            false),
+                                                                child: Text(
+                                                                  'Cancel',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .red),
+                                                                ),
+                                                              ),
+                                                              FlatButton(
+                                                                onPressed: () =>
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop(
+                                                                            true),
+                                                                child: Text(
+                                                                  'Yes',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .green),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        );
+                                                        if (confirm) {
+                                                          Firestore.instance
+                                                              .collection(
+                                                                  'orders')
+                                                              .document(snapshot
+                                                                  .data
+                                                                  .documentID)
+                                                              .collection(
+                                                                  'issues')
+                                                              .document(
+                                                                  issueDocument[
+                                                                          index]
+                                                                      .documentID)
+                                                              .updateData({
+                                                            'isSolved': true
+                                                          });
+                                                        }
+                                                      },
+                                                      color: Colors.green,
+                                                      icon: Icons.check_circle,
+                                                      caption: 'Solved',
+                                                    )
+                                                  ],
+                                                  secondaryActions: <Widget>[
+                                                    IconSlideAction(
+                                                      onTap: () async {
+                                                        bool confirm =
+                                                            await showDialog(
+                                                          context: context,
+                                                          builder: (ctx) =>
+                                                              AlertDialog(
+                                                            title: Text(
+                                                                'Confirmation?'),
+                                                            content: Text(
+                                                                'Are You sure about consdiring this issue as solved?'),
+                                                            actions: <Widget>[
+                                                              FlatButton(
+                                                                onPressed: () =>
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop(
+                                                                            false),
+                                                                child: Text(
+                                                                  'Cancel',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .red),
+                                                                ),
+                                                              ),
+                                                              FlatButton(
+                                                                onPressed: () =>
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop(
+                                                                            true),
+                                                                child: Text(
+                                                                  'Yes',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .green),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        );
+                                                        if (confirm) {
+                                                          Firestore.instance
+                                                              .collection(
+                                                                  'orders')
+                                                              .document(snapshot
+                                                                  .data
+                                                                  .documentID)
+                                                              .collection(
+                                                                  'issues')
+                                                              .document(
+                                                                  issueDocument[
+                                                                          index]
+                                                                      .documentID)
+                                                              .updateData({
+                                                            'isSolved': true
+                                                          });
+                                                        }
+                                                      },
+                                                      color: Colors.green,
+                                                      icon: Icons.check_circle,
+                                                      caption: 'Solved',
+                                                    )
+                                                  ],
+                                                  child: ListTile(
+                                                    onTap: () {},
+                                                    title: Text(
+                                                      '${issueDocument[index].data['description']}',
+                                                      style: TextStyle(
+                                                        color: Color.fromRGBO(
+                                                            96, 125, 130, 1),
+                                                        fontSize: 18,
+                                                      ),
+                                                    ),
+                                                    trailing: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: <Widget>[
+                                                        issueDocument[index]
+                                                                    .data[
+                                                                'isSolved']
+                                                            ? Icon(
+                                                                Icons
+                                                                    .check_circle,
+                                                                color: Colors
+                                                                    .green,
+                                                              )
+                                                            : Icon(
+                                                                Icons.error,
+                                                                color:
+                                                                    Colors.red,
+                                                              ),
+                                                        Text(
+                                                          '${issueDocument[index].data['createdUser']}',
+                                                          style: TextStyle(
+                                                            color:
+                                                                Color.fromRGBO(
+                                                                    96,
+                                                                    125,
+                                                                    130,
+                                                                    1),
+                                                            fontSize: 14,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                Divider(
+                                                  thickness: 2.5,
+                                                )
+                                              ],
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Divider(
-                                      thickness: 2.5,
-                                    )
-                                  ],
-                                ),
-                                itemCount: (order['notes'] as List).length,
-                              ),
+                                            itemCount: issueSnapshot
+                                                .data.documents.length,
+                                          );
+                                  }),
                             ),
                           ],
                         ),
@@ -541,6 +937,20 @@ class _OrderDetailsState extends State<OrderDetails> {
                             order['status'] == 'noAction'
                                 ? InkWell(
                                     onTap: () async {
+                                      final issuesDocs = await Firestore
+                                          .instance
+                                          .collection('orders')
+                                          .document(snapshot.data.documentID)
+                                          .collection('issues')
+                                          .getDocuments();
+                                      issuesDocs.documents.forEach((element) {
+                                        Firestore.instance
+                                            .collection('orders')
+                                            .document(snapshot.data.documentID)
+                                            .collection('issues')
+                                            .document(element.documentID)
+                                            .updateData({'isSolved': true});
+                                      });
                                       if (order['isCairo']) {
                                         await Navigator.of(context)
                                             .pushNamed('/newRoute', arguments: {
@@ -637,8 +1047,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                   ),
                 ),
               ],
-            );
-          }),
-    );
+            ),
+          );
+        });
   }
 }

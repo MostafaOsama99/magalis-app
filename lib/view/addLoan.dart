@@ -1,11 +1,26 @@
 //Screen 14
+import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class AddLoans extends StatelessWidget {
+class AddLoans extends StatefulWidget {
+  @override
+  _AddLoansState createState() => _AddLoansState();
+}
+
+class _AddLoansState extends State<AddLoans> {
   final nameController = TextEditingController();
+
   final moneyController = TextEditingController();
 
+  GlobalKey key =
+      new GlobalKey<AutoCompleteTextFieldState<Map<dynamic, dynamic>>>();
+  Map<dynamic, dynamic> selected = {'name': ''};
+  String empName;
+  String empId = '';
+
+  List names = [];
+  var totalLoans;
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -24,6 +39,7 @@ class AddLoans extends StatelessWidget {
         moneyController.text = '$docMoney';
       }
     }
+    nameController.text = empName;
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -70,28 +86,50 @@ class AddLoans extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Text(
-                          'Name',
-                          style: TextStyle(
-                              color: Color.fromRGBO(170, 44, 94, 1),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20),
-                        ),
-                        Divider(
-                          color: Color.fromRGBO(128, 151, 155, 0.6),
-                          thickness: 2.5,
-                        ),
-                        TextField(
-                          controller: nameController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 1.5),
-                            ),
-                            hintText: 'Write Here',
-                          ),
-                        ) //rgb(128, 151, 155)
+                        FutureBuilder<QuerySnapshot>(
+                            future: Firestore.instance
+                                .collection('employee')
+                                .getDocuments(),
+                            builder: (context, snapshot) {
+                              names = snapshot.data.documents
+                                  .map<Map>((element) => {
+                                        'name': element.data['name'],
+                                        'docId': element.documentID,
+                                        'loans': element.data['loan']
+                                      })
+                                  .toList();
+                              return AutoCompleteTextField<
+                                  Map<dynamic, dynamic>>(
+                                controller: nameController,
+                                decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey, width: 1.5),
+                                    ),
+                                    hintText: 'Search Employee',
+                                    suffixIcon: Icon(Icons.search)),
+                                itemSubmitted: (item) {
+                                  empName = item['name'];
+                                  setState(() => selected = item);
+                                },
+                                key: key,
+                                suggestions: names,
+                                itemBuilder: (context, suggestion) =>
+                                    new Padding(
+                                        child: new ListTile(
+                                          title: new Text(suggestion['name']),
+                                        ),
+                                        padding: EdgeInsets.all(8.0)),
+                                itemFilter: (suggestion, input) =>
+                                    suggestion['name']
+                                        .toLowerCase()
+                                        .startsWith(input.toLowerCase()),
+                                itemSorter: (a, b) =>
+                                    a == b ? 0 : a.length > b.length ? -1 : 1,
+                              );
+                            }),
+                        //rgb(128, 151, 155)
                       ],
                     ),
                   ),
@@ -139,18 +177,28 @@ class AddLoans extends StatelessWidget {
             InkWell(
               onTap: () async {
                 final name = nameController.text;
+                if (moneyController.text.isEmpty) return;
                 final money = moneyController.text;
                 final date = DateTime.now();
-                if (docId == null) {
-                  await Firestore.instance
-                      .collection('loans')
-                      .add({'name': name, 'date': date, 'money': money});
-                } else {
-                  await Firestore.instance
-                      .collection('loans')
-                      .document(docId)
-                      .updateData({'name': name, 'money': money});
-                }
+                double totalLoans = double.parse(moneyController.text) == null
+                    ? 0
+                    : double.parse(moneyController.text);
+
+
+                Map loanData =
+                    names.firstWhere((element) => element['name'] == name);
+                    if(loanData['loans'] != null){
+                      totalLoans += loanData['loans']+0.0;
+                    }
+
+                Firestore.instance
+                    .collection('employee')
+                    .document(loanData['docId'])
+                    .updateData({
+                  'loan': totalLoans,
+                  'lastDate': date,
+                });
+
                 Navigator.of(context).pop();
               },
               child: Container(

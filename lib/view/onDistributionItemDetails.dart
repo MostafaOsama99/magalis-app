@@ -1,6 +1,7 @@
 //Screen 13
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class OnDistributionDetails extends StatefulWidget {
   @override
@@ -207,6 +208,7 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                           onTap: () {
                                             showDialog(
                                                 useRootNavigator: true,
+                                                barrierDismissible: false,
                                                 context: context,
                                                 builder: (context) {
                                                   return AlertDialog(
@@ -251,6 +253,9 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                                       ),
                                                       FlatButton(
                                                           onPressed: () async {
+                                                            if (textEditingController
+                                                                .text.isEmpty)
+                                                              return;
                                                             ordersList[index][
                                                                     'shipped'] =
                                                                 false;
@@ -263,6 +268,44 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                                                     ['reason'] =
                                                                 textEditingController
                                                                     .text;
+                                                            final date = DateFormat
+                                                                    .yMd()
+                                                                .format(DateTime
+                                                                    .now());
+                                                            final issueID =
+                                                                await Firestore
+                                                                    .instance
+                                                                    .collection(
+                                                                        'issues')
+                                                                    .add({
+                                                              'createdDate':
+                                                                  date,
+                                                              'createdUser':
+                                                                  'Admin',
+                                                              'description':
+                                                                  textEditingController
+                                                                      .text,
+                                                              'isCairo': true,
+                                                              'isSolved': false,
+                                                              'orderId':
+                                                                  ordersList[
+                                                                          index]
+                                                                      ['docId']
+                                                            });
+                                                            Firestore.instance
+                                                                .collection(
+                                                                    'orders')
+                                                                .document(
+                                                                    ordersList[
+                                                                            index]
+                                                                        [
+                                                                        'docId'])
+                                                                .updateData({
+                                                              'issued': true,
+                                                              'status':
+                                                                  'noAction',
+                                                            });
+                                                           
                                                             textEditingController
                                                                 .clear();
                                                             orderState.add({
@@ -286,6 +329,7 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                                                     totalAmount
                                                               },
                                                             );
+
                                                             Navigator.of(
                                                                     context)
                                                                 .pop();
@@ -368,6 +412,12 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                                       snapshot.data.documentID)
                                                   .updateData(
                                                       {'orders': ordersList});
+                                              Firestore.instance
+                                                  .collection('orders')
+                                                  .document(ordersList[index]
+                                                      ['docId'])
+                                                  .updateData(
+                                                      {'status': 'shipped'});
                                               setState(() {});
                                             }
                                           },

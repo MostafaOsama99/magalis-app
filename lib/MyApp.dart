@@ -16,12 +16,13 @@ import 'package:maglis_app/view/approvedRevenue.dart';
 import 'package:maglis_app/view/approvedTwo.dart';
 import 'package:maglis_app/view/beforeLogin.dart';
 import 'package:maglis_app/view/blCalculation.dart';
+import 'package:maglis_app/view/cashFlowHome.dart';
 import 'package:maglis_app/view/citiesOrders.dart';
 import 'package:maglis_app/view/citiyOrderDetails.dart';
 import 'package:maglis_app/view/collectedRouteDetails.dart';
 import 'package:maglis_app/view/distribute.dart';
 import 'package:maglis_app/view/cashFlow.dart';
-import 'package:maglis_app/view/cashFlowDetails.dart';
+import 'package:maglis_app/view/expensesDetails.dart';
 import 'package:maglis_app/view/collectedRoute.dart';
 import 'package:maglis_app/view/customerServicesHome.dart';
 import 'package:maglis_app/view/dateDetails.dart';
@@ -35,6 +36,7 @@ import 'package:maglis_app/view/expensesNotApprobedDetails.dart';
 import 'package:maglis_app/view/finance.dart';
 import 'package:maglis_app/view/financeAndShipments.dart';
 import 'package:maglis_app/view/home.dart';
+import 'package:maglis_app/view/issueScreen.dart';
 import 'package:maglis_app/view/lineDetails.dart';
 import 'package:maglis_app/view/loans.dart';
 import 'package:maglis_app/view/login.dart';
@@ -44,6 +46,8 @@ import 'package:maglis_app/view/notApproved-one.dart';
 import 'package:maglis_app/view/notApprovedDate.dart';
 import 'package:maglis_app/view/notApprovedDetails.dart';
 import 'package:maglis_app/view/notApprovedTwo.dart';
+import 'package:maglis_app/view/oldCashFlow.dart';
+import 'package:maglis_app/view/oldCashFlowHome.dart';
 import 'package:maglis_app/view/onDistributionItemDetails.dart';
 import 'package:maglis_app/view/onDistributionRoute.dart';
 import 'package:maglis_app/view/onDistributionType.dart';
@@ -122,7 +126,11 @@ class _MyAppState extends State<MyApp> {
         "/expensesNotApprovedDetails": (ctx) => ExpensesNotApprovedDetails(),
         "/revenueNotApprovedDetails": (ctx) => RevenueNotApprovedDetails(),
         "/cashFlow": (ctx) => CashFlow(),
-        "/cashFlowDetails": (ctx) => CashFlowDetails(),
+        "/cashFlowHome": (ctx) => CashFlowHome(),
+        "/oldCashFlow": (ctx) => OldCashFlow(),
+        "/issueScreen": (ctx) => IssueScreen(),
+        "/oldCashFlowHome": (ctx) => OldCashFlowHome(),
+        "/expensesDetails": (ctx) => ExpensesDetails(),
         "/collectedRoutes": (ctx) => CollectedRoutes(),
         "/collectedItemDetails": (ctx) => CollectedDetails(),
         "/dateScreen": (ctx) => DateScreen(),

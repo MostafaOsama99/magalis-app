@@ -211,7 +211,7 @@ class _AddRevenueState extends State<AddRevenue> {
                         });
 
                         final finalDate = DateFormat.yMd().format(date);
-                        final int amount = int.parse(amountController.text);
+                        final amount = double.parse(amountController.text);
                         final document = {
                           'userName': userName,
                           'date': finalDate,

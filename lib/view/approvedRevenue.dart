@@ -27,9 +27,17 @@ class _ApprovedRevenueState extends State<ApprovedRevenue> {
             .where('status', isEqualTo: 'approved')
             .snapshots();
       } else if (map['type'] == 3) {
+        print('cairo');
         revenuetream = Firestore.instance
             .collection('revenue')
-            .where('supplier', isEqualTo: map['date'])
+            .where('isCairo', isEqualTo: true)
+            .where('status', isEqualTo: 'approved')
+            .snapshots();
+      } else if (map['type'] == 4) {
+        print('Cities');
+        revenuetream = Firestore.instance
+            .collection('revenue')
+            .where('isCairo', isEqualTo: false)
             .where('status', isEqualTo: 'approved')
             .snapshots();
       } else {
@@ -38,6 +46,11 @@ class _ApprovedRevenueState extends State<ApprovedRevenue> {
             .where('status', isEqualTo: 'approved')
             .snapshots();
       }
+    } else {
+      revenuetream = Firestore.instance
+          .collection('revenue')
+          .where('status', isEqualTo: 'approved')
+          .snapshots();
     }
     return Scaffold(
       backgroundColor: Colors.grey[200],
@@ -75,10 +88,7 @@ class _ApprovedRevenueState extends State<ApprovedRevenue> {
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance
-                    .collection('revenue')
-                    .where('status', isEqualTo: 'approved')
-                    .snapshots(),
+                stream: revenuetream,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting)
                     return Center(
@@ -97,7 +107,7 @@ class _ApprovedRevenueState extends State<ApprovedRevenue> {
                         userName: userName,
                         suplierName: supplier,
                         date: date,
-                        amount: (amount as int).roundToDouble(),
+                        amount: (amount).round(),
                         documentId: snapshot.data.documents[index].documentID,
                       );
                     },
@@ -116,7 +126,7 @@ class _ApprovedRevenueState extends State<ApprovedRevenue> {
       {String suplierName,
       String userName,
       String date,
-      double amount,
+      amount,
       String documentId}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),

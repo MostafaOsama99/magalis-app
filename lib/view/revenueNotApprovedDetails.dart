@@ -13,7 +13,6 @@ class _ApprovedDetailsState extends State<RevenueNotApprovedDetails> {
     final size = MediaQuery.of(context).size;
     final map = ModalRoute.of(context).settings.arguments as Map;
     Stream revenuetream;
-    print(map['date']);
 
     if (map['type'] == 1) {
       revenuetream = Firestore.instance
@@ -25,6 +24,18 @@ class _ApprovedDetailsState extends State<RevenueNotApprovedDetails> {
       revenuetream = Firestore.instance
           .collection('revenue')
           .where('userName', isEqualTo: map['date'])
+          .where('status', isEqualTo: 'notApproved')
+          .snapshots();
+    } else if (map['type'] == 3) {
+      revenuetream = Firestore.instance
+          .collection('revenue')
+          .where('isCairo', isEqualTo: true)
+          .where('status', isEqualTo: 'notApproved')
+          .snapshots();
+    } else if (map['type'] == 4) {
+      revenuetream = Firestore.instance
+          .collection('revenue')
+          .where('isCairo', isEqualTo: false)
           .where('status', isEqualTo: 'notApproved')
           .snapshots();
     } else {
@@ -107,7 +118,7 @@ class _ApprovedDetailsState extends State<RevenueNotApprovedDetails> {
       {String suplierName,
       String userName,
       String date,
-      int amount,
+      amount,
       String documentId}) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -181,7 +192,7 @@ class _ApprovedDetailsState extends State<RevenueNotApprovedDetails> {
                             .collection('revenue')
                             .document(documentId)
                             .updateData({
-                          'approved': true,
+                          'status': 'cashed',
                         });
                         await showDialog(
                             context: context,

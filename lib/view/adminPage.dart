@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 //Screen 43
@@ -8,6 +9,8 @@ class AdminPage extends StatelessWidget {
     final height = size.height -
         AppBar().preferredSize.height -
         MediaQuery.of(context).padding.top;
+    FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: 'test@test.com', password: '123456');
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -48,8 +51,8 @@ class AdminPage extends StatelessWidget {
                         ),
                       ),
                       InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/distributionHome'),
+                        onTap: () => Navigator.of(context)
+                            .pushNamed('/distributionHome'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 150,
@@ -71,7 +74,8 @@ class AdminPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       InkWell(
-                        onTap: ()=>Navigator.of(context).pushNamed('/orderScreen'),
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/orderScreen'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 150,
@@ -131,16 +135,20 @@ class AdminPage extends StatelessWidget {
                         ),
                         child: Image.asset('assets/images/CustomerService.png'),
                       ),
-                      Container(
-                        width: size.width / 2.25,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border:
-                              Border.all(width: 2.5, color: Colors.grey[400]),
-                          borderRadius: BorderRadius.circular(12),
+                      InkWell(
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/issueScreen'),
+                        child: Container(
+                          width: size.width / 2.25,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border:
+                                Border.all(width: 2.5, color: Colors.grey[400]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Image.asset('assets/images/Reports.png'),
                         ),
-                        child: Image.asset('assets/images/Reports.png'),
                       ),
                     ],
                   ),

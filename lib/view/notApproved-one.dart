@@ -67,7 +67,7 @@ class _NotApprovedOneState extends State<NotApprovedOne> {
               child: FutureBuilder<QuerySnapshot>(
                   future: Firestore.instance
                       .collection('revenue')
-                      .where('status', isEqualTo: 'approved')
+                      .where('status', isEqualTo: 'notApproved')
                       .getDocuments(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -178,8 +178,11 @@ class _NotApprovedOneState extends State<NotApprovedOne> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: <Widget>[
                               InkWell(
-                                onTap: () => Navigator.of(context)
-                                    .pushNamed('/cashFlow'),
+                                onTap: () => Navigator.of(context).pushNamed(
+                                    '/revenueNotApprovedDetails',
+                                    arguments: {
+                                      'type': 3,
+                                    }),
                                 child: Container(
                                   width: size.width / 2.25,
                                   height: 150,
@@ -222,7 +225,11 @@ class _NotApprovedOneState extends State<NotApprovedOne> {
                                   children: <Widget>[
                                     InkWell(
                                       onTap: () => Navigator.of(context)
-                                          .pushNamed('/loans'),
+                                          .pushNamed(
+                                              '/revenueNotApprovedDetails',
+                                              arguments: {
+                                            'type': 4,
+                                          }),
                                       child: Container(
                                         width: 75,
                                         height: 75,
@@ -243,6 +250,42 @@ class _NotApprovedOneState extends State<NotApprovedOne> {
                                   ],
                                 ),
                               ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: size.width / 2.25,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border:
+                                Border.all(width: 2.5, color: Colors.grey[400]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: <Widget>[
+                              InkWell(
+                                onTap: () => Navigator.of(context).pushNamed(
+                                    '/revenueNotApprovedDetails',
+                                    arguments: {
+                                      'type': 5,
+                                    }),
+                                child: Container(
+                                  width: 75,
+                                  height: 75,
+                                  child: Image.asset(
+                                    'assets/images/AllIcon.png',
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                'All',
+                                style: TextStyle(
+                                    fontSize: 24,
+                                    color: Color.fromRGBO(134, 134, 134, 1),
+                                    fontWeight: FontWeight.bold),
+                              )
                             ],
                           ),
                         ),

@@ -604,12 +604,17 @@ class _AddOrderState extends State<AddOrder> {
                       setState(() {
                         loading = true;
                       });
+                      List note = [];
+                      if (noteController.text.isNotEmpty) {
+                        note.add({
+                          'note': noteController.text,
+                          'from': 'Ahmed Omar'
+                        });
+                      }
                       if (areaController.text.isNotEmpty) {
                         await Firestore.instance.collection('orders').add({
                           'city': selected,
-                          'note': [
-                            {'note': noteController.text, 'from': 'Ahmed Omar'}
-                          ],
+                          'notes': note,
                           'area': area,
                           'createdAt': date,
                           'description': description,
@@ -622,11 +627,12 @@ class _AddOrderState extends State<AddOrder> {
                           'address': address,
                           'status': 'noAction',
                           'isCairo': true,
+                          'issued': false,
                         });
                       } else {
                         await Firestore.instance.collection('orders').add({
                           'city': selected,
-                          'note': noteController.text,
+                          'notes': note,
                           'createdAt': date,
                           'description': description,
                           'line': lineType,
@@ -638,6 +644,7 @@ class _AddOrderState extends State<AddOrder> {
                           'address': address,
                           'status': 'noAction',
                           'isCairo': false,
+                          'issued': false,
                         });
                       }
                       await showDialog(

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class CashFlow extends StatefulWidget {
   @override
@@ -13,8 +14,31 @@ class _CashFlowState extends State<CashFlow> {
   List<DocumentSnapshot> allDocs = [];
   List<DocumentSnapshot> savedDocs = [];
   TextEditingController collectedAmount = TextEditingController();
+  bool done = false;
+  var shortage = 0.0;
+  int shortageIndex = 0;
   @override
   Widget build(BuildContext context) {
+    if (!done) {
+      Firestore.instance
+          .collection('myInfo')
+          .document('info')
+          .get()
+          .then((value) {
+        var money = value.data['cashMoney'];
+        cashOut += money;
+        shortage += money;
+        if (shortage > 0)
+          shortageIndex = 1;
+        else
+          shortageIndex = 0;
+        print('shortage:$cashOut');
+        print('shortage:$shortage');
+        setState(() {
+          done = true;
+        });
+      });
+    }
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -58,6 +82,8 @@ class _CashFlowState extends State<CashFlow> {
                     allDocs.forEach((elemen) {
                       print('${elemen.data}');
                     });
+                    print('indexes');
+                    print(allDocs.length + shortageIndex);
                     return Column(
                       children: [
                         SizedBox(
@@ -164,6 +190,17 @@ class _CashFlowState extends State<CashFlow> {
                                 ))
                               : ListView.builder(
                                   itemBuilder: (ctx, index) {
+                                    if (shortageIndex == 1 &&
+                                        index == allDocs.length) {
+                                      print('shortagessss');
+                                      return expensesCashFlowTile(
+                                        userName: 'Shortage',
+                                        suplierName: '',
+                                        date: '',
+                                        amount: '${shortage}',
+                                        isSelcted: false,
+                                      );
+                                    }
                                     print('data: ${allDocs[index].data}');
                                     print(
                                         'data: ${savedDocs.indexWhere((ele) => ele.documentID == allDocs[index].documentID) == -1}');
@@ -246,13 +283,14 @@ class _CashFlowState extends State<CashFlow> {
                                       return Container();
                                     }
                                   },
-                                  itemCount: allDocs.length),
+                                  itemCount: allDocs.length + shortageIndex),
                         ),
                         InkWell(
                           onTap: () async {
                             net = cashIn - cashOut;
                             final amountCollected = await showDialog<double>(
                               context: context,
+                              barrierDismissible: false,
                               builder: (context) {
                                 return AlertDialog(
                                   title: Text('Collected Amount?'),
@@ -297,61 +335,23 @@ class _CashFlowState extends State<CashFlow> {
                             );
 
                             if (amountCollected == null) {
-                              print('not clear');
+                              showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                        title: Text('Validation Error'),
+                                        content: Text(
+                                            'You must add the collected amount'),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context).pop(),
+                                              child: Text('Ok!'))
+                                        ],
+                                      ));
                               return;
                             }
-                            savedDocs.forEach((element) {
-                              if (element.reference.path.split('/')[0] ==
-                                  'revenue') {
-                                Firestore.instance
-                                    .collection('revenue')
-                                    .document(element.documentID)
-                                    .updateData({
-                                  'status': 'approved',
-                                });
-                              } else if (element.reference.path.split('/')[0] ==
-                                  'expenses') {
-                                Firestore.instance
-                                    .collection('expenses')
-                                    .document(element.documentID)
-                                    .updateData({
-                                  'status': 'approved',
-                                });
-                              } else if (element.reference.path.split('/')[0] ==
-                                  'routes') {
-                                final expensesDocument = {
-                                  'userName': element.data['name'],
-                                  'date': element.data['date'],
-                                  'supplier': 'Distribution',
-                                  'amount': element.data['fees'],
-                                  'status': 'approved',
-                                };
 
-                                final revenueDocument = {
-                                  'userName': element.data['name'],
-                                  'date': element.data['date'],
-                                  'source': 'Cairo Distribution',
-                                  'amount': element.data['totalAmount'],
-                                  'status': 'approved',
-                                };
-
-                                Firestore.instance
-                                    .collection('expenses')
-                                    .add(expensesDocument);
-                                print('expeses are added');
-                                Firestore.instance
-                                    .collection('revenue')
-                                    .add(revenueDocument);
-                                print('revenue are added');
-                                Firestore.instance
-                                    .collection('routes')
-                                    .document(element.documentID)
-                                    .updateData({
-                                  'status': 'collected',
-                                });
-                              }
-                            });
-                            if (amountCollected >= (cashIn - cashOut)) {
+                            if (amountCollected == (cashIn - cashOut)) {
                               print('clear');
                               showDialog(
                                 context: context,
@@ -373,7 +373,86 @@ class _CashFlowState extends State<CashFlow> {
                                   ],
                                 ),
                               );
-                              return;
+                              final result = await Firestore.instance
+                                  .collection('cashFlow')
+                                  .add({
+                                'cashIn': cashIn,
+                                'cashOut': cashOut,
+                                'net': net,
+                                'date': DateFormat.yMd().format(DateTime.now())
+                              });
+                              savedDocs.forEach((element) {
+                                if (element.reference.path.split('/')[0] ==
+                                    'revenue') {
+                                  Firestore.instance
+                                      .collection('cashFlow')
+                                      .document(result.documentID)
+                                      .collection('revenue')
+                                      .document(element.documentID)
+                                      .setData(element.data);
+                                  Firestore.instance
+                                      .collection('revenue')
+                                      .document(element.documentID)
+                                      .updateData({
+                                    'status': 'approved',
+                                  });
+                                } else if (element.reference.path
+                                        .split('/')[0] ==
+                                    'expenses') {
+                                  Firestore.instance
+                                      .collection('cashFlow')
+                                      .document(result.documentID)
+                                      .collection('expenses')
+                                      .document(element.documentID)
+                                      .setData(element.data);
+                                  Firestore.instance
+                                      .collection('expenses')
+                                      .document(element.documentID)
+                                      .updateData({
+                                    'status': 'approved',
+                                  });
+                                } else if (element.reference.path
+                                        .split('/')[0] ==
+                                    'routes') {
+                                  Firestore.instance
+                                      .collection('cashFlow')
+                                      .document(result.documentID)
+                                      .collection('routes')
+                                      .document(element.documentID)
+                                      .setData(element.data);
+                                  final expensesDocument = {
+                                    'userName': element.data['name'],
+                                    'date': element.data['date'],
+                                    'supplier': 'Cairo Distribution fee',
+                                    'amount': element.data['fees'],
+                                    'status': 'approved',
+                                  };
+
+                                  final revenueDocument = {
+                                    'userName': element.data['name'],
+                                    'date': element.data['date'],
+                                    'source': 'Cairo Distribution',
+                                    'amount': element.data['totalAmount'],
+                                    'status': 'approved',
+                                    'isCairo': true,
+                                  };
+
+                                  Firestore.instance
+                                      .collection('expenses')
+                                      .add(expensesDocument);
+                                  print('expeses are added');
+                                  Firestore.instance
+                                      .collection('revenue')
+                                      .add(revenueDocument);
+                                  print('revenue are added');
+                                  Firestore.instance
+                                      .collection('routes')
+                                      .document(element.documentID)
+                                      .updateData({
+                                    'status': 'collected',
+                                  });
+                                }
+                              });
                             } else {
                               print('bad');
                               print(cashIn);
@@ -381,30 +460,140 @@ class _CashFlowState extends State<CashFlow> {
                               print(amountCollected);
                               double loan = cashIn - cashOut - amountCollected;
                               print(loan);
-                              showDialog(
+                              final type = await showDialog(
                                 context: context,
-                                builder: (context) => AlertDialog(
-                                  title: Text('Fiscal deficit'),
-                                  content: Text(
-                                      'There is a loan has to be determined'),
+                                barrierDismissible: false,
+                                child: AlertDialog(
+                                  title: Text('Budget deficit'),
                                   actions: <Widget>[
-                                    FlatButton(
-                                      onPressed: () async {
-                                        await Navigator.of(context)
-                                            .pushNamed('/addLoans', arguments: {
-                                          'money': loan,
-                                        });
-                                        Navigator.of(context).pop();
+                                    FlatButton.icon(
+                                      onPressed: () {
+                                        Navigator.of(context).pop(false);
                                       },
-                                      child: Text(
-                                        'Ok',
-                                        style: TextStyle(color: Colors.red),
-                                      ),
+                                      icon: Icon(Icons.attach_money),
+                                      label: Text('Save for another Cash Flow'),
+                                    ),
+                                    FlatButton.icon(
+                                      onPressed: () {
+                                        Navigator.of(context).pop(true);
+                                      },
+                                      icon: Icon(Icons.person),
+                                      label: Text('Save as a Loan'),
                                     ),
                                   ],
                                 ),
                               );
+
+                              final result = await Firestore.instance
+                                  .collection('cashFlow')
+                                  .add({
+                                'cashIn': cashIn,
+                                'cashOut': cashOut,
+                                'net': net,
+                                'date': DateFormat.yMd().format(DateTime.now())
+                              });
+                              savedDocs.forEach((element) {
+                                if (element.reference.path.split('/')[0] ==
+                                    'revenue') {
+                                  Firestore.instance
+                                      .collection('cashFlow')
+                                      .document(result.documentID)
+                                      .collection('revenue')
+                                      .document(element.documentID)
+                                      .setData(element.data);
+                                  Firestore.instance
+                                      .collection('revenue')
+                                      .document(element.documentID)
+                                      .updateData({
+                                    'status': 'approved',
+                                  });
+                                } else if (element.reference.path
+                                        .split('/')[0] ==
+                                    'expenses') {
+                                  Firestore.instance
+                                      .collection('cashFlow')
+                                      .document(result.documentID)
+                                      .collection('expenses')
+                                      .document(element.documentID)
+                                      .setData(element.data);
+                                  Firestore.instance
+                                      .collection('expenses')
+                                      .document(element.documentID)
+                                      .updateData({
+                                    'status': 'approved',
+                                  });
+                                } else if (element.reference.path
+                                        .split('/')[0] ==
+                                    'routes') {
+                                  Firestore.instance
+                                      .collection('cashFlow')
+                                      .document(result.documentID)
+                                      .collection('routes')
+                                      .document(element.documentID)
+                                      .setData(element.data);
+                                  final expensesDocument = {
+                                    'userName': element.data['name'],
+                                    'date': element.data['date'],
+                                    'supplier': 'Cairo Distribution fee',
+                                    'amount': element.data['fees'],
+                                    'status': 'approved',
+                                  };
+
+                                  final revenueDocument = {
+                                    'userName': element.data['name'],
+                                    'date': element.data['date'],
+                                    'source': 'Cairo Distribution',
+                                    'amount': element.data['totalAmount'],
+                                    'status': 'approved',
+                                    'isCairo': true,
+                                  };
+
+                                  Firestore.instance
+                                      .collection('expenses')
+                                      .add(expensesDocument);
+                                  print('expeses are added');
+                                  Firestore.instance
+                                      .collection('revenue')
+                                      .add(revenueDocument);
+                                  print('revenue are added');
+                                  Firestore.instance
+                                      .collection('routes')
+                                      .document(element.documentID)
+                                      .updateData({
+                                    'status': 'collected',
+                                  });
+                                }
+                              });
+                              if (type && amountCollected > net) {
+                                Navigator.of(context).pushNamed('/addLoan',
+                                    arguments: {'money': -net});
+                                Firestore.instance
+                                    .collection('myInfo')
+                                    .document('info')
+                                    .updateData({'cashMoney': 0});
+                              } else if (type && amountCollected < net) {
+                                Navigator.of(context).pushNamed('/addLoan',
+                                    arguments: {
+                                      'money': net - amountCollected
+                                    });
+                                Firestore.instance
+                                    .collection('myInfo')
+                                    .document('info')
+                                    .updateData({'cashMoney': 0});
+                              } else if (!type && amountCollected > net) {
+                                Firestore.instance
+                                    .collection('myInfo')
+                                    .document('info')
+                                    .updateData({'cashMoney': -net});
+                              } else {
+                                Firestore.instance
+                                    .collection('myInfo')
+                                    .document('info')
+                                    .updateData(
+                                        {'cashMoney': net - amountCollected});
+                              }
                             }
+
                             setState(() {
                               cashIn = 0;
                               cashOut = 0;
@@ -443,122 +632,127 @@ class _CashFlowState extends State<CashFlow> {
       String documentId,
       index,
       bool isSelcted}) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(5),
-          border: Border.all(
-            width: 2.5,
-            color: Colors.black,
-          ),
-          color: Colors.white,
-        ),
-        width: MediaQuery.of(context).size.width,
+    return InkWell(
+      onTap: () => Navigator.of(context)
+          .pushNamed('/expensesDetails', arguments: {'id': documentId}),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
         child: Container(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                  child: RichText(
-                      text: TextSpan(
-                    text: "${suplierName}\n",
-                    children: [
-                      TextSpan(
-                        text: '${userName}\n',
-                        style: TextStyle(
-                          color: Colors.black,
-                        ),
-                      ),
-                      TextSpan(
-                        text: '${date}',
-                        style: TextStyle(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            border: Border.all(
+              width: 2.5,
+              color: Colors.black,
+            ),
+            color: Colors.white,
+          ),
+          width: MediaQuery.of(context).size.width,
+          child: Container(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(
+                    child: RichText(
+                        text: TextSpan(
+                      text: "${suplierName}\n",
+                      children: [
+                        TextSpan(
+                          text: '${userName}\n',
+                          style: TextStyle(
                             color: Colors.black,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16),
-                      ),
-                    ],
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black),
-                  )),
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Text(
-                          '${amount} EGP',
+                          ),
+                        ),
+                        TextSpan(
+                          text: '${date}',
                           style: TextStyle(
                               color: Colors.black,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16),
                         ),
-                        Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Color.fromRGBO(170, 44, 94, 1),
-                        )
                       ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    isSelcted
-                        ? InkWell(
-                            onTap: () async {
-                              /*await Firestore.instance
-                            .collection('expenses')
-                            .document(documentId)
-                            .updateData({
-                          'approved': true,
-                        });*/
-                              cashOut += amount;
-                              savedDocs.add(allDocs[index]);
-                              await showDialog(
-                                  context: context,
-                                  child: AlertDialog(
-                                    title: Text('Confirmed'),
-                                    content:
-                                        Text('This item has been confirmed'),
-                                    actions: <Widget>[
-                                      FlatButton(
-                                        child: Text('Ok'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      )
-                                    ],
-                                  ));
-                              setState(() {});
-                            },
-                            child: Container(
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Text(
-                                    "ADD",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
+                    )),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            '${amount} EGP',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Color.fromRGBO(170, 44, 94, 1),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      isSelcted
+                          ? InkWell(
+                              onTap: () async {
+                                /*await Firestore.instance
+                              .collection('expenses')
+                              .document(documentId)
+                              .updateData({
+                            'approved': true,
+                          });*/
+                                cashOut += amount;
+                                savedDocs.add(allDocs[index]);
+                                await showDialog(
+                                    context: context,
+                                    child: AlertDialog(
+                                      title: Text('Confirmed'),
+                                      content:
+                                          Text('This item has been confirmed'),
+                                      actions: <Widget>[
+                                        FlatButton(
+                                          child: Text('Ok'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        )
+                                      ],
+                                    ));
+                                setState(() {});
+                              },
+                              child: Container(
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Text(
+                                      "ADD",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   ),
                                 ),
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(170, 44, 94, 1),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
                               ),
-                              decoration: BoxDecoration(
-                                color: Color.fromRGBO(170, 44, 94, 1),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                          )
-                        : SizedBox()
-                  ],
-                ),
-              ],
+                            )
+                          : SizedBox()
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -714,12 +908,12 @@ class _CashFlowState extends State<CashFlow> {
     bool isSelcted,
   }) {
     return InkWell(
-      onTap: (){
-        Navigator.of(context).pushNamed('routeItemDetails',arguments: {
-          'docId':documentId,
+      onTap: () {
+        Navigator.of(context).pushNamed('routeItemDetails', arguments: {
+          'docId': documentId,
         });
       },
-          child: Padding(
+      child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
           decoration: BoxDecoration(
@@ -733,7 +927,8 @@ class _CashFlowState extends State<CashFlow> {
           width: MediaQuery.of(context).size.width,
           child: Container(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[

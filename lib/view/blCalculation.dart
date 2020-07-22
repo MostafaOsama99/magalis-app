@@ -196,10 +196,11 @@ class _BlCalcState extends State<BlCalc> {
                           .document(element.documentID)
                           .updateData({'status': 'collected'});
                       await Firestore.instance.collection('revenue').add({
-                        'source': 'Cities Orders',
-                        'userName': 'omar Ahmed',
+                        'source': 'Cities Distribution',
+                        'userName': 'Admin',
                         'date': '${element.data['date']}',
-                        'approved': true,
+                        'status': 'approved',
+                        'isCairo': false,
                         'amount': '${element.data['totalAccount']}'
                       });
                     });

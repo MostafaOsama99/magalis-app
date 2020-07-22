@@ -47,7 +47,7 @@ class _NotApprovedTwoState extends State<ApprovedTwo> {
               child: FutureBuilder<QuerySnapshot>(
                   future: Firestore.instance
                       .collection('expenses')
-                      .where('approved', isEqualTo: true)
+                      .where('status', isEqualTo: 'approved')
                       .getDocuments(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting)
@@ -56,7 +56,7 @@ class _NotApprovedTwoState extends State<ApprovedTwo> {
                       );
                     final documents = snapshot.data.documents;
                     documents.forEach((element) {
-                      print('doc'+element.data.toString());
+                      print('doc' + element.data.toString());
                       if (!dates.contains(element.data['date']))
                         dates.add(element.data['date']);
                       if (!supplier.contains(element.data['supplier']))
@@ -80,7 +80,9 @@ class _NotApprovedTwoState extends State<ApprovedTwo> {
                                     .pushNamed('/dateScreen', arguments: {
                                   'route': '/approvedDetails',
                                   'date': dates,
-                                  'type': 1
+                                  'type': 1,
+                                  'logo': 'assets/images/DateIcon.png',
+                                  'title': 'Date',
                                 }),
                                 child: Container(
                                   width: size.width / 2.25,
@@ -117,6 +119,8 @@ class _NotApprovedTwoState extends State<ApprovedTwo> {
                                     .pushNamed('/dateScreen', arguments: {
                                   'route': '/approvedDetails',
                                   'date': userName,
+                                  'logo': 'assets/images/Person.png',
+                                  'title': 'User',
                                   'type': 2
                                 }),
                                 child: Container(
@@ -162,7 +166,9 @@ class _NotApprovedTwoState extends State<ApprovedTwo> {
                                     .pushNamed('/dateScreen', arguments: {
                                   'route': '/approvedDetails',
                                   'date': supplier,
-                                  'type': 3
+                                  'type': 3,
+                                  'logo': 'assets/images/Person.png',
+                                  'title': 'Supplier',
                                 }),
                                 child: Container(
                                   width: size.width / 2.25,
