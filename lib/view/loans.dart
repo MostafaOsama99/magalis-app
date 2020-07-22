@@ -43,7 +43,7 @@ class _LoansState extends State<Loans> {
                   backgroundColor: Colors.grey[200],
                   radius: 25,
                   child: Text(
-                    '$amount',
+                    '${amount.round()}',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -105,18 +105,19 @@ class _LoansState extends State<Loans> {
                         DateTime dateStamp = timestamp.toDate();
                         final date = DateFormat.yMd().format(dateStamp);
                         return InkWell(
-                          onTap: () {
+                          onTap: () async {
                             print('amounted$amount');
                             if (type != 2 || amount == 0) return;
                             final totalAmount =
                                 snapshot.data.documents[index]['loan'];
+                            if (totalAmount == 0) return;
                             if (amount <= totalAmount) {
                               final netAmount = totalAmount - amount;
 
                               setState(() {
                                 amount = 0;
                               });
-                              Firestore.instance
+                              await Firestore.instance
                                   .collection('employee')
                                   .document(
                                       snapshot.data.documents[index].documentID)
@@ -125,12 +126,14 @@ class _LoansState extends State<Loans> {
                               setState(() {
                                 amount -= totalAmount;
                               });
-                              Firestore.instance
+                              await Firestore.instance
                                   .collection('employee')
                                   .document(
                                       snapshot.data.documents[index].documentID)
-                                  .updateData({'loan': totalAmount});
+                                  .updateData({'loan': 0});
                             }
+                            if (amount == 0 && type == 2)
+                              Navigator.of(context).pop(true);
                           },
                           child: Container(
                               height: 100,

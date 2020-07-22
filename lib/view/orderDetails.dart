@@ -94,16 +94,25 @@ class _OrderDetailsState extends State<OrderDetails> {
                                 .document(docId)
                                 .updateData({'status': 'archived'}).then(
                                     (value) => Navigator.of(context).pop());
-                          } else if (val == 'Report an Issue') {
-                            Navigator.of(context).pushNamed('/addIssue',
-                                arguments: {
-                                  'id': docId,
-                                  'orderNumber': orderNumber
-                                });
+                          }else if(val == 'No Action'){
+                            Firestore.instance
+                                .collection('orders')
+                                .document(docId)
+                                .updateData({'status': 'noAction'}).then(
+                                    (value) => Navigator.of(context).pop());
                           }
                         },
                         itemBuilder: ((BuildContext context) {
-                          return {'Cancel', 'Archive', 'Report an Issue'}
+                          if(snapshot.data.data['status']=='archived'){
+                             return {'Cancel', 'No Action'}
+                              .map((String choice) {
+                            return PopupMenuItem<String>(
+                              value: choice,
+                              child: Text(choice),
+                            );
+                          }).toList();
+                          }
+                          return {'Cancel', 'Archive'}
                               .map((String choice) {
                             return PopupMenuItem<String>(
                               value: choice,
@@ -668,7 +677,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                                             }
                                             Firestore.instance
                                                 .collection('issues')
-                                                .add({
+                                                .add({  
                                               'description':
                                                   issueDescription.text,
                                               'createdUser': 'Ahmed Omar',
@@ -867,6 +876,13 @@ class _OrderDetailsState extends State<OrderDetails> {
                                                         color: Color.fromRGBO(
                                                             96, 125, 130, 1),
                                                         fontSize: 18,
+                                                      ),
+                                                    ),
+                                                    subtitle: Text(
+                                                      'Issue Number: ${issueDocument[index].data['issueNumber']}',
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 16,
                                                       ),
                                                     ),
                                                     trailing: Column(

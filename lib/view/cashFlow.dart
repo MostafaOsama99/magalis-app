@@ -44,6 +44,7 @@ class _CashFlowState extends State<CashFlow> {
           excessIndex = 0;
         print('shortage:$cashOut');
         print('shortage:$shortage');
+        done = true;
         setState(() {
           done = true;
         });
@@ -81,6 +82,11 @@ class _CashFlowState extends State<CashFlow> {
                       .where('status', isEqualTo: 'cashed')
                       .snapshots(),
                   builder: (context, revenueSnapshot) {
+                    if (revenueSnapshot.connectionState ==
+                        ConnectionState.waiting)
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
                     allDocs = routesSnapshot.data.documents +
                         expensesSnapshot.data.documents +
                         revenueSnapshot.data.documents;
@@ -204,7 +210,12 @@ class _CashFlowState extends State<CashFlow> {
                                 ))
                               : ListView.builder(
                                   itemBuilder: (ctx, index) {
-                                    if (shortageIndex == 1 && index == 1) {
+                                    if ((shortageIndex == 1 &&
+                                            excessIndex == 1 &&
+                                            index == 1) ||
+                                        (shortageIndex == 1 &&
+                                            excessIndex == 0 &&
+                                            index == 0)) {
                                       print('shortagessss');
                                       return expensesCashFlowTile(
                                         userName: 'Shortage',
@@ -214,7 +225,8 @@ class _CashFlowState extends State<CashFlow> {
                                         isSelcted: false,
                                       );
                                     }
-                                    if (excessIndex == 1 && index == 0) {
+
+                                    if ((excessIndex == 1 && index == 0)) {
                                       print('Excessesss');
                                       return revenueCashFlowTile(
                                         userName: 'Excess',
@@ -411,6 +423,10 @@ class _CashFlowState extends State<CashFlow> {
                                 'net': net,
                                 'date': DateFormat.yMd().format(DateTime.now())
                               });
+                              Firestore.instance
+                                  .collection('myInfo')
+                                  .document('info')
+                                  .updateData({'cashMoney': 0, 'cashed': 0});
                               savedDocs.forEach((element) {
                                 if (element.reference.path.split('/')[0] ==
                                     'revenue') {
@@ -596,36 +612,17 @@ class _CashFlowState extends State<CashFlow> {
                                   });
                                 }
                               });
+
                               if (type && amountCollected > net && net < 0) {
-                                Firestore.instance
-                                    .collection('myInfo')
-                                    .document('info')
-                                    .updateData({'cashMoney': 0, 'cashed': 0});
-                                Navigator.of(context)
-                                    .pushNamed('/addLoans', arguments: {
-                                  'money': -net
-                                }).then((value) => Navigator.of(context).pop());
+                                await action1(context);
                               } else if (type &&
                                   amountCollected > net &&
                                   net > 0) {
-                                Firestore.instance
-                                    .collection('myInfo')
-                                    .document('info')
-                                    .updateData({'cashMoney': 0, 'cashed': 0});
-                                Navigator.of(context)
-                                    .pushNamed('/loans', arguments: {
-                                  'money': amountCollected - net,
-                                  'type': 2
-                                }).then((value) => Navigator.of(context).pop());
+                                await action2(context, amountCollected);
+                                Navigator.of(context).pop();
                               } else if (type && amountCollected < net) {
-                                Navigator.of(context)
-                                    .pushNamed('/addLoans', arguments: {
-                                  'money': net - amountCollected
-                                }).then((value) => Navigator.of(context).pop());
-                                Firestore.instance
-                                    .collection('myInfo')
-                                    .document('info')
-                                    .updateData({'cashMoney': 0, 'cashed': 0});
+                                await action3(context, amountCollected);
+                                Navigator.of(context).pop();
                               } else if (!type &&
                                   amountCollected > net &&
                                   net < 0) {
@@ -636,7 +633,6 @@ class _CashFlowState extends State<CashFlow> {
                                   'cashMoney': -net,
                                   'cashed': 0
                                 }).then((value) => Navigator.of(context).pop());
-                                ;
                               } else if (!type &&
                                   amountCollected > net &&
                                   net > 0) {
@@ -647,7 +643,6 @@ class _CashFlowState extends State<CashFlow> {
                                   'cashMoney': 0,
                                   'cashed': amountCollected - net
                                 }).then((value) => Navigator.of(context).pop());
-                                ;
                               } else {
                                 Firestore.instance
                                     .collection('myInfo')
@@ -658,11 +653,12 @@ class _CashFlowState extends State<CashFlow> {
                                 }).then((value) => Navigator.of(context).pop());
                               }
                             }
-
                             setState(() {
                               cashIn = 0;
                               cashOut = 0;
                               net = 0;
+                              shortageIndex = 0;
+                              excessIndex = 0;
                             });
                           },
                           child: Container(
@@ -689,6 +685,89 @@ class _CashFlowState extends State<CashFlow> {
     );
   }
 
+  Future action3(BuildContext context, double amountCollected) async {
+    Firestore.instance
+        .collection('myInfo')
+        .document('info')
+        .updateData({'cashMoney': 0, 'cashed': 0});
+    final done = await Navigator.of(context)
+        .pushNamed('/addLoans', arguments: {'money': net - amountCollected});
+    if (done == null || !done) {
+      await showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Validation Error'),
+          content: Text('The loan must be added to an employee'),
+          actions: <Widget>[
+            FlatButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('OK!'))
+          ],
+        ),
+      );
+      return action3(context, amountCollected);
+    } else {
+      Navigator.of(context).pop();
+
+      return;
+    }
+  }
+
+  Future action2(BuildContext context, double amountCollected) async {
+    Firestore.instance
+        .collection('myInfo')
+        .document('info')
+        .updateData({'cashMoney': 0, 'cashed': 0});
+    final done = await Navigator.of(context).pushNamed('/loans',
+        arguments: {'money': amountCollected - net, 'type': 2});
+    if (done == null || !done) {
+      await showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Validation Error'),
+          content: Text('The loan must be added to an employee'),
+          actions: <Widget>[
+            FlatButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('OK!'))
+          ],
+        ),
+      );
+      return action2(context, amountCollected);
+    } else {
+      Navigator.of(context).pop();
+
+      return;
+    }
+  }
+
+  Future action1(BuildContext context) async {
+    Firestore.instance
+        .collection('myInfo')
+        .document('info')
+        .updateData({'cashMoney': 0, 'cashed': 0});
+    final done = await Navigator.of(context)
+        .pushNamed('/addLoans', arguments: {'money': -net});
+    if (done == null || !done) {
+      await showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('Validation Error'),
+          content: Text('The loan must be added to an employee'),
+          actions: <Widget>[
+            FlatButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('OK!'))
+          ],
+        ),
+      );
+      return action1(context);
+    } else {
+      Navigator.of(context).pop();
+      return;
+    }
+  }
+
   expensesCashFlowTile(
       {String suplierName,
       String userName,
@@ -698,8 +777,11 @@ class _CashFlowState extends State<CashFlow> {
       index,
       bool isSelcted}) {
     return InkWell(
-      onTap: () => Navigator.of(context)
-          .pushNamed('/expensesDetails', arguments: {'id': documentId}),
+      onTap: () {
+        if (userName == 'Shortage') return;
+        Navigator.of(context)
+            .pushNamed('/expensesDetails', arguments: {'id': documentId});
+      },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(

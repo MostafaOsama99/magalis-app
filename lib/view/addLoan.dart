@@ -176,18 +176,39 @@ class _AddLoansState extends State<AddLoans> {
             ),
             InkWell(
               onTap: () async {
+                bool confirm = await showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: Text('Confirmation?'),
+                    content: Text('Do you want to processed?'),
+                    actions: <Widget>[
+                      FlatButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text(
+                          'No',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      FlatButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: Text(
+                          'Yes',
+                          style: TextStyle(color: Colors.green),
+                        ),
+                      )
+                    ],
+                  ),
+                );
+                if (!confirm) return;
                 final name = nameController.text;
                 if (moneyController.text.isEmpty) return;
-                final money = moneyController.text;
                 final date = DateTime.now();
-                double totalLoans = double.parse(moneyController.text) == null
-                    ? 0
-                    : double.parse(moneyController.text);
+                double totalLoans = double.parse(moneyController.text);
                 print(names);
                 int loanIndex =
                     names.indexWhere((element) => element['name'] == name);
                 if (loanIndex != -1) {
-                  final loanData =names[loanIndex];
+                  final loanData = names[loanIndex];
                   if (loanData != null) {
                     if (loanData['loans'] != null) {
                       totalLoans += loanData['loans'] + 0.0;
@@ -203,10 +224,9 @@ class _AddLoansState extends State<AddLoans> {
                 } else {
                   Firestore.instance
                       .collection('employee')
-                      .add({'name': name, 'loan': money, 'lastDate': date});
+                      .add({'name': name, 'loan': totalLoans, 'lastDate': date});
                 }
-
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
               },
               child: Container(
                 color: Color.fromRGBO(170, 44, 94, 1),

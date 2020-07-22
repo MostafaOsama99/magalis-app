@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class IssueScreen extends StatelessWidget {
   @override
@@ -47,17 +48,109 @@ class IssueScreen extends StatelessWidget {
                   );
                 return ListView.builder(
                   itemBuilder: (ctx, index) {
-                    return approvedTile(
-                      suplierName:
-                          snapshot.data.documents[index].data['createdUser'],
-                      date: snapshot.data.documents[index].data['createdDate'],
-                      userName: (snapshot.data.documents[index].data['isCairo']
-                              as bool)
-                          ? 'Cairo Route'
-                          : 'Cities Routes',
-                      context: context,
-                      description:
-                          snapshot.data.documents[index].data['description'],
+                    return Slidable(
+                      actionPane: SlidableDrawerActionPane(),
+                      actionExtentRatio: 0.25,
+                      actions: <Widget>[
+                        IconSlideAction(
+                          onTap: () async {
+                            bool confirm = await showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: Text('Confirmation?'),
+                                content: Text(
+                                    'Are You sure about consdiring this issue as solved?'),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                  FlatButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(true),
+                                    child: Text(
+                                      'Yes',
+                                      style: TextStyle(color: Colors.green),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm) {
+                              Firestore.instance
+                                  .collection('issues')
+                                  .document(
+                                      snapshot.data.documents[index].documentID)
+                                  .updateData({'isSolved': true});
+                            }
+                          },
+                          color: Colors.green,
+                          icon: Icons.check_circle,
+                          caption: 'Solved',
+                        )
+                      ],
+                      secondaryActions: <Widget>[
+                        IconSlideAction(
+                          onTap: () async {
+                            bool confirm = await showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: Text('Confirmation?'),
+                                content: Text(
+                                    'Are You sure about consdiring this issue as solved?'),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                  FlatButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(true),
+                                    child: Text(
+                                      'Yes',
+                                      style: TextStyle(color: Colors.green),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm) {
+                              Firestore.instance
+                                  .collection('issues')
+                                  .document(
+                                      snapshot.data.documents[index].documentID)
+                                  .updateData({'isSolved': true});
+                            }
+                          },
+                          color: Colors.green,
+                          icon: Icons.check_circle,
+                          caption: 'Solved',
+                        )
+                      ],
+                      child: approvedTile(
+                          suplierName: snapshot
+                              .data.documents[index].data['createdUser'],
+                          date: snapshot
+                              .data.documents[index].data['createdDate'],
+                          userName: (snapshot.data.documents[index]
+                                  .data['isCairo'] as bool)
+                              ? 'Cairo Route'
+                              : 'Cities Routes',
+                          context: context,
+                          description: snapshot
+                              .data.documents[index].data['description'],
+                          isSolved:
+                              snapshot.data.documents[index].data['isSolved'],
+                          issueNumber: snapshot
+                              .data.documents[index].data['issueNumber']),
                     ); //isCairo
                   },
                   itemCount: snapshot.data.documents.length,
@@ -76,6 +169,8 @@ class IssueScreen extends StatelessWidget {
       String date,
       description,
       String documentId,
+      issueNumber,
+      isSolved,
       context}) {
     return InkWell(
       onTap: () => showDialog(
@@ -105,29 +200,51 @@ class IssueScreen extends StatelessWidget {
                 children: <Widget>[
                   Container(
                     child: RichText(
-                        text: TextSpan(
-                      text: "${suplierName}\n",
-                      children: [
-                        TextSpan(
-                          text: '${userName}\n',
-                          style: TextStyle(
-                            color: Color.fromRGBO(96, 125, 129, 1),
-                          ),
-                        ),
-                        TextSpan(
-                          text: '${date}',
-                          style: TextStyle(
+                      text: TextSpan(
+                        text: "${suplierName}\n",
+                        children: [
+                          TextSpan(
+                            text: '${userName}\n',
+                            style: TextStyle(
                               color: Color.fromRGBO(96, 125, 129, 1),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16),
-                        ),
-                      ],
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromRGBO(170, 44, 94, 1)),
-                    )),
+                            ),
+                          ),
+                          TextSpan(
+                            text: '${date}',
+                            style: TextStyle(
+                                color: Color.fromRGBO(96, 125, 129, 1),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16),
+                          ),
+                        ],
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromRGBO(170, 44, 94, 1)),
+                      ),
+                    ),
                   ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      isSolved
+                          ? Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                            )
+                          : Icon(
+                              Icons.info,
+                              color: Colors.red,
+                            ),
+                      Text(
+                        'Issue Number:$issueNumber',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16
+                        ),
+                      )
+                    ],
+                  )
                 ],
               ),
             ),
