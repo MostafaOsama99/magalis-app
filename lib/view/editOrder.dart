@@ -61,6 +61,8 @@ class EditOrder extends StatelessWidget {
   bool called = false;
   GlobalKey key = new GlobalKey<AutoCompleteTextFieldState<String>>();
 
+  var isCorporate;
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -83,6 +85,7 @@ class EditOrder extends StatelessWidget {
       phoneController.text = orderMap['phone'];
       priceController.text = '${orderMap['totalAccount']}';
       underAccountController.text = '${orderMap['underAccount']}';
+      isCorporate = orderMap['isCorporate'];
       called = true;
     }
     return Scaffold(
@@ -557,108 +560,20 @@ class EditOrder extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    height: 200,
-                    width: MediaQuery.of(context).size.width,
-                    margin: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(
-                        width: 2,
-                        color: Colors.grey.withOpacity(0.5),
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: EdgeInsets.all(12),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          'Notes',
-                          style: TextStyle(
-                              color: Color.fromRGBO(
-                                  170, 44, 94, 1), //rgb(96, 125, 130)
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 4),
-                          child: Divider(
-                            color: Colors.grey,
-                            thickness: 4,
-                          ),
-                        ),
-                        Expanded(
-                          child: ListView.builder(
-                            itemBuilder: (ctx, index) => Column(
-                              children: <Widget>[
-                                ListTile(
-                                  title: Text(
-                                    '${orderMap['notes'][index]['note']}',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  trailing: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Text(
-                                        '${orderMap['notes'][index]['from']}',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Divider(
-                                  thickness: 2.5,
-                                )
-                              ],
-                            ),
-                            itemCount: (orderMap['notes'] as List).length,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    margin: EdgeInsets.all(10),
                     decoration: BoxDecoration(
                         color: Colors.white,
-                        border: Border.all(
-                            width: 3.5, color: Colors.grey.withOpacity(0.5)),
+                        border: Border.all(color: Colors.grey[400], width: 2),
                         borderRadius: BorderRadius.circular(10)),
+                    margin: EdgeInsets.all(12),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          'Add new note',
-                          style: TextStyle(
-                              color: Color.fromRGBO(170, 44, 94, 1),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20),
+                      children: [
+                        CheckboxListTile(
+                          value: isCorporate,
+                          onChanged: null,
+                          title: Text("Is Corporate?"),
+                          activeColor: Colors.orange,
+                          
                         ),
-                        Divider(
-                          color: Color.fromRGBO(128, 151, 155, 0.6),
-                          thickness: 2.5,
-                        ),
-                        TextField(
-                          keyboardType: TextInputType.text,
-                          controller: noteController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 1.5),
-                            ),
-                            hintText: 'Write Here',
-                          ),
-                        ) //rgb(128, 151, 155)
                       ],
                     ),
                   ),

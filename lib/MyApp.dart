@@ -20,6 +20,9 @@ import 'package:maglis_app/view/cashFlowHome.dart';
 import 'package:maglis_app/view/citiesOrders.dart';
 import 'package:maglis_app/view/citiyOrderDetails.dart';
 import 'package:maglis_app/view/collectedRouteDetails.dart';
+import 'package:maglis_app/view/corporateHome.dart';
+import 'package:maglis_app/view/corporateOrderDetails.dart';
+import 'package:maglis_app/view/corporateOrders.dart';
 import 'package:maglis_app/view/distribute.dart';
 import 'package:maglis_app/view/cashFlow.dart';
 import 'package:maglis_app/view/expensesDetails.dart';
@@ -96,6 +99,9 @@ class _MyAppState extends State<MyApp> {
         "/addRevenue": (ctx) => AddRevenue(),
         "/approvedRevenue": (ctx) => ApprovedRevenue(),
         "/blCalc": (ctx) => BlCalc(),
+        "/corporateHome":(ctx)=>CorporateHome(),
+        "/corporateOrders":(ctx)=>CorporateOrders(),
+        "/corporateOrderDetails":(ctx)=>CorporateOrderDetails(),
         "/newRoute": (ctx) => NewRoutes(),
         "/onDistributionRoutes": (ctx) => OnDistributionRoutes(),
         "/onDistributionItem": (ctx) => OnDistributionDetails(),

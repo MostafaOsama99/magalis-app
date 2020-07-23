@@ -218,10 +218,25 @@ class _OrdersPageState extends State<OrdersPage> {
                               '/newRoute',
                             );
                           } else {
-                            Navigator.of(context)
-                                .pushNamed('/orderDetails', arguments: {
-                              'docId': ordersData[i].documentID,
-                            });
+                            if (ordersData[i].data['isCairo'] &&
+                                !ordersData[i].data['isCorporate']) {
+                              Navigator.of(context)
+                                  .pushNamed('/orderDetails', arguments: {
+                                'docId': ordersData[i].documentID,
+                              });
+                            } else if (!ordersData[i].data['isCairo'] &&
+                                !ordersData[i].data['isCorporate']) {
+                              Navigator.of(context)
+                                  .pushNamed('/citiyOrderDetails', arguments: {
+                                'docId': ordersData[i].documentID,
+                              });
+                            } else {
+                              Navigator.of(context).pushNamed(
+                                  '/corporateOrderDetails',
+                                  arguments: {
+                                    'docId': ordersData[i].documentID,
+                                  });
+                            }
                           }
                         },
                         child: Padding(

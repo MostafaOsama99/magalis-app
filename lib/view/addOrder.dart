@@ -60,15 +60,36 @@ class _AddOrderState extends State<AddOrder> {
     'Suez',
   ];
 
+  List areas = [];
+
+  GlobalKey areaKey = new GlobalKey<AutoCompleteTextFieldState<String>>();
+
   bool enableArea = false;
   GlobalKey key = new GlobalKey<AutoCompleteTextFieldState<String>>();
-
   String selected = '';
+  String areaSelected = '';
+  bool isFinished = false;
+  bool isCorporate = false;
   @override
   Widget build(BuildContext context) {
-    cityController.text = selected;
     final size = MediaQuery.of(context).size;
+    if (!isFinished) {
+      Firestore.instance
+          .collection('myInfo')
+          .document('area')
+          .get()
+          .then((value) {
+        setState(() {
+          areas = value.data['areas'];
+          isFinished = true;
+        });
+      });
+    }
+    cityController.text = selected;
+    areaController.text  = areaSelected;
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
@@ -253,18 +274,35 @@ class _AddOrderState extends State<AddOrder> {
                                 color: Color.fromRGBO(128, 151, 155, 0.6),
                                 thickness: 2.5,
                               ),
-                              TextField(
-                                keyboardType: TextInputType.text,
+                              AutoCompleteTextField<String>(
                                 controller: areaController,
                                 decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                        color: Colors.grey, width: 1.5),
-                                  ),
-                                  hintText: 'Write Here',
-                                ),
-                              ) //rgb(128, 151, 155)
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(
+                                          color: Colors.grey, width: 1.5),
+                                    ),
+                                    hintText: 'Search Areas:',
+                                    suffixIcon: Icon(Icons.search)),
+                                itemSubmitted: (item) =>
+                                    setState(() => areaSelected = item),
+                                key: areaKey,
+                                suggestions: areas
+                                    .map<String>(
+                                        (element) => element.toString())
+                                    .toList(),
+                                itemBuilder: (context, suggestion) =>
+                                    new Padding(
+                                        child: new ListTile(
+                                          title: new Text(suggestion),
+                                        ),
+                                        padding: EdgeInsets.all(8.0)),
+                                itemFilter: (suggestion, input) => suggestion
+                                    .toLowerCase()
+                                    .startsWith(input.toLowerCase()),
+                                itemSorter: (a, b) =>
+                                    a == b ? 0 : a.length > b.length ? -1 : 1,
+                              )
                             ],
                           ),
                         )
@@ -534,6 +572,27 @@ class _AddOrderState extends State<AddOrder> {
                     ),
                   ),
                   Container(
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey[400], width: 2),
+                        borderRadius: BorderRadius.circular(10)),
+                    margin: EdgeInsets.all(12),
+                    child: Column(
+                      children: [
+                        CheckboxListTile(
+                          value: isCorporate,
+                          onChanged: (v) {
+                            setState(() {
+                              if (v) isCorporate = v;
+                            });
+                          },
+                          title: Text("Is Corporate?"),
+                          activeColor: Colors.orange,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
                     padding: EdgeInsets.all(16),
                     margin: EdgeInsets.all(10),
                     decoration: BoxDecoration(
@@ -604,6 +663,16 @@ class _AddOrderState extends State<AddOrder> {
                       setState(() {
                         loading = true;
                       });
+
+                      if (area != null) {
+                        if (!areas.contains(area)) {
+                          areas.add(area);
+                          Firestore.instance
+                              .collection('myInfo')
+                              .document('area')
+                              .updateData({'areas': areas});
+                        }
+                      }
                       List note = [];
                       if (noteController.text.isNotEmpty) {
                         note.add({
@@ -627,6 +696,7 @@ class _AddOrderState extends State<AddOrder> {
                           'address': address,
                           'status': 'noAction',
                           'isCairo': true,
+                          'isCorporate': isCorporate,
                           'issued': false,
                         });
                       } else {
@@ -644,6 +714,7 @@ class _AddOrderState extends State<AddOrder> {
                           'address': address,
                           'status': 'noAction',
                           'isCairo': false,
+                          'isCorporate': isCorporate,
                           'issued': false,
                         });
                       }

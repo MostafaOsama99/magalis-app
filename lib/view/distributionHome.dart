@@ -35,7 +35,6 @@ class _DistributionState extends State<DistributionHome> {
                     fontWeight: FontWeight.bold,
                     fontSize: 20),
               ),
-              
             ),
           ),
           Expanded(
@@ -47,7 +46,8 @@ class _DistributionState extends State<DistributionHome> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       InkWell(
-                        onTap: () => Navigator.of(context).pushNamed('/distribution'),
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/distribution'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 170,
@@ -61,8 +61,8 @@ class _DistributionState extends State<DistributionHome> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Container(
-                                child: Image.asset(
-                                    'assets/images/LineIcon.png'),
+                                child:
+                                    Image.asset('assets/images/LineIcon.png'),
                                 width: 100,
                                 height: 100,
                               ),
@@ -79,7 +79,8 @@ class _DistributionState extends State<DistributionHome> {
                         ),
                       ),
                       InkWell(
-                        onTap: () => Navigator.of(context).pushNamed('/distributionCities'),
+                        onTap: () => Navigator.of(context)
+                            .pushNamed('/distributionCities'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 170,
@@ -93,8 +94,8 @@ class _DistributionState extends State<DistributionHome> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Container(
-                                child: Image.asset(
-                                    'assets/images/LinesIcon.png'),
+                                child:
+                                    Image.asset('assets/images/LinesIcon.png'),
                                 width: 100,
                                 height: 100,
                               ),
@@ -119,7 +120,8 @@ class _DistributionState extends State<DistributionHome> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       InkWell(
-                        onTap: (){},
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/corporateHome'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 170,
@@ -133,8 +135,7 @@ class _DistributionState extends State<DistributionHome> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Container(
-                                child:
-                                    Image.asset('assets/images/AllIcon.png'),
+                                child: Image.asset('assets/images/AllIcon.png'),
                                 width: 100,
                                 height: 100,
                               ),
@@ -150,7 +151,6 @@ class _DistributionState extends State<DistributionHome> {
                           ),
                         ),
                       ),
-                      
                     ],
                   ),
                 ),

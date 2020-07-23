@@ -10,7 +10,7 @@ class ExpensesNotApprovedDetails extends StatefulWidget {
 class _ApprovedDetailsState extends State<ExpensesNotApprovedDetails> {
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).  size;
     final map = ModalRoute.of(context).settings.arguments as Map;
     Stream expenseStream;
     print(map['date']);

@@ -4,12 +4,12 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 
 //Screen 39
-class OrderDetails extends StatefulWidget {
+class CorporateOrderDetails extends StatefulWidget {
   @override
-  _OrderDetailsState createState() => _OrderDetailsState();
+  _CorporateOrderDetailsState createState() => _CorporateOrderDetailsState();
 }
 
-class _OrderDetailsState extends State<OrderDetails> {
+class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
   String docId = '';
 
   bool showMenu = false;
@@ -39,7 +39,10 @@ class _OrderDetailsState extends State<OrderDetails> {
           docId = snapshot.data.documentID;
           orderNumber = snapshot.data.data['orderNumber'];
           isIssue = order['issued'];
-          showMenu = (order['status'] == 'noAction' || order['status']=='archived') ? true : false;
+          showMenu =
+              (order['status'] == 'noAction' || order['status'] == 'archived')
+                  ? true
+                  : false;
 
           return Scaffold(
             backgroundColor: Colors.grey[200],
@@ -94,7 +97,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                                 .document(docId)
                                 .updateData({'status': 'archived'}).then(
                                     (value) => Navigator.of(context).pop());
-                          }else if(val == 'No Action'){
+                          } else if (val == 'No Action') {
                             Firestore.instance
                                 .collection('orders')
                                 .document(docId)
@@ -103,17 +106,15 @@ class _OrderDetailsState extends State<OrderDetails> {
                           }
                         },
                         itemBuilder: ((BuildContext context) {
-                          if(snapshot.data.data['status']=='archived'){
-                             return {'Cancel', 'No Action'}
-                              .map((String choice) {
-                            return PopupMenuItem<String>(
-                              value: choice,
-                              child: Text(choice),
-                            );
-                          }).toList();
+                          if (snapshot.data.data['status'] == 'archived') {
+                            return {'Cancel', 'No Action'}.map((String choice) {
+                              return PopupMenuItem<String>(
+                                value: choice,
+                                child: Text(choice),
+                              );
+                            }).toList();
                           }
-                          return {'Cancel', 'Archive'}
-                              .map((String choice) {
+                          return {'Cancel', 'Archive'}.map((String choice) {
                             return PopupMenuItem<String>(
                               value: choice,
                               child: Text(choice),
@@ -200,6 +201,13 @@ class _OrderDetailsState extends State<OrderDetails> {
                               ),*/
                             Text(
                               'Area: ${order['isCairo'] ? order['area'] : order['city']}',
+                              style: TextStyle(
+                                  color: Color.fromRGBO(170, 44, 94, 1),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16),
+                            ),
+                            Text(
+                              'Address: ${order['address']}',
                               style: TextStyle(
                                   color: Color.fromRGBO(170, 44, 94, 1),
                                   fontWeight: FontWeight.bold,
@@ -677,7 +685,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                                             }
                                             Firestore.instance
                                                 .collection('issues')
-                                                .add({  
+                                                .add({
                                               'description':
                                                   issueDescription.text,
                                               'createdUser': 'Ahmed Omar',
@@ -967,78 +975,49 @@ class _OrderDetailsState extends State<OrderDetails> {
                                             .document(element.documentID)
                                             .updateData({'isSolved': true});
                                       });
-                                      if (order['isCairo']) {
-                                        await Navigator.of(context)
-                                            .pushNamed('/newRoute', arguments: {
-                                          'type': 2,
-                                          'docId': snapshot.data.documentID,
-                                          'address': order['address'],
-                                          'name': order['name'],
-                                          'totalAccount': order['totalAccount']
-                                        });
-                                        Navigator.of(context).pop();
-                                      } else {
-                                        Firestore.instance
-                                            .collection('orders')
-                                            .document(snapshot.data.documentID)
-                                            .updateData({
-                                          'status': 'onShipping',
-                                        }).then((value) =>
-                                                Navigator.of(context).pop());
-                                      }
+                                      //The account username
+                                      Firestore.instance
+                                          .collection('revenue')
+                                          .add({
+                                        'amount': order['totalAccount'],
+                                        'date': DateFormat.yMd()
+                                            .format(DateTime.now()),
+                                        'source': 'Corporation Order',
+                                        'status': 'approved',
+                                        'userName': 'Admin'
+                                      });
+                                      Firestore.instance
+                                          .collection('orders')
+                                          .document(snapshot.data.documentID)
+                                          .updateData({
+                                        'status': 'collected',
+                                      }).then((value) =>
+                                              Navigator.of(context).pop());
                                     },
                                     child: Text(
-                                      'Add To Distribution',
+                                      'Shippe Order',
                                       style: TextStyle(
                                         color: Color.fromRGBO(96, 125, 130, 1),
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   )
-                                : order['status'] == 'onDistribution'
+                                : order['status'] == 'collected'
                                     ? Text(
-                                        'On Distribution',
+                                        'Collected',
                                         style: TextStyle(
-                                          color:
-                                              Color.fromRGBO(96, 125, 130, 1),
+                                          color: Colors.green,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       )
-                                    : order['status'] == 'shipped'
-                                        ? Text(
-                                            'Shipped',
-                                            style: TextStyle(
-                                              color:
-                                                  Colors.green.withOpacity(0.7),
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          )
-                                        : order['status'] == 'canceled'
-                                            ? Text(
-                                                'Canceled',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              )
-                                            : order['status'] == 'collected'
-                                                ? Text(
-                                                    'Collected',
-                                                    style: TextStyle(
-                                                      color: Colors.green,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  )
-                                                : Text(
-                                                    'Arechived',
-                                                    style: TextStyle(
-                                                      color: Color.fromRGBO(
-                                                          226, 208, 168, 1),
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
+                                    : Text(
+                                        'Arechived',
+                                        style: TextStyle(
+                                          color:
+                                              Color.fromRGBO(226, 208, 168, 1),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                             SizedBox(
                               width: 10,
                             ),

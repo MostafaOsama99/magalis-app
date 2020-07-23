@@ -19,6 +19,8 @@ class _AddRevenueState extends State<AddRevenue> {
   final userName = 'Ahmed Amr';
   DateTime date = DateTime.now();
   bool loading = false;
+
+  bool approved = false;
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -192,6 +194,27 @@ class _AddRevenueState extends State<AddRevenue> {
                   ],
                 ),
               ),
+              Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey[400], width: 2),
+                    borderRadius: BorderRadius.circular(10)),
+                margin: EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    CheckboxListTile(
+                      value: approved,
+                      onChanged: (v) {
+                        setState(() {
+                          if (v) approved = v;
+                        });
+                      },
+                      title: Text("Approved Expense"),
+                      activeColor: Colors.orange,
+                    ),
+                  ],
+                ),
+              ),
               loading
                   ? Center(
                       child: CircularProgressIndicator(),
@@ -212,13 +235,25 @@ class _AddRevenueState extends State<AddRevenue> {
 
                         final finalDate = DateFormat.yMd().format(date);
                         final amount = double.parse(amountController.text);
-                        final document = {
-                          'userName': userName,
-                          'date': finalDate,
-                          'source': revenueSorce.text,
-                          'amount': amount,
-                          'status': 'notApproved',
-                        };
+                        var document;
+                        if (approved) {
+                          document = {
+                            'userName': userName,
+                            'date': finalDate,
+                            'source': revenueSorce.text,
+                            'amount': amount,
+                            'status': 'approved',
+                          };
+                        } else {
+                          document = {
+                            'userName': userName,
+                            'date': finalDate,
+                            'source': revenueSorce.text,
+                            'amount': amount,
+                            'status': 'notApproved',
+                          };
+                        }
+
                         await Firestore.instance
                             .collection('revenue')
                             .add(document);
