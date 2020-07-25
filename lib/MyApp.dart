@@ -1,84 +1,86 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:maglis_app/view/addExpense.dart';
-import 'package:maglis_app/view/addLoan.dart';
-import 'package:maglis_app/view/addOrder.dart';
-import 'package:maglis_app/view/addRepresentatives.dart';
-import 'package:maglis_app/view/addRevenue.dart';
-import 'package:maglis_app/view/addRoute.dart';
-import 'package:maglis_app/view/addSalary.dart';
-import 'package:maglis_app/view/adminPage.dart';
-import 'package:maglis_app/view/allScreens.dart';
-import 'package:maglis_app/view/approved-one.dart';
-import 'package:maglis_app/view/approvedData.dart';
-import 'package:maglis_app/view/approvedDetails.dart';
-import 'package:maglis_app/view/approvedRevenue.dart';
-import 'package:maglis_app/view/approvedTwo.dart';
-import 'package:maglis_app/view/beforeLogin.dart';
-import 'package:maglis_app/view/blCalculation.dart';
-import 'package:maglis_app/view/cashFlowHome.dart';
-import 'package:maglis_app/view/citiesOrders.dart';
-import 'package:maglis_app/view/citiyOrderDetails.dart';
-import 'package:maglis_app/view/collectedRouteDetails.dart';
-import 'package:maglis_app/view/corporateHome.dart';
-import 'package:maglis_app/view/corporateOrderDetails.dart';
-import 'package:maglis_app/view/corporateOrders.dart';
-import 'package:maglis_app/view/distribute.dart';
-import 'package:maglis_app/view/cashFlow.dart';
-import 'package:maglis_app/view/expensesDetails.dart';
-import 'package:maglis_app/view/collectedRoute.dart';
-import 'package:maglis_app/view/customerServicesHome.dart';
-import 'package:maglis_app/view/dateDetails.dart';
-import 'package:maglis_app/view/dateScreen.dart';
-import 'package:maglis_app/view/distributionCities.dart';
-import 'package:maglis_app/view/distributionHome.dart';
-import 'package:maglis_app/view/distributionType.dart';
-import 'package:maglis_app/view/editOrder.dart';
-import 'package:maglis_app/view/expenses.dart';
-import 'package:maglis_app/view/expensesNotApprobedDetails.dart';
-import 'package:maglis_app/view/finance.dart';
-import 'package:maglis_app/view/financeAndShipments.dart';
-import 'package:maglis_app/view/home.dart';
-import 'package:maglis_app/view/issueScreen.dart';
-import 'package:maglis_app/view/lineDetails.dart';
-import 'package:maglis_app/view/loans.dart';
-import 'package:maglis_app/view/login.dart';
-import 'package:maglis_app/view/monthSalary.dart';
-import 'package:maglis_app/view/newRoutes.dart';
-import 'package:maglis_app/view/notApproved-one.dart';
-import 'package:maglis_app/view/notApprovedDate.dart';
-import 'package:maglis_app/view/notApprovedDetails.dart';
-import 'package:maglis_app/view/notApprovedTwo.dart';
-import 'package:maglis_app/view/oldCashFlow.dart';
-import 'package:maglis_app/view/oldCashFlowHome.dart';
-import 'package:maglis_app/view/onDistributionItemDetails.dart';
-import 'package:maglis_app/view/onDistributionRoute.dart';
-import 'package:maglis_app/view/onDistributionType.dart';
-import 'package:maglis_app/view/operations.dart';
-import 'package:maglis_app/view/orderCustormerScreen.dart';
-import 'package:maglis_app/view/orders.dart';
-import 'package:maglis_app/view/ordersLine.dart';
-import 'package:maglis_app/view/ordersScreen.dart';
-import 'package:maglis_app/view/recivedPage.dart';
-import 'package:maglis_app/view/reports.dart';
-import 'package:maglis_app/view/representativePage.dart';
-import 'package:maglis_app/view/representatives.dart';
-import 'package:maglis_app/view/revenue.dart';
-import 'package:maglis_app/view/revenueNotApprovedDetails.dart';
-import 'package:maglis_app/view/salaries.dart';
-import 'package:maglis_app/view/sales.dart';
-import 'package:maglis_app/view/salesAll.dart';
-import 'package:maglis_app/view/salesHome.dart';
-import 'package:maglis_app/view/OrderDetails.dart';
-import 'package:maglis_app/view/sentPage.dart';
-import 'package:maglis_app/view/shipment.dart';
-import 'package:maglis_app/view/shippedRouteScreen.dart';
-import 'package:maglis_app/view/splashscreen.dart';
-import 'package:maglis_app/view/RouteItemDetails.dart';
-import 'package:maglis_app/view/OrderRouteDetails.dart';
-import 'package:maglis_app/view/orderHome.dart';
-
-import 'view/allScreens.dart';
+import 'package:maglis_app/view/admin/addExpense.dart';
+import 'package:maglis_app/view/admin/addLoan.dart';
+import 'package:maglis_app/view/admin/addOrder.dart';
+import 'package:maglis_app/view/admin/addRepresentatives.dart';
+import 'package:maglis_app/view/admin/addRevenue.dart';
+import 'package:maglis_app/view/admin/addRoute.dart';
+import 'package:maglis_app/view/admin/addSalary.dart';
+import 'package:maglis_app/view/admin/adminPage.dart';
+import 'package:maglis_app/view/admin/allScreens.dart';
+import 'package:maglis_app/view/admin/approved-one.dart';
+import 'package:maglis_app/view/admin/approvedData.dart';
+import 'package:maglis_app/view/admin/approvedDetails.dart';
+import 'package:maglis_app/view/admin/approvedRevenue.dart';
+import 'package:maglis_app/view/admin/approvedTwo.dart';
+import 'package:maglis_app/view/admin/beforeLogin.dart';
+import 'package:maglis_app/view/admin/blCalculation.dart';
+import 'package:maglis_app/view/admin/cashFlowHome.dart';
+import 'package:maglis_app/view/admin/citiesOrders.dart';
+import 'package:maglis_app/view/admin/citiyOrderDetails.dart';
+import 'package:maglis_app/view/admin/collectedRouteDetails.dart';
+import 'package:maglis_app/view/admin/corporateHome.dart';
+import 'package:maglis_app/view/admin/corporateOrderDetails.dart';
+import 'package:maglis_app/view/admin/corporateOrders.dart';
+import 'package:maglis_app/view/admin/distribute.dart';
+import 'package:maglis_app/view/admin/cashFlow.dart';
+import 'package:maglis_app/view/admin/expensesDetails.dart';
+import 'package:maglis_app/view/admin/collectedRoute.dart';
+import 'package:maglis_app/view/admin/customerServicesHome.dart';
+import 'package:maglis_app/view/admin/dateDetails.dart';
+import 'package:maglis_app/view/admin/dateScreen.dart';
+import 'package:maglis_app/view/admin/distributionCities.dart';
+import 'package:maglis_app/view/admin/distributionHome.dart';
+import 'package:maglis_app/view/admin/distributionType.dart';
+import 'package:maglis_app/view/admin/editOrder.dart';
+import 'package:maglis_app/view/admin/expenses.dart';
+import 'package:maglis_app/view/admin/expensesNotApprobedDetails.dart';
+import 'package:maglis_app/view/admin/finance.dart';
+import 'package:maglis_app/view/admin/financeAndShipments.dart';
+import 'package:maglis_app/view/admin/home.dart';
+import 'package:maglis_app/view/admin/issueScreen.dart';
+import 'package:maglis_app/view/admin/lineDetails.dart';
+import 'package:maglis_app/view/admin/loans.dart';
+import 'package:maglis_app/view/admin/login.dart';
+import 'package:maglis_app/view/admin/monthSalary.dart';
+import 'package:maglis_app/view/admin/newRoutes.dart';
+import 'package:maglis_app/view/admin/notApproved-one.dart';
+import 'package:maglis_app/view/admin/notApprovedDate.dart';
+import 'package:maglis_app/view/admin/notApprovedDetails.dart';
+import 'package:maglis_app/view/admin/notApprovedTwo.dart';
+import 'package:maglis_app/view/admin/oldCashFlow.dart';
+import 'package:maglis_app/view/admin/oldCashFlowHome.dart';
+import 'package:maglis_app/view/admin/onDistributionItemDetails.dart';
+import 'package:maglis_app/view/admin/onDistributionRoute.dart';
+import 'package:maglis_app/view/admin/onDistributionType.dart';
+import 'package:maglis_app/view/operation/operationFinance.dart';
+import 'package:maglis_app/view/operation/operationHome.dart';
+import 'package:maglis_app/view/admin/operations.dart';
+import 'package:maglis_app/view/admin/orderCustormerScreen.dart';
+import 'package:maglis_app/view/admin/orders.dart';
+import 'package:maglis_app/view/admin/ordersLine.dart';
+import 'package:maglis_app/view/admin/ordersScreen.dart';
+import 'package:maglis_app/view/admin/recivedPage.dart';
+import 'package:maglis_app/view/admin/reports.dart';
+import 'package:maglis_app/view/admin/representativePage.dart';
+import 'package:maglis_app/view/admin/representatives.dart';
+import 'package:maglis_app/view/admin/revenue.dart';
+import 'package:maglis_app/view/admin/revenueNotApprovedDetails.dart';
+import 'package:maglis_app/view/admin/salaries.dart';
+import 'package:maglis_app/view/admin/sales.dart';
+import 'package:maglis_app/view/admin/salesAll.dart';
+import 'package:maglis_app/view/admin/OrderDetails.dart';
+import 'package:maglis_app/view/admin/sentPage.dart';
+import 'package:maglis_app/view/admin/shipment.dart';
+import 'package:maglis_app/view/admin/shippedRouteScreen.dart';
+import 'package:maglis_app/view/admin/splashscreen.dart';
+import 'package:maglis_app/view/admin/RouteItemDetails.dart';
+import 'package:maglis_app/view/admin/OrderRouteDetails.dart';
+import 'package:maglis_app/view/admin/orderHome.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/view/sales/salesHome.dart';
+import 'package:provider/provider.dart';
 
 class MyApp extends StatefulWidget {
   @override
@@ -88,78 +90,86 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: Get.key,
-      home: AdminPage(),
-      routes: {
-        "/splashscreen": (ctx) => SplashScreen(),
-        "/allScreens": (ctx) => AllScreens(),
-        "/addOrder": (ctx) => AddOrder(),
-        "/addRoute": (ctx) => AddRoute(),
-        "/addRevenue": (ctx) => AddRevenue(),
-        "/approvedRevenue": (ctx) => ApprovedRevenue(),
-        "/blCalc": (ctx) => BlCalc(),
-        "/corporateHome":(ctx)=>CorporateHome(),
-        "/corporateOrders":(ctx)=>CorporateOrders(),
-        "/corporateOrderDetails":(ctx)=>CorporateOrderDetails(),
-        "/newRoute": (ctx) => NewRoutes(),
-        "/onDistributionRoutes": (ctx) => OnDistributionRoutes(),
-        "/onDistributionItem": (ctx) => OnDistributionDetails(),
-        "/beforeLogin": (ctx) => BeforeLogin(),
-        "/home": (ctx) => HomePage(),
-        "/login": (ctx) => LoginPage(),
-        "/orders": (ctx) => OrdersPage(),
-        "/orderScreen": (ctx) => OrderHomeScreen(),
-        "/orderDetails": (ctx) => OrderDetails(),
-        "/citiesOrders": (ctx) => CitiesOrders(),
-        "/citiyOrderDetails": (ctx) => CitiyOrderDetails(),
-        "/distribution": (ctx) => Distribution(),
-        "/distributionHome": (ctx) => DistributionHome(),
-        "/distributionCities": (ctx) => DistributionCities(),
-        "/distributionType": (ctx) => DistributionType(),
-        "/onDistributionType": (ctx) => OnDistributionType(),
-        "/editOrder": (ctx) => EditOrder(),
-        "/reprePage": (ctx) => ReprePage(),
-        "/representatives": (ctx) => RepresentativesPage(),
-        "/addRepresentatives": (ctx) => AddRepresentatives(),
-        "/financeAndShipments": (ctx) => FinanceAndShipments(),
-        "/shipments": (ctx) => Shipments(),
-        "/shippedRoute": (ctx) => ShippedRouteScreen(),
-        "/admin": (ctx) => AdminPage(),
-        "/finance": (ctx) => Finance(),
-        "/revenue": (ctx) => Revenue(),
-        "/expense": (ctx) => Expense(),
-        "/expensesNotApprovedDetails": (ctx) => ExpensesNotApprovedDetails(),
-        "/revenueNotApprovedDetails": (ctx) => RevenueNotApprovedDetails(),
-        "/cashFlow": (ctx) => CashFlow(),
-        "/cashFlowHome": (ctx) => CashFlowHome(),
-        "/oldCashFlow": (ctx) => OldCashFlow(),
-        "/issueScreen": (ctx) => IssueScreen(),
-        "/oldCashFlowHome": (ctx) => OldCashFlowHome(),
-        "/expensesDetails": (ctx) => ExpensesDetails(),
-        "/collectedRoutes": (ctx) => CollectedRoutes(),
-        "/collectedItemDetails": (ctx) => CollectedDetails(),
-        "/dateScreen": (ctx) => DateScreen(),
-        "/dateDetails": (ctx) => DateDetails(),
-        "/routeItemDetails": (ctx) => RouteItemDetails(),
-        "/orderRouteDetails": (ctx) => OrderRouteDetails(),
-        "/approved-one": (ctx) => ApprovedOne(),
-        "/approvedDate": (ctx) => ApprovedDate(),
-        "/notapproved-one": (ctx) => NotApprovedOne(),
-        "/notApprovedDate": (ctx) => NotApprovedDate(),
-        "/approvedDetails": (ctx) => ApprovedDetails(),
-        "/notApprovedDetails": (ctx) => NotApprovedDetails(),
-        "/addExpense": (ctx) => AddExpense(),
-        "/approvedTwo": (ctx) => ApprovedTwo(),
-        "/notapprovedTwo": (ctx) => NotApprovedTwo(),
-        "/loans": (ctx) => Loans(),
-        "/addLoans": (ctx) => AddLoans(),
-        "/salaries": (ctx) => SalariesScreen(),
-        "/monthSalary": (ctx) => MonthSalary(),
-        "/addSalary": (ctx) => AddSalary(),
-      },
+    return ChangeNotifierProvider.value(
+      value: UserProvider(),
+      child: MaterialApp(
+        navigatorKey: Get.key,
+        home: LoginPage(),
+        routes: {
+          "/splashscreen": (ctx) => SplashScreen(),
+          "/allScreens": (ctx) => AllScreens(),
+          "/addOrder": (ctx) => AddOrder(),
+          "/addRoute": (ctx) => AddRoute(),
+          "/addRevenue": (ctx) => AddRevenue(),
+          "/approvedRevenue": (ctx) => ApprovedRevenue(),
+          "/blCalc": (ctx) => BlCalc(),
+          "/corporateHome": (ctx) => CorporateHome(),
+          "/corporateOrders": (ctx) => CorporateOrders(),
+          "/corporateOrderDetails": (ctx) => CorporateOrderDetails(),
+          "/newRoute": (ctx) => NewRoutes(),
+          "/onDistributionRoutes": (ctx) => OnDistributionRoutes(),
+          "/onDistributionItem": (ctx) => OnDistributionDetails(),
+          "/beforeLogin": (ctx) => BeforeLogin(),
+          "/home": (ctx) => HomePage(),
+          "/login": (ctx) => LoginPage(),
+          "/orders": (ctx) => OrdersPage(),
+          "/orderScreen": (ctx) => OrderHomeScreen(),
+          "/orderDetails": (ctx) => OrderDetails(),
+          "/citiesOrders": (ctx) => CitiesOrders(),
+          "/citiyOrderDetails": (ctx) => CitiyOrderDetails(),
+          "/distribution": (ctx) => Distribution(),
+          "/distributionHome": (ctx) => DistributionHome(),
+          "/distributionCities": (ctx) => DistributionCities(),
+          "/distributionType": (ctx) => DistributionType(),
+          "/onDistributionType": (ctx) => OnDistributionType(),
+          "/editOrder": (ctx) => EditOrder(),
+          "/reprePage": (ctx) => ReprePage(),
+          "/representatives": (ctx) => RepresentativesPage(),
+          "/addRepresentatives": (ctx) => AddRepresentatives(),
+          "/financeAndShipments": (ctx) => FinanceAndShipments(),
+          "/shipments": (ctx) => Shipments(),
+          "/shippedRoute": (ctx) => ShippedRouteScreen(),
+          "/admin": (ctx) => AdminPage(),
+          "/finance": (ctx) => Finance(),
+          "/revenue": (ctx) => Revenue(),
+          "/expense": (ctx) => Expense(),
+          "/expensesNotApprovedDetails": (ctx) => ExpensesNotApprovedDetails(),
+          "/revenueNotApprovedDetails": (ctx) => RevenueNotApprovedDetails(),
+          "/cashFlow": (ctx) => CashFlow(),
+          "/cashFlowHome": (ctx) => CashFlowHome(),
+          "/oldCashFlow": (ctx) => OldCashFlow(),
+          "/issueScreen": (ctx) => IssueScreen(),
+          "/oldCashFlowHome": (ctx) => OldCashFlowHome(),
+          "/expensesDetails": (ctx) => ExpensesDetails(),
+          "/collectedRoutes": (ctx) => CollectedRoutes(),
+          "/collectedItemDetails": (ctx) => CollectedDetails(),
+          "/dateScreen": (ctx) => DateScreen(),
+          "/dateDetails": (ctx) => DateDetails(),
+          "/routeItemDetails": (ctx) => RouteItemDetails(),
+          "/orderRouteDetails": (ctx) => OrderRouteDetails(),
+          "/approved-one": (ctx) => ApprovedOne(),
+          "/approvedDate": (ctx) => ApprovedDate(),
+          "/notapproved-one": (ctx) => NotApprovedOne(),
+          "/notApprovedDate": (ctx) => NotApprovedDate(),
+          "/approvedDetails": (ctx) => ApprovedDetails(),
+          "/notApprovedDetails": (ctx) => NotApprovedDetails(),
+          "/addExpense": (ctx) => AddExpense(),
+          "/approvedTwo": (ctx) => ApprovedTwo(),
+          "/notapprovedTwo": (ctx) => NotApprovedTwo(),
+          "/loans": (ctx) => Loans(),
+          "/addLoans": (ctx) => AddLoans(),
+          "/salaries": (ctx) => SalariesScreen(),
+          "/monthSalary": (ctx) => MonthSalary(),
+          "/addSalary": (ctx) => AddSalary(),
+          //OperationApp
+          "/operation": (ctx) => OperationHome(),
+          "/operationFinance": (ctx) => OprationFinance(),
+          //sales
+          "/sales":(ctx)=>SalesHome(),
+        },
 
-      //initialRoute: '/distributionCities',
+        //initialRoute: '/distributionCities',
+      ),
     );
   }
 }

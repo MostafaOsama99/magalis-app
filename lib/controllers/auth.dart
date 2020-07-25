@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:maglis_app/controllers/authMemory.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:provider/provider.dart';
 
 class Auth {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future login(email, password) async {
+  Future login(context, email, password) async {
     Get.dialog(Center(
       child: CircularProgressIndicator(
         valueColor:
@@ -18,16 +20,47 @@ class Auth {
       final FirebaseUser user = (await _auth.signInWithEmailAndPassword(
               email: email, password: password))
           .user;
-      user.getIdToken().then((value) async {
-        Get.toNamed('/home');
-       
-        AuthMemory().setPrefs(user.uid);
-      });
+      final document = await Firestore.instance
+          .collection('employee')
+          .document(user.uid)
+          .get();
+
+      if (!document.exists) {
+        Get.dialog(
+          Center(
+            child: AlertDialog(
+              title: Text('Validation Error'),
+              content: Text('This user is not recognised in the System'),
+              actions: <Widget>[
+                FlatButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  child: Text('OK!'),
+                )
+              ],
+            ),
+          ),
+        );
+        return false;
+      }
+      final userData = document.data;
+
+      Provider.of<UserProvider>(context,listen: false).setUser(
+          User(name: userData['name'], type: userData['type']));
+      if (userData['type'] == 'admin') {
+        Get.offAndToNamed('/admin');
+      } else if (userData['type'] == 'operation') {
+        Get.offAndToNamed('/operation');
+      }else if(userData['type'] == 'sales'){
+                Get.offAndToNamed('/sales');
+
+      }
       print("Success");
       return true;
     } catch (e) {
       Get.back();
-      Get.snackbar("Invalid Email or Password", "Please try again...");
+      print(e.message);
       print("Failed");
       return false;
     }
