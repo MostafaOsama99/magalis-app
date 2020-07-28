@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class CashFlow extends StatefulWidget {
   @override
@@ -52,6 +53,7 @@ class _CashFlowState extends State<CashFlow> {
     }
     return Scaffold(
       backgroundColor: Colors.grey[200],
+      bottomNavigationBar: BottomNavigator(),
       appBar: AppBar(
         elevation: 10,
         centerTitle: true,
@@ -67,6 +69,9 @@ class _CashFlowState extends State<CashFlow> {
             .where('status', isEqualTo: 'cashed')
             .snapshots(),
         builder: (context, expensesSnapshot) {
+          final expensesDocs = expensesSnapshot.data.documents;
+          expensesDocs.sort((a, b) => (a.data['time'] as Timestamp)
+              .compareTo((b.data['time'] as Timestamp)));
           return StreamBuilder<QuerySnapshot>(
             stream: Firestore.instance
                 .collection('routes')
@@ -76,12 +81,19 @@ class _CashFlowState extends State<CashFlow> {
               print('in:$cashIn');
               print('out$cashOut');
               //net = cashIn - cashOut;
+
+              final routesDocs = routesSnapshot.data.documents;
+              routesDocs.sort((a, b) => (a.data['time'] as Timestamp)
+                  .compareTo((b.data['time'] as Timestamp)));
               return StreamBuilder<QuerySnapshot>(
                   stream: Firestore.instance
                       .collection('revenue')
                       .where('status', isEqualTo: 'cashed')
                       .snapshots(),
                   builder: (context, revenueSnapshot) {
+                    final revenueDocs = revenueSnapshot.data.documents;
+                    revenueDocs.sort((a, b) => (a.data['time'] as Timestamp)
+                        .compareTo((b.data['time'] as Timestamp)));
                     if (revenueSnapshot.connectionState ==
                             ConnectionState.waiting ||
                         routesSnapshot.connectionState ==
@@ -91,9 +103,7 @@ class _CashFlowState extends State<CashFlow> {
                       return Center(
                         child: CircularProgressIndicator(),
                       );
-                    allDocs = routesSnapshot.data.documents +
-                        expensesSnapshot.data.documents +
-                        revenueSnapshot.data.documents;
+                    allDocs = routesDocs + expensesDocs + revenueDocs;
                     print('length1:${expensesSnapshot.data.documents.length}');
                     print('length2:${routesSnapshot.data.documents.length}');
                     print('length3:${revenueSnapshot.data.documents.length}');
@@ -240,9 +250,11 @@ class _CashFlowState extends State<CashFlow> {
                                         isSelcted: false,
                                       );
                                     }
+                                    print(index);
+                                    index -= shortageIndex;
+                                    index -= excessIndex;
                                     print('data: ${allDocs[index].data}');
-                                    print(
-                                        'data: ${savedDocs.indexWhere((ele) => ele.documentID == allDocs[index].documentID) == -1}');
+
                                     final path = allDocs[index]
                                         .reference
                                         .path
@@ -425,7 +437,8 @@ class _CashFlowState extends State<CashFlow> {
                                 'cashIn': cashIn,
                                 'cashOut': cashOut,
                                 'net': net,
-                                'date': DateFormat.yMd().format(DateTime.now())
+                                'date': DateFormat.yMd().format(DateTime.now()),
+                                'time': DateTime.now(),
                               });
                               Firestore.instance
                                   .collection('myInfo')
@@ -470,15 +483,17 @@ class _CashFlowState extends State<CashFlow> {
                                       .collection('routes')
                                       .document(element.documentID)
                                       .setData(element.data);
+
                                   final expensesDocument = {
                                     'userName': element.data['name'],
                                     'date': element.data['date'],
                                     'supplier': 'Cairo Distribution fee',
                                     'amount': element.data['fees'],
                                     'status': 'approved',
-                                    'attachments':[],
-                                    'note':[],
-                                    'type':'Cash',
+                                    'attachments': [],
+                                    'note': [],
+                                    'type': 'Cash',
+                                    'time': DateTime.now(),
                                   };
 
                                   final revenueDocument = {
@@ -488,6 +503,7 @@ class _CashFlowState extends State<CashFlow> {
                                     'amount': element.data['totalAmount'],
                                     'status': 'approved',
                                     'isCairo': true,
+                                    'time': DateTime.now(),
                                   };
 
                                   Firestore.instance
@@ -498,6 +514,7 @@ class _CashFlowState extends State<CashFlow> {
                                       .collection('revenue')
                                       .add(revenueDocument);
                                   print('revenue are added');
+
                                   Firestore.instance
                                       .collection('routes')
                                       .document(element.documentID)
@@ -545,7 +562,8 @@ class _CashFlowState extends State<CashFlow> {
                                 'cashIn': cashIn,
                                 'cashOut': cashOut,
                                 'net': net,
-                                'date': DateFormat.yMd().format(DateTime.now())
+                                'date': DateFormat.yMd().format(DateTime.now()),
+                                'time': DateTime.now(),
                               });
                               savedDocs.forEach((element) {
                                 if (element.reference.path.split('/')[0] ==

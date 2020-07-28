@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:provider/provider.dart';
 
 class ShippedRouteScreen extends StatefulWidget {
   @override
@@ -9,6 +11,7 @@ class ShippedRouteScreen extends StatefulWidget {
 class _ShippedRouteScreenState extends State<ShippedRouteScreen> {
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<UserProvider>(context).user;
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -56,23 +59,27 @@ class _ShippedRouteScreenState extends State<ShippedRouteScreen> {
                   SizedBox(
                     width: 15,
                   ),
-                  InkWell(
-                    onTap: () => Navigator.of(context).pushNamed('/addRoute'),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[400], width: 2),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(6.0),
-                        child: Icon(
-                          Icons.add,
-                          size: 25,
-                          color: Color.fromRGBO(96, 125, 129, 1),
-                        ),
-                      ),
-                    ),
-                  ),
+                  (user.type == 'admin' || user.type == 'operation')
+                      ? InkWell(
+                          onTap: () =>
+                              Navigator.of(context).pushNamed('/addRoute'),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border:
+                                  Border.all(color: Colors.grey[400], width: 2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(6.0),
+                              child: Icon(
+                                Icons.add,
+                                size: 25,
+                                color: Color.fromRGBO(96, 125, 129, 1),
+                              ),
+                            ),
+                          ),
+                        )
+                      : SizedBox(),
                 ],
               ),
             ),
@@ -127,14 +134,13 @@ class _ShippedRouteScreenState extends State<ShippedRouteScreen> {
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18),
                                   ), //rgb(130, 34, 94)
-                                  RaisedButton(
+                                 user.type =='admin'? RaisedButton(
                                     onPressed: () {
                                       Firestore.instance
                                           .collection('routes')
                                           .document(routesData[i].documentID)
                                           .updateData({'status': 'cashed'});
-                                      Navigator.of(context)
-                                          .pop();
+                                      Navigator.of(context).pop();
                                     },
                                     child: Text(
                                       'Add to Finance',
@@ -149,7 +155,7 @@ class _ShippedRouteScreenState extends State<ShippedRouteScreen> {
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     padding: EdgeInsets.all(8),
-                                  )
+                                  ):SizedBox()
                                 ],
                               ),
                               Divider(

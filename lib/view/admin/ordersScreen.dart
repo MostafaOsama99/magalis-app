@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:provider/provider.dart';
 
 class OrderScreen extends StatefulWidget {
@@ -77,6 +78,8 @@ class _RevenueState extends State<OrderScreen> {
                       child: CircularProgressIndicator(),
                     );
                   final documents = snapshot.data.documents;
+                  documents.sort((a, b) => (a.data['time'] as Timestamp)
+                      .compareTo((b.data['time'] as Timestamp)));
                   documents.forEach((element) {
                     if (!dates.contains(element.data['createdAt']))
                       dates.add(element.data['createdAt']);
@@ -264,30 +267,10 @@ class _RevenueState extends State<OrderScreen> {
                   );
                 }),
           ),
-          Material(
-            elevation: 20,
-            child: Container(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(
-                      Icons.book,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                    Icon(
-                      Icons.settings,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
+          
         ],
       ),
+      bottomNavigationBar: BottomNavigator(),
     );
   }
 }

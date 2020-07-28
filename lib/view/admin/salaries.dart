@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class SalariesScreen extends StatelessWidget {
   final months = [
@@ -19,6 +20,7 @@ class SalariesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,

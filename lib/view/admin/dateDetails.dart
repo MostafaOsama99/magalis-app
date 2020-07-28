@@ -1,5 +1,6 @@
 //Screen 12
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class DateDetails extends StatelessWidget {
   const DateDetails({Key key}) : super(key: key);
@@ -7,6 +8,7 @@ class DateDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,

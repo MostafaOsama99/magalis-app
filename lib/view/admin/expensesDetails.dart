@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 //Screen 7
 class ExpensesDetails extends StatelessWidget {
@@ -15,6 +16,7 @@ class ExpensesDetails extends StatelessWidget {
         Firestore.instance.collection('expenses').document(id).get();
 
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
@@ -171,8 +173,10 @@ class ExpensesDetails extends StatelessWidget {
                                     itemBuilder: (ctx, index) => Image.network(
                                       data['attachments'][index],
                                     ),
-                                    itemCount:
-                                        (data['attachments'] as List).length,
+                                    itemCount: (data['attachments'] as List) ==
+                                            null
+                                        ? 0
+                                        : (data['attachments'] as List).length,
                                   ),
                                   borderRadius: BorderRadius.circular(25),
                                 ),
@@ -304,48 +308,51 @@ class ExpensesDetails extends StatelessWidget {
                                 ),
                               ),
                               Expanded(
-                                child: (data['notes'] as List).length <= 0
-                                    ? Center(
-                                        child: Text(
-                                          'No Notes to Display',
-                                          style: TextStyle(fontSize: 28),
-                                        ),
-                                      )
-                                    : ListView.builder(
-                                        itemBuilder: (ctx, index) => Column(
-                                          children: <Widget>[
-                                            ListTile(
-                                              title: Text(
-                                                '${data['notes'][index]['note']}',
-                                                style: TextStyle(
-                                                  color: Color.fromRGBO(
-                                                      96, 125, 130, 1),
-                                                  fontSize: 18,
-                                                ),
-                                              ),
-                                              trailing: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: <Widget>[
-                                                  Text(
-                                                    '${data['notes'][index]['from']}',
+                                child: (data['notes'] as List) != null
+                                    ? 
+                                    (data['notes'] as List).length <= 0
+                                        ? Center(
+                                            child: Text(
+                                              'No Notes to Display',
+                                              style: TextStyle(fontSize: 28),
+                                            ),
+                                          )
+                                        : ListView.builder(
+                                            itemBuilder: (ctx, index) => Column(
+                                              children: <Widget>[
+                                                ListTile(
+                                                  title: Text(
+                                                    '${data['notes'][index]['note']}',
                                                     style: TextStyle(
                                                       color: Color.fromRGBO(
                                                           96, 125, 130, 1),
-                                                      fontSize: 14,
+                                                      fontSize: 18,
                                                     ),
                                                   ),
-                                                ],
-                                              ),
+                                                  trailing: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: <Widget>[
+                                                      Text(
+                                                        '${data['notes'][index]['from']}',
+                                                        style: TextStyle(
+                                                          color: Color.fromRGBO(
+                                                              96, 125, 130, 1),
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Divider(
+                                                  thickness: 2.5,
+                                                )
+                                              ],
                                             ),
-                                            Divider(
-                                              thickness: 2.5,
-                                            )
-                                          ],
-                                        ),
-                                        itemCount:
-                                            (data['notes'] as List).length,
-                                      ),
+                                            itemCount:
+                                                (data['notes'] as List).length,
+                                          ):SizedBox(),
                               ),
                             ],
                           ),

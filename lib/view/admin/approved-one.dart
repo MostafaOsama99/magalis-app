@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:maglis_app/widgets/gridItems.dart';
 
 class ApprovedOne extends StatefulWidget {
@@ -295,6 +296,7 @@ class _ApprovedOneState extends State<ApprovedOne> {
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavigator(),
     );
   }
 }

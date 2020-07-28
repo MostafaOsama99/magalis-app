@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
+import 'package:provider/provider.dart';
 
 class Distribution extends StatefulWidget {
   @override
@@ -9,7 +12,9 @@ class _DistributionState extends State<Distribution> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final user = Provider.of<UserProvider>(context).user;
     return Scaffold(
+        bottomNavigationBar: BottomNavigator(),
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
           elevation: 10,
@@ -35,85 +40,11 @@ class _DistributionState extends State<Distribution> {
                     fontWeight: FontWeight.bold,
                     fontSize: 20),
               ),
-              
             ),
           ),
           Expanded(
             child: ListView(
               children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      InkWell(
-                        onTap: () => Navigator.of(context)
-                            .pushNamed('/onDistributionType'),
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 170,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                child: Image.asset(
-                                    'assets/images/NotApproved.png'),
-                                width: 100,
-                                height: 100,
-                              ),
-                              Text(
-                                'On Distribution Route',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: Color.fromRGBO(134, 134, 134, 1),
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () => Navigator.of(context).pushNamed('/collectedRoutes'),
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 170,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                child: Image.asset(
-                                    'assets/images/PersonCheck.png'),
-                                width: 100,
-                                height: 100,
-                              ),
-                              Text(
-                                'Collected routes',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: Color.fromRGBO(134, 134, 134, 1),
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                   child: Row(
@@ -153,7 +84,91 @@ class _DistributionState extends State<Distribution> {
                         ),
                       ),
                       InkWell(
-                        onTap: ()=> Navigator.of(context).pushNamed('/shippedRoute'),
+                        onTap: () {
+                          if (user.type == 'warehouse') {
+                            Navigator.of(context)
+                                .pushNamed('/warehouseOnDistribution');
+                          } else {
+                            Navigator.of(context)
+                                .pushNamed('/onDistributionType');
+                          }
+                        },
+                        child: Container(
+                          width: size.width / 2.25,
+                          height: 170,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border:
+                                Border.all(width: 2.5, color: Colors.grey[400]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Container(
+                                child: Image.asset(
+                                    'assets/images/NotApproved.png'),
+                                width: 100,
+                                height: 100,
+                              ),
+                              Text(
+                                'On Distribution Route',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: Color.fromRGBO(134, 134, 134, 1),
+                                    fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      user.type != 'warehouse'
+                          ? InkWell(
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed('/shippedRoute'),
+                              child: Container(
+                                width: size.width / 2.25,
+                                height: 170,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      width: 2.5, color: Colors.grey[400]),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Container(
+                                      child: Image.asset(
+                                          'assets/images/PersonCheck.png'),
+                                      width: 100,
+                                      height: 100,
+                                    ),
+                                    Text(
+                                      'Shipped',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color:
+                                              Color.fromRGBO(134, 134, 134, 1),
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )
+                          : SizedBox(),
+                      InkWell(
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/collectedRoutes'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 170,
@@ -173,7 +188,8 @@ class _DistributionState extends State<Distribution> {
                                 height: 100,
                               ),
                               Text(
-                                'Shipped',
+                                'Collected routes',
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: 18,
                                     color: Color.fromRGBO(134, 134, 134, 1),
@@ -189,28 +205,6 @@ class _DistributionState extends State<Distribution> {
               ],
             ),
           ),
-          Material(
-            elevation: 20,
-            child: Container(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(
-                      Icons.book,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                    Icon(
-                      Icons.settings,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
         ]));
   }
 }

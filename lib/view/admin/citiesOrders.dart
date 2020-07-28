@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:provider/provider.dart';
 
 class CitiesOrders extends StatelessWidget {
@@ -20,6 +21,7 @@ class CitiesOrders extends StatelessWidget {
             .collection('orders')
             .where('status', isEqualTo: 'noAction')
             .where('isCairo', isEqualTo: false)
+            .where('isCorporate', isEqualTo: false)
             .snapshots();
       } else if (map['type'] == 3) {
         title = 'Shipped';
@@ -28,6 +30,7 @@ class CitiesOrders extends StatelessWidget {
             .collection('orders')
             .where('status', isEqualTo: 'shipped')
             .where('isCairo', isEqualTo: false)
+            .where('isCorporate', isEqualTo: false)
             .snapshots();
       } else if (map['type'] == 4) {
         title = 'Collected';
@@ -36,6 +39,7 @@ class CitiesOrders extends StatelessWidget {
             .collection('orders')
             .where('status', isEqualTo: 'collected')
             .where('isCairo', isEqualTo: false)
+            .where('isCorporate', isEqualTo: false)
             .snapshots();
         print(orderstream.toString());
       } else {
@@ -44,6 +48,7 @@ class CitiesOrders extends StatelessWidget {
         orderstream = Firestore.instance
             .collection('orders')
             .where('isCairo', isEqualTo: false)
+            .where('isCorporate', isEqualTo: false)
             .snapshots();
       }
     } else {
@@ -52,10 +57,12 @@ class CitiesOrders extends StatelessWidget {
       orderstream = Firestore.instance
           .collection('orders')
           .where('isCairo', isEqualTo: false)
+          .where('isCorporate', isEqualTo: false)
           .snapshots();
     }
-    final user = Provider.of<UserProvider>(context,listen: false).user;
+    final user = Provider.of<UserProvider>(context, listen: false).user;
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
@@ -102,24 +109,27 @@ class CitiesOrders extends StatelessWidget {
                   SizedBox(
                     width: 15,
                   ),
-                  user.type == 'admin' || user.type == 'sales'?
-                  InkWell(
-                    onTap: () => Navigator.of(context).pushNamed('/addOrder'),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[400], width: 2),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(6.0),
-                        child: Icon(
-                          Icons.add,
-                          size: 25,
-                          color: Color.fromRGBO(96, 125, 129, 1),
-                        ),
-                      ),
-                    ),
-                  ):SizedBox(),
+                  user.type == 'admin' || user.type == 'sales'
+                      ? InkWell(
+                          onTap: () =>
+                              Navigator.of(context).pushNamed('/addOrder'),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border:
+                                  Border.all(color: Colors.grey[400], width: 2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(6.0),
+                              child: Icon(
+                                Icons.add,
+                                size: 25,
+                                color: Color.fromRGBO(96, 125, 129, 1),
+                              ),
+                            ),
+                          ),
+                        )
+                      : SizedBox(),
                 ],
               ),
             ),
@@ -132,8 +142,9 @@ class CitiesOrders extends StatelessWidget {
                   return Center(
                     child: CircularProgressIndicator(),
                   );
-
                 final ordersData = snapshot.data.documents;
+                ordersData.sort((a, b) => (a.data['time'] as Timestamp)
+                    .compareTo((b.data['time'] as Timestamp)));
                 if (snapshot.data.documents.length <= 0) {
                   return Center(
                     child: Text(
@@ -146,7 +157,7 @@ class CitiesOrders extends StatelessWidget {
                   );
                 }
                 return ListView.builder(
-                  itemCount: snapshot.data.documents.length,
+                  itemCount: ordersData.length,
                   itemBuilder: (context, i) {
                     final line = ordersData[i].data['city'];
 

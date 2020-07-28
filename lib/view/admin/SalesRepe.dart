@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 
 //Screen 47
@@ -10,6 +11,7 @@ class SalesRepe extends StatelessWidget {
         AppBar().preferredSize.height -
         MediaQuery.of(context).padding.top;
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,

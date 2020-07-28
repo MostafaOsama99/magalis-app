@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class MonthSalary extends StatelessWidget {
   final employee = [
@@ -19,6 +20,7 @@ class MonthSalary extends StatelessWidget {
     final month = ModalRoute.of(context).settings.arguments as int;
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,

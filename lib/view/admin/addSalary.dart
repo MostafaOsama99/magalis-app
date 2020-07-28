@@ -1,6 +1,7 @@
 //Screen 14
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class AddSalary extends StatelessWidget {
   final nameController = TextEditingController();
@@ -159,7 +160,7 @@ class AddSalary extends StatelessWidget {
               ),
             ),
             InkWell(
-              onTap: () async{
+              onTap: () async {
                 final name = nameController.text;
                 final salary = salaryConroller.text;
                 final info =
@@ -190,6 +191,7 @@ class AddSalary extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavigator(),
     );
   }
 }

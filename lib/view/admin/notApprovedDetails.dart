@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class NotApprovedDetails extends StatefulWidget {
   @override
@@ -53,6 +54,7 @@ class _ApprovedDetailsState extends State<NotApprovedDetails> {
           .snapshots();
     }
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
           elevation: 10,
@@ -86,20 +88,34 @@ class _ApprovedDetailsState extends State<NotApprovedDetails> {
           StreamBuilder<QuerySnapshot>(
               stream: revenuetream,
               builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                List<DocumentSnapshot> docs = snapshot.data.documents;
+                docs.forEach((element) {
+                  print('docs:${element.data}');
+                });
+                docs.sort((a, b) => (a.data['time'] as Timestamp)
+                    .compareTo((b.data['time'] as Timestamp)));
+                docs.forEach((element) {
+                  print('docs:${element.data}');
+                });
                 return ListView.builder(
                   itemBuilder: (ctx, index) {
                     print(index);
                     final userName =
-                        snapshot.data.documents[index].data['userName'];
+                        docs[index].data['userName'];
                     final supplier =
-                        snapshot.data.documents[index].data['supplier'];
-                    final date = snapshot.data.documents[index].data['date'];
+                        docs[index].data['supplier'];
+                    final date = docs[index].data['date'];
                     final amount =
-                        snapshot.data.documents[index].data['amount'];
+                        docs[index].data['amount'];
                     return approvedTile(supplier, userName, date, amount,
-                        snapshot.data.documents[index].documentID);
+                        docs[index].documentID);
                   },
-                  itemCount: snapshot.data.documents.length,
+                  itemCount: docs.length,
                 );
               })
         ])));

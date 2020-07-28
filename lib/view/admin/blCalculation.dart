@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:provider/provider.dart';
 
 class BlCalc extends StatefulWidget {
@@ -37,6 +38,9 @@ class _BlCalcState extends State<BlCalc> {
               child: CircularProgressIndicator(),
             );
           }
+          final docs = orderSnapshot.data.documents;
+          docs.sort((a, b) => (a.data['time'] as Timestamp)
+              .compareTo((b.data['time'] as Timestamp)));
           orderSnapshot.data.documents.forEach((element) {
             cashIn += element['totalAccount'];
           });
@@ -200,10 +204,11 @@ class _BlCalcState extends State<BlCalc> {
                       await Firestore.instance.collection('revenue').add({
                         'source': 'Cities Distribution',
                         'userName': user.name,
-                        'date': '${element.data['date']}',
                         'status': 'approved',
                         'isCairo': false,
-                        'amount': '${element.data['totalAccount']}'
+                        'amount': element.data['totalAccount'],
+                        'date': DateFormat.yMd().format(DateTime.now()),
+                        'time': DateTime.now(),
                       });
                     });
                     showDialog(
@@ -269,6 +274,7 @@ class _BlCalcState extends State<BlCalc> {
           );
         },
       ),
+      bottomNavigationBar: BottomNavigator(),
     );
   }
 

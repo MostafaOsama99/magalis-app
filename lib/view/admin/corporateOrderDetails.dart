@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' as url;
 
@@ -29,7 +30,6 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
     final orderData =
         ModalRoute.of(context).settings.arguments as Map<dynamic, dynamic>;
     final user = Provider.of<UserProvider>(context, listen: false).user;
-
     return StreamBuilder<DocumentSnapshot>(
         stream: Firestore.instance
             .collection('orders')
@@ -51,6 +51,7 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                   : false;
 
           return Scaffold(
+            bottomNavigationBar: BottomNavigator(),
             backgroundColor: Colors.grey[200],
             appBar: AppBar(
               elevation: 10,
@@ -146,18 +147,22 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                           fontWeight: FontWeight.bold,
                           fontSize: 20),
                     ),
-                    trailing: InkWell(
-                      onTap: () => Navigator.of(context).pushNamed('/editOrder',
-                          arguments: {
-                            'id': snapshot.data.documentID,
-                            'orderMap': snapshot.data.data
-                          }),
-                      child: Image.asset(
-                        'assets/images/noteAdd.png',
-                        width: 50,
-                        height: 50,
-                      ),
-                    ),
+                    trailing: (order['status'] != 'collected' &&
+                            order['status'] != 'canceled' &&
+                            order['status'] != 'archived')
+                        ? InkWell(
+                            onTap: () => Navigator.of(context)
+                                .pushNamed('/editOrder', arguments: {
+                              'id': snapshot.data.documentID,
+                              'orderMap': snapshot.data.data
+                            }),
+                            child: Image.asset(
+                              'assets/images/noteAdd.png',
+                              width: 50,
+                              height: 50,
+                            ),
+                          )
+                        : SizedBox(),
                   ),
                 ),
                 SizedBox(
@@ -466,6 +471,7 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                                 (order['status'] !=
                                             'collected' && //canceled  archived
                                         order['status'] != 'archived' &&
+                                        order['status'] != 'canceled' &&
                                         order['status'] != 'canceled')
                                     ? RaisedButton(
                                         onPressed: () async {
@@ -539,7 +545,10 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                                             List notes = order['notes'];
                                             notes.add({
                                               'from': user.name,
-                                              'note': noteController.text
+                                              'note': noteController.text,
+                                              'time': DateFormat.yMd()
+                                                  .add_jm()
+                                                  .format(DateTime.now())
                                             });
                                             Firestore.instance
                                                 .collection('orders')
@@ -589,6 +598,14 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                                               children: <Widget>[
                                                 Text(
                                                   '${order['notes'][index]['from']}',
+                                                  style: TextStyle(
+                                                    color: Color.fromRGBO(
+                                                        96, 125, 130, 1),
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '${order['notes'][index]['time']}',
                                                   style: TextStyle(
                                                     color: Color.fromRGBO(
                                                         96, 125, 130, 1),
@@ -719,6 +736,7 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                                                   issueDescription.text,
                                               'createdUser': user.name,
                                               'createdDate': DateFormat.yMd()
+                                                  .add_jm()
                                                   .format(DateTime.now()),
                                               'isCairo': order['isCairo'],
                                               'isSolved': false,
@@ -990,6 +1008,51 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                           ],
                         ),
                       ),
+                      order['reason'] != null
+                          ? Container(
+                              width: MediaQuery.of(context).size.width,
+                              margin: EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(
+                                  width: 2,
+                                  color: Colors.grey.withOpacity(0.5),
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.all(12),
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    'Reason',
+                                    style: TextStyle(
+                                        color: Color.fromRGBO(
+                                            170, 44, 94, 1), //rgb(96, 125, 130)
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 4),
+                                    child: Divider(
+                                      color: Colors.grey,
+                                      thickness: 4,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${order['reason']}', //description
+                                    style: TextStyle(
+                                      color: Color.fromRGBO(96, 125, 130, 1),
+                                      fontSize: 14,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )
+                          : SizedBox(),
                       Container(
                         width: MediaQuery.of(context).size.width,
                         height: 50,
@@ -1008,7 +1071,8 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                           children: <Widget>[
                             Expanded(child: SizedBox()),
                             order['status'] == 'noAction' &&
-                                    user.type == 'admin'
+                                    (user.type == 'admin' ||
+                                        user.type == 'warehouse')
                                 ? InkWell(
                                     onTap: () async {
                                       bool confirm = await showDialog(
@@ -1050,6 +1114,7 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                                         'source': 'Corporate: ${order['name']}',
                                         'status': 'approved',
                                         'userName': user.name,
+                                        'time': DateTime.now(),
                                       });
                                       Firestore.instance
                                           .collection('orders')
@@ -1085,132 +1150,22 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                                               fontWeight: FontWeight.bold,
                                             ),
                                           )
-                                        : order['status'] == 'shipped'
-                                            ? InkWell(
-                                                onTap: () async {
-                                                  bool confirm =
-                                                      await showDialog(
-                                                          context: context,
-                                                          builder:
-                                                              (ctx) =>
-                                                                  AlertDialog(
-                                                                    title: Text(
-                                                                        'Confirmation?'),
-                                                                    content: Text(
-                                                                        'Do you want to processe?'),
-                                                                    actions: <
-                                                                        Widget>[
-                                                                      FlatButton(
-                                                                        onPressed:
-                                                                            () =>
-                                                                                Navigator.of(context).pop(false),
-                                                                        child:
-                                                                            Text(
-                                                                          'No',
-                                                                          style:
-                                                                              TextStyle(color: Colors.red),
-                                                                        ),
-                                                                      ),
-                                                                      FlatButton(
-                                                                        onPressed:
-                                                                            () =>
-                                                                                Navigator.of(context).pop(true),
-                                                                        child:
-                                                                            Text(
-                                                                          'Yes',
-                                                                          style:
-                                                                              TextStyle(color: Colors.green),
-                                                                        ),
-                                                                      )
-                                                                    ],
-                                                                  ));
-                                                  if (!confirm) return;
-                                                  Firestore.instance
-                                                      .collection('orders')
-                                                      .document(snapshot
-                                                          .data.documentID)
-                                                      .updateData({
-                                                    'status': 'cashed',
-                                                  }).then((value) =>
-                                                          Navigator.of(context)
-                                                              .pop());
-                                                },
-                                                child: Text(
-                                                  'Add to Finance',
-                                                  style: TextStyle(
-                                                    color: Colors.green
-                                                        .withOpacity(0.7),
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                        : order['status'] == 'collected'
+                                            ? Text(
+                                                'Collected',
+                                                style: TextStyle(
+                                                  color: Colors.green,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
                                               )
-                                            : order['status'] == 'collected'
-                                                ? Text(
-                                                    'Collected',
-                                                    style: TextStyle(
-                                                      color: Colors.green,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  )
-                                                : InkWell(
-                                                    onTap: () async {
-                                                      bool confirm =
-                                                          await showDialog(
-                                                              context: context,
-                                                              builder: (ctx) =>
-                                                                  AlertDialog(
-                                                                    title: Text(
-                                                                        'Confirmation?'),
-                                                                    content: Text(
-                                                                        'Do you want to processe?'),
-                                                                    actions: <
-                                                                        Widget>[
-                                                                      FlatButton(
-                                                                        onPressed:
-                                                                            () =>
-                                                                                Navigator.of(context).pop(false),
-                                                                        child:
-                                                                            Text(
-                                                                          'No',
-                                                                          style:
-                                                                              TextStyle(color: Colors.red),
-                                                                        ),
-                                                                      ),
-                                                                      FlatButton(
-                                                                        onPressed:
-                                                                            () =>
-                                                                                Navigator.of(context).pop(true),
-                                                                        child:
-                                                                            Text(
-                                                                          'Yes',
-                                                                          style:
-                                                                              TextStyle(color: Colors.green),
-                                                                        ),
-                                                                      )
-                                                                    ],
-                                                                  ));
-                                                      if (!confirm) return;
-                                                      Firestore.instance
-                                                          .collection('orders')
-                                                          .document(snapshot
-                                                              .data.documentID)
-                                                          .updateData({
-                                                        'status': 'cashed',
-                                                      }).then((value) =>
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop());
-                                                    },
-                                                    child: Text(
-                                                      'Archived',
-                                                      style: TextStyle(
-                                                        color: Color.fromRGBO(
-                                                            226, 208, 168, 1),
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    )),
+                                            : Text(
+                                                'Archived',
+                                                style: TextStyle(
+                                                  color: Color.fromRGBO(
+                                                      226, 208, 168, 1),
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                             SizedBox(
                               width: 10,
                             ),
@@ -1231,22 +1186,26 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                               ),
                             ),
                             order['status'] == 'noAction' &&
-                                    user.type == 'admin'
+                                    (user.type == 'admin' ||
+                                        user.type == 'warehouse')
                                 ? Expanded(child: SizedBox())
                                 : SizedBox(),
                             order['status'] == 'noAction' &&
-                                    user.type == 'admin'
+                                    (user.type == 'admin' ||
+                                        user.type == 'warehouse')
                                 ? VerticalDivider(
                                     color: Color.fromRGBO(170, 44, 94, 1),
                                     thickness: 3,
                                   )
                                 : SizedBox(),
                             order['status'] == 'noAction' &&
-                                    user.type == 'admin'
+                                    (user.type == 'admin' ||
+                                        user.type == 'warehouse')
                                 ? Expanded(child: SizedBox())
                                 : SizedBox(),
                             order['status'] == 'noAction' &&
-                                    user.type == 'admin'
+                                    (user.type == 'admin' ||
+                                        user.type == 'warehouse')
                                 ? InkWell(
                                     child: Text(
                                       'Canclled',

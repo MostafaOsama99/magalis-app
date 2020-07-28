@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class SalesHome extends StatelessWidget {
   @override
@@ -12,6 +13,7 @@ class SalesHome extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
+        leading: Container(),
         elevation: 10,
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -86,28 +88,6 @@ class SalesHome extends StatelessWidget {
               ],
             ),
           ),
-          Material(
-            elevation: 20,
-            child: Container(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(
-                      Icons.book,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                    Icon(
-                      Icons.settings,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
         ],
       ),
     );

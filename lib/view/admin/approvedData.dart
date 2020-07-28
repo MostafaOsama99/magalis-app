@@ -1,5 +1,6 @@
 //screen 11
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class ApprovedDate extends StatelessWidget {
 
@@ -76,6 +77,7 @@ class ApprovedDate extends StatelessWidget {
           ))
         ],
       ),
+      bottomNavigationBar: BottomNavigator(),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:maglis_app/widgets/gridItems.dart';
 
 class ApprovedTwo extends StatefulWidget {
@@ -55,6 +56,8 @@ class _NotApprovedTwoState extends State<ApprovedTwo> {
                         child: CircularProgressIndicator(),
                       );
                     final documents = snapshot.data.documents;
+                    documents.sort((a, b) => (a.data['time'] as Timestamp)
+                        .compareTo((b.data['time'] as Timestamp)));
                     documents.forEach((element) {
                       print('doc' + element.data.toString());
                       if (!dates.contains(element.data['date']))
@@ -241,31 +244,11 @@ class _NotApprovedTwoState extends State<ApprovedTwo> {
                     );
                   }),
             ),
-            Material(
-              elevation: 20,
-              child: Container(
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Icon(
-                        Icons.book,
-                        color: Color.fromRGBO(96, 125, 129, 1),
-                      ),
-                      Icon(
-                        Icons.settings,
-                        color: Color.fromRGBO(96, 125, 129, 1),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavigator(),
     );
   }
 }

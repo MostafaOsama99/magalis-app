@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:provider/provider.dart';
 
 class AddRoute extends StatefulWidget {
@@ -50,6 +51,7 @@ class _AddRouteState extends State<AddRoute> {
           agents = snapshot.data['agents'] as List;
 
           return Scaffold(
+            bottomNavigationBar: BottomNavigator(),
             backgroundColor: Colors.grey[200],
             appBar: AppBar(
               elevation: 10,
@@ -136,6 +138,16 @@ class _AddRouteState extends State<AddRoute> {
                                           suffixIcon: Icon(Icons.search)),
                                       itemSubmitted: (item) =>
                                           setState(() => selected = item),
+                                      textSubmitted: (item) {
+                                        print('itemss:$item');
+                                        setState(() {
+                                          selected = item;
+                                        });
+                                      },
+                                      textChanged: (item) {
+                                        print('itesmss:$item');
+                                        selected = item;
+                                      },
                                       key: agentsKey,
                                       suggestions: agents
                                           .map<String>((e) => e.toString())
@@ -195,6 +207,16 @@ class _AddRouteState extends State<AddRoute> {
                                           suffixIcon: Icon(Icons.search)),
                                       itemSubmitted: (item) =>
                                           setState(() => areaSelected = item),
+                                      textSubmitted: (item) {
+                                        print('itemss:$item');
+                                        setState(() {
+                                          areaSelected = item;
+                                        });
+                                      },
+                                      textChanged: (item) {
+                                        print('itesmss:$item');
+                                        areaSelected = item;
+                                      },
                                       key: areaKey,
                                       suggestions: areas
                                           .map<String>((e) => e.toString())
@@ -332,7 +354,8 @@ class _AddRouteState extends State<AddRoute> {
                                     'createdBy': user.name,
                                     'orders': [],
                                     'status': 'new',
-                                    'totalAmount': 0
+                                    'totalAmount': 0,
+                                    'time': DateTime.now(),
                                   });
                                   await showDialog(
                                     context: context,

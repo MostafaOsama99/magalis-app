@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
+import 'package:provider/provider.dart';
 
 class DistributionType extends StatefulWidget {
   @override
@@ -14,7 +17,9 @@ class _DistributionState extends State<DistributionType> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final user = Provider.of<UserProvider>(context).user;
     return Scaffold(
+        bottomNavigationBar: BottomNavigator(),
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
           elevation: 10,
@@ -40,21 +45,23 @@ class _DistributionState extends State<DistributionType> {
                     fontWeight: FontWeight.bold,
                     fontSize: 20),
               ),
-              trailing: InkWell(
-                onTap: () => Navigator.of(context).pushNamed('/addRoute'),
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    border: Border.all(width: 1.5, color: Colors.grey),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Icon(
-                    Icons.add,
-                    size: 35,
-                  ),
-                ),
-              ),
+              trailing: (user.type == 'admin' || user.type == 'operation')
+                  ? InkWell(
+                      onTap: () => Navigator.of(context).pushNamed('/addRoute'),
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          border: Border.all(width: 1.5, color: Colors.grey),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Icon(
+                          Icons.add,
+                          size: 35,
+                        ),
+                      ),
+                    )
+                  : SizedBox(),
             ),
           ),
           Expanded(
@@ -69,6 +76,8 @@ class _DistributionState extends State<DistributionType> {
                       child: CircularProgressIndicator(),
                     );
                   final documents = snapshot.data.documents;
+                  documents.sort((a, b) => (a.data['time'] as Timestamp)
+                      .compareTo((b.data['time'] as Timestamp)));
                   documents.forEach((element) {
                     if (!dates.contains(element.data['date']))
                       dates.add(element.data['date']);
@@ -254,28 +263,6 @@ class _DistributionState extends State<DistributionType> {
                   );
                 }),
           ),
-          Material(
-            elevation: 20,
-            child: Container(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(
-                      Icons.book,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                    Icon(
-                      Icons.settings,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
         ]));
   }
 }

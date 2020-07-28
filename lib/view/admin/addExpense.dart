@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:path/path.dart' as Path;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -37,18 +38,21 @@ class _AddExpenseState extends State<AddExpense> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     suplierNameController.text = selected;
-    final user = Provider.of<UserProvider>(context,listen: false).user;
+    final user = Provider.of<UserProvider>(context, listen: false).user;
     return FutureBuilder<DocumentSnapshot>(
         future:
             Firestore.instance.collection('myInfo').document('expenses').get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting && !called) {
             called = true;
-            return Center(child: CircularProgressIndicator(),);
+            return Center(
+              child: CircularProgressIndicator(),
+            );
           }
           suppliers = snapshot.data['suppliers'];
 
           return Scaffold(
+              bottomNavigationBar: BottomNavigator(),
               backgroundColor: Colors.grey[200],
               appBar: AppBar(
                 elevation: 10,
@@ -153,6 +157,16 @@ class _AddExpenseState extends State<AddExpense> {
                                     suffixIcon: Icon(Icons.search)),
                                 itemSubmitted: (item) =>
                                     setState(() => selected = item),
+                                textSubmitted: (item) {
+                                  print('itemss:$item');
+                                  setState(() {
+                                    selected = item;
+                                  });
+                                },
+                                textChanged: (item) {
+                                  print('itesmss:$item');
+                                  selected = item;
+                                },
                                 key: expenkey,
                                 suggestions: suppliers
                                     .map<String>((e) => e.toString())
@@ -459,27 +473,30 @@ class _AddExpenseState extends State<AddExpense> {
                               ],
                             ))
                         : SizedBox(),
-                   user.type=='admin'? Container(
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: Colors.grey[400], width: 2),
-                          borderRadius: BorderRadius.circular(10)),
-                      margin: EdgeInsets.all(12),
-                      child: Column(
-                        children: [
-                          CheckboxListTile(
-                            value: approved,
-                            onChanged: (v) {
-                              setState(() {
-                                if (v) approved = v;
-                              });
-                            },
-                            title: Text("Approved Expense"),
-                            activeColor: Colors.orange,
-                          ),
-                        ],
-                      ),
-                    ):SizedBox(),
+                    user.type == 'admin'
+                        ? Container(
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(
+                                    color: Colors.grey[400], width: 2),
+                                borderRadius: BorderRadius.circular(10)),
+                            margin: EdgeInsets.all(12),
+                            child: Column(
+                              children: [
+                                CheckboxListTile(
+                                  value: approved,
+                                  onChanged: (v) {
+                                    setState(() {
+                                      if (v) approved = v;
+                                    });
+                                  },
+                                  title: Text("Approved Expense"),
+                                  activeColor: Colors.orange,
+                                ),
+                              ],
+                            ),
+                          )
+                        : SizedBox(),
                     Container(
                       padding: EdgeInsets.all(16),
                       margin: EdgeInsets.all(10),
@@ -683,7 +700,7 @@ class _AddExpenseState extends State<AddExpense> {
                                       .updateData({'suppliers': suppliers});
                                 }
                               }
-                              if (approved && user.type =='admin') {
+                              if (approved && user.type == 'admin') {
                                 if (type == PaymentType.CashAndCredit) {
                                   document = {
                                     'userName': user.name,
@@ -696,6 +713,7 @@ class _AddExpenseState extends State<AddExpense> {
                                     'attachments': imageUrls,
                                     'status': 'approved',
                                     'notes': notes,
+                                    'time': DateTime.now(),
                                   };
                                 } else {
                                   document = {
@@ -707,6 +725,7 @@ class _AddExpenseState extends State<AddExpense> {
                                     'attachments': imageUrls,
                                     'status': 'approved',
                                     'notes': notes,
+                                    'time': DateTime.now(),
                                   };
                                 }
                               } else {
@@ -722,6 +741,7 @@ class _AddExpenseState extends State<AddExpense> {
                                     'attachments': imageUrls,
                                     'status': 'notApproved',
                                     'notes': notes,
+                                    'time': DateTime.now(),
                                   };
                                 } else {
                                   document = {
@@ -733,6 +753,7 @@ class _AddExpenseState extends State<AddExpense> {
                                     'attachments': imageUrls,
                                     'status': 'notApproved',
                                     'notes': notes,
+                                    'time': DateTime.now(),
                                   };
                                 }
                               }

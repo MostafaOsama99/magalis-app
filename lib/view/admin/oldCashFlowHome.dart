@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class OldCashFlowHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        bottomNavigationBar: BottomNavigator(),
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
           elevation: 10,
@@ -16,54 +18,62 @@ class OldCashFlowHome extends StatelessWidget {
           ),
         ),
         body: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
             child: Column(children: [
-          SizedBox(
-            height: 10,
-          ),
-          Container(
-            color: Colors.white,
-            child: ListTile(
-              leading: Image.asset(
-                'assets/images/CashFlow.png',
-                width: 50,
-                height: 50,
+              SizedBox(
+                height: 10,
               ),
-              title: Text(
-                'Cash Flow',
-                style: TextStyle(
-                    color: Color.fromRGBO(170, 44, 94, 1),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20),
+              Container(
+                color: Colors.white,
+                child: ListTile(
+                  leading: Image.asset(
+                    'assets/images/CashFlow.png',
+                    width: 50,
+                    height: 50,
+                  ),
+                  title: Text(
+                    'Cash Flow',
+                    style: TextStyle(
+                        color: Color.fromRGBO(170, 44, 94, 1),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20),
+                  ),
+                ),
               ),
-            ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance.collection('cashFlow').snapshots(),
-                builder: (context, snapshot) {
-                  print(snapshot.data.documents.length);
-                  return ListView.builder(
-                    itemBuilder: (ctx, index) {
-                      print(index);
-                      final net = snapshot.data.documents[index].data['net'];
-                      final cashIn =
-                          snapshot.data.documents[index].data['cashIn'];
-                      final date = snapshot.data.documents[index].data['date'];
-                      final cashOut =
-                          snapshot.data.documents[index].data['cashOut'];
-                      return approvedTile(date, cashIn, cashOut, net,
-                          snapshot.data.documents[index].documentID, context);
-                    },
-                    itemCount: snapshot.data.documents.length,
-                  );
-                }),
-          )
-        ])));
+              SizedBox(
+                height: 10,
+              ),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                    stream:
+                        Firestore.instance.collection('cashFlow').snapshots(),
+                    builder: (context, snapshot) {
+                      print(snapshot.data.documents.length);
+                      return ListView.builder(
+                        itemBuilder: (ctx, index) {
+                          print(index);
+                          final net =
+                              snapshot.data.documents[index].data['net'];
+                          final cashIn =
+                              snapshot.data.documents[index].data['cashIn'];
+                          final date =
+                              snapshot.data.documents[index].data['date'];
+                          final cashOut =
+                              snapshot.data.documents[index].data['cashOut'];
+                          return approvedTile(
+                              date,
+                              cashIn,
+                              cashOut,
+                              net,
+                              snapshot.data.documents[index].documentID,
+                              context);
+                        },
+                        itemCount: snapshot.data.documents.length,
+                      );
+                    }),
+              )
+            ])));
   }
 
   approvedTile(String date, cashIn, cashOut, net, String id, context) {

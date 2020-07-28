@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 import 'package:maglis_app/widgets/orderTile.dart';
+import 'package:provider/provider.dart';
 
 class OnDistributionRoutes extends StatefulWidget {
   @override
@@ -13,6 +16,7 @@ class _OnDistributionRoutesState extends State<OnDistributionRoutes> {
   @override
   Widget build(BuildContext context) {
     final map = ModalRoute.of(context).settings.arguments as Map;
+    final user = Provider.of<UserProvider>(context).user;
     Stream routestream;
     if (map != null) {
       print(map['date']);
@@ -48,6 +52,7 @@ class _OnDistributionRoutesState extends State<OnDistributionRoutes> {
     }
 
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
@@ -94,23 +99,27 @@ class _OnDistributionRoutesState extends State<OnDistributionRoutes> {
                   SizedBox(
                     width: 15,
                   ),
-                  InkWell(
-                    onTap: () => Navigator.of(context).pushNamed('/addRoute'),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[400], width: 2),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(6.0),
-                        child: Icon(
-                          Icons.add,
-                          size: 25,
-                          color: Color.fromRGBO(96, 125, 129, 1),
-                        ),
-                      ),
-                    ),
-                  ),
+                  (user.type == 'admin' || user.type == 'operation')
+                      ? InkWell(
+                          onTap: () =>
+                              Navigator.of(context).pushNamed('/addRoute'),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border:
+                                  Border.all(color: Colors.grey[400], width: 2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(6.0),
+                              child: Icon(
+                                Icons.add,
+                                size: 25,
+                                color: Color.fromRGBO(96, 125, 129, 1),
+                              ),
+                            ),
+                          ),
+                        )
+                      : SizedBox(),
                 ],
               ),
             ),
@@ -124,7 +133,8 @@ class _OnDistributionRoutesState extends State<OnDistributionRoutes> {
                     child: CircularProgressIndicator(),
                   );
                 final routesData = snapshot.data.documents;
-
+                routesData.sort((a, b) => (a.data['time'] as Timestamp)
+                    .compareTo((b.data['time'] as Timestamp)));
                 return ListView.builder(
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (context, i) {

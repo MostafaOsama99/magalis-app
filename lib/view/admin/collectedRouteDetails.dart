@@ -1,6 +1,7 @@
 //Screen 13
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class CollectedDetails extends StatefulWidget {
   @override
@@ -15,6 +16,7 @@ class _CollectedDetailsState extends State<CollectedDetails> {
     final map = ModalRoute.of(context).settings.arguments as Map;
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,

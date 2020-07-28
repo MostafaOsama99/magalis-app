@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' as url;
 
@@ -49,6 +50,7 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                 ? true
                 : false;
         return Scaffold(
+          bottomNavigationBar: BottomNavigator(),
           backgroundColor: Colors.grey[200],
           appBar: AppBar(
             elevation: 10,
@@ -145,18 +147,22 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                         fontWeight: FontWeight.bold,
                         fontSize: 20),
                   ),
-                  trailing: InkWell(
-                    onTap: () => Navigator.of(context).pushNamed('/editOrder',
-                        arguments: {
-                          'id': snapshot.data.documentID,
-                          'orderMap': snapshot.data.data
-                        }),
-                    child: Image.asset(
-                      'assets/images/noteAdd.png',
-                      width: 50,
-                      height: 50,
-                    ),
-                  ),
+                  trailing: (order['status'] != 'collected' &&
+                          order['status'] != 'canceled' &&
+                          order['status'] != 'archived')
+                      ? InkWell(
+                          onTap: () => Navigator.of(context)
+                              .pushNamed('/editOrder', arguments: {
+                            'id': snapshot.data.documentID,
+                            'orderMap': snapshot.data.data
+                          }),
+                          child: Image.asset(
+                            'assets/images/noteAdd.png',
+                            width: 50,
+                            height: 50,
+                          ),
+                        )
+                      : SizedBox(),
                 ),
               ),
               SizedBox(
@@ -412,7 +418,10 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                                           List notes = order['notes'];
                                           notes.add({
                                             'from': user.name,
-                                            'note': noteController.text
+                                            'note': noteController.text,
+                                            'time': DateFormat.yMd()
+                                                .add_jm()
+                                                .format(DateTime.now())
                                           });
                                           Firestore.instance
                                               .collection('orders')
@@ -461,6 +470,14 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                                             children: <Widget>[
                                               Text(
                                                 '${order['notes'][index]['from']}',
+                                                style: TextStyle(
+                                                  color: Color.fromRGBO(
+                                                      96, 125, 130, 1),
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              Text(
+                                                '${order['notes'][index]['time']}',
                                                 style: TextStyle(
                                                   color: Color.fromRGBO(
                                                       96, 125, 130, 1),
@@ -586,6 +603,7 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                                                 issueDescription.text,
                                             'createdUser': user.name,
                                             'createdDate': DateFormat.yMd()
+                                                .add_jm()
                                                 .format(DateTime.now()),
                                             'isCairo': order['isCairo'],
                                             'isSolved': false,
@@ -946,6 +964,49 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                         ],
                       ),
                     ),
+                    order['reason'] != null && order['status'] != 'noAction'
+                        ? Container(
+                            width: MediaQuery.of(context).size.width,
+                            margin: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                width: 2,
+                                color: Colors.grey.withOpacity(0.5),
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: EdgeInsets.all(12),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  'Reason',
+                                  style: TextStyle(
+                                      color: Color.fromRGBO(
+                                          170, 44, 94, 1), //rgb(96, 125, 130)
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 4),
+                                  child: Divider(
+                                    color: Colors.grey,
+                                    thickness: 4,
+                                  ),
+                                ),
+                                Text(
+                                  '${order['reason']}', //description
+                                  style: TextStyle(
+                                    color: Color.fromRGBO(96, 125, 130, 1),
+                                    fontSize: 14,
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        : SizedBox(),
                     Container(
                       width: MediaQuery.of(context).size.width,
                       height: 50,
@@ -962,7 +1023,9 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
                           Expanded(child: SizedBox()),
-                          order['status'] == 'noAction' && user.type == 'admin'
+                          order['status'] == 'noAction' &&
+                                  (user.type == 'admin' ||
+                                      user.type == 'warehouse')
                               ? InkWell(
                                   onTap: () async {
                                     bool confirm = await showDialog(
@@ -1012,7 +1075,8 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                                   ),
                                 )
                               : order['status'] == 'noAction' &&
-                                      user.type != 'admin'
+                                      (user.type != 'admin' &&
+                                          user.type != 'warehouse')
                                   ? Text(
                                       'No Action',
                                       style: TextStyle(
@@ -1028,7 +1092,9 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                                             fontWeight: FontWeight.bold,
                                           ),
                                         )
-                                      : order['status'] == 'shipped' && user.type != 'sales'
+                                      : order['status'] == 'shipped' &&
+                                              (user.type != 'sales' &&
+                                                  user.type != 'warehouse')
                                           ? InkWell(
                                               onTap: () async {
                                                 bool confirm = await showDialog(
@@ -1123,19 +1189,27 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                               ),
                             ),
                           ),
-                          order['status'] == 'noAction' && user.type == 'admin'
+                          order['status'] == 'noAction' &&
+                                  (user.type == 'admin' ||
+                                      user.type == 'warehouse')
                               ? Expanded(child: SizedBox())
                               : SizedBox(),
-                          order['status'] == 'noAction' && user.type == 'admin'
+                          order['status'] == 'noAction' &&
+                                  (user.type == 'admin' ||
+                                      user.type == 'warehouse')
                               ? VerticalDivider(
                                   color: Color.fromRGBO(170, 44, 94, 1),
                                   thickness: 3,
                                 )
                               : SizedBox(),
-                          order['status'] == 'noAction' && user.type == 'admin'
+                          order['status'] == 'noAction' &&
+                                  (user.type == 'admin' ||
+                                      user.type == 'warehouse')
                               ? Expanded(child: SizedBox())
                               : SizedBox(),
-                          order['status'] == 'noAction' && user.type == 'admin'
+                          order['status'] == 'noAction' &&
+                                  (user.type == 'admin' ||
+                                      user.type == 'warehouse')
                               ? InkWell(
                                   child: Text(
                                     'Canclled',

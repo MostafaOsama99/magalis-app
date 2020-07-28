@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 //Screen 33 and 44
 class Reports extends StatelessWidget {
   @override
@@ -28,7 +27,11 @@ class Reports extends StatelessWidget {
           Container(
             color: Colors.white,
             child: ListTile(
-              leading: Image.asset('assets/images/Report.png',width: 50,height: 50,),
+              leading: Image.asset(
+                'assets/images/Report.png',
+                width: 50,
+                height: 50,
+              ),
               title: Text(
                 'Reports',
                 style: TextStyle(
@@ -51,9 +54,13 @@ class Reports extends StatelessWidget {
                     border: Border.all(width: 2.5, color: Colors.grey[400]),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Image.asset('assets/images/Sent.png',width: 50,height: 50,),
+                  child: Image.asset(
+                    'assets/images/Sent.png',
+                    width: 50,
+                    height: 50,
+                  ),
                 ),
-                 Container(
+                Container(
                   width: size.width / 2.25,
                   height: 150,
                   decoration: BoxDecoration(
@@ -66,30 +73,6 @@ class Reports extends StatelessWidget {
               ],
             ),
           ),
-          
-          Expanded(child: SizedBox()),
-            Material(
-              elevation: 20,
-              child: Container(
-                color: Colors.white,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Icon(
-                        Icons.book,
-                        color: Color.fromRGBO(96, 125, 129, 1),
-                      ),
-                      Icon(
-                        Icons.settings,
-                        color: Color.fromRGBO(96, 125, 129, 1),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            )
         ],
       ),
     );

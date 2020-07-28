@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:maglis_app/widgets/bottomNavigator.dart';
 
-class OperationHome extends StatelessWidget {
+class WarehouseHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -73,38 +73,6 @@ class OperationHome extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/orderScreen'),
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                child:
-                                    Image.asset('assets/images/OrdersIcon.png'),
-                                width: 100,
-                                height: 100,
-                              ),
-                              Text(
-                                'Orders',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    color: Color.fromRGBO(134, 134, 134, 1),
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
                       InkWell(
                         onTap: () =>
                             Navigator.of(context).pushNamed('/issueScreen'),

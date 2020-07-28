@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class OldCashFlow extends StatefulWidget {
   @override
@@ -17,6 +18,7 @@ class _CashFlowState extends State<OldCashFlow> {
   Widget build(BuildContext context) {
     final id = (ModalRoute.of(context).settings.arguments as Map)['id'];
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,

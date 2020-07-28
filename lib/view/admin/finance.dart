@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class Finance extends StatefulWidget {
   @override
@@ -10,6 +11,7 @@ class _FinanceState extends State<Finance> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
+        bottomNavigationBar: BottomNavigator(),
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
           elevation: 10,
@@ -150,8 +152,7 @@ class _FinanceState extends State<Finance> {
                         ),
                       ),
                       InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/blCalc'),
+                        onTap: () => Navigator.of(context).pushNamed('/blCalc'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 150,
@@ -258,28 +259,6 @@ class _FinanceState extends State<Finance> {
               ],
             ),
           ),
-          Material(
-            elevation: 20,
-            child: Container(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(
-                      Icons.book,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                    Icon(
-                      Icons.settings,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
         ]));
   }
 }

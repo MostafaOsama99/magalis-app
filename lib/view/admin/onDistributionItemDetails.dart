@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class OnDistributionDetails extends StatefulWidget {
   @override
@@ -20,6 +21,7 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
     bool allShippedConfirmed = false;
 
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
@@ -276,26 +278,7 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                                                     .yMd()
                                                                 .format(DateTime
                                                                     .now());
-                                                            final issueID =
-                                                                await Firestore
-                                                                    .instance
-                                                                    .collection(
-                                                                        'issues')
-                                                                    .add({
-                                                              'createdDate':
-                                                                  date,
-                                                              'createdUser':
-                                                                  'Admin',
-                                                              'description':
-                                                                  textEditingController
-                                                                      .text,
-                                                              'isCairo': true,
-                                                              'isSolved': false,
-                                                              'orderId':
-                                                                  ordersList[
-                                                                          index]
-                                                                      ['docId']
-                                                            });
+
                                                             Firestore.instance
                                                                 .collection(
                                                                     'orders')
@@ -306,9 +289,10 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                                                         'docId'])
                                                                 .updateData({
                                                               'issued': true,
-                                                              'status':
-                                                                  'noAction',
                                                               'returned': true,
+                                                              'reason':
+                                                                  textEditingController
+                                                                      .text
                                                             });
 
                                                             textEditingController
@@ -417,12 +401,7 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                                       snapshot.data.documentID)
                                                   .updateData(
                                                       {'orders': ordersList});
-                                              Firestore.instance
-                                                  .collection('orders')
-                                                  .document(ordersList[index]
-                                                      ['docId'])
-                                                  .updateData(
-                                                      {'status': 'shipped'});
+
                                               setState(() {});
                                             }
                                           },
@@ -460,106 +439,123 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                   ),
                 ),
               ),
-              loading
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : allShippedConfirmed
-                      ? InkWell(
-                          onTap: () async {
-                            final amountController = TextEditingController();
-                            final confirm = await showDialog(
-                              context: context,
-                              child: AlertDialog(
-                                title: Text('Fees Charged'),
-                                content: TextField(
-                                  controller: amountController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.grey, width: 1.5),
-                                        borderRadius: BorderRadius.circular(25),
-                                      ),
-                                      labelText: 'Fees',
-                                      hintText: 'Enter The Distribution Fees:'),
-                                ),
-                                actions: <Widget>[
-                                  FlatButton(
-                                    child: Text(
-                                      'Cancel',
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                    onPressed: () {
-                                      Navigator.of(context).pop(false);
-                                    },
-                                  ),
-                                  FlatButton(
-                                    child: Text('Ok',
-                                        style: TextStyle(color: Colors.green)),
-                                    onPressed: () {
-                                      Navigator.of(context).pop(true);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
-                            if (!confirm) return;
-                            ordersList.forEach((element) async {
-                              print(element);
-                              if (element['shipped']) {
-                                print('shipped');
-                                await Firestore.instance
-                                    .collection('orders')
-                                    .document(element['docId'])
-                                    .updateData({'status': 'shipped'});
-                              } else {
-                                print('canceled');
-                                await Firestore.instance
-                                    .collection('orders')
-                                    .document(element['docId'])
-                                    .updateData({'status': 'canceled'});
-                              }
-                            });
-                            await Firestore.instance
-                                .collection('routes')
-                                .document(snapshot.data.documentID)
-                                .updateData(
-                              {
-                                'status': 'shipped',
-                                'fees': double.parse(amountController.text)
-                              },
-                            );
-                            Navigator.of(context, rootNavigator: true)
-                                .pushReplacementNamed('/newRoute');
-                          },
-                          child: Container(
-                            color: Color.fromRGBO(170, 44, 94, 1),
-                            width: size.width,
-                            height: 50,
-                            child: Center(
-                              child: Text(
-                                'Push to Shipped',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                        )
-                      : Container(
-                          color: Color.fromRGBO(170, 44, 94, 1),
-                          width: size.width,
-                          height: 50,
-                          child: Center(
-                            child: Text(
-                              'Check All Orders First',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
+              routeData['status'] == 'shipped'
+                  ? Container(
+                      color: Color.fromRGBO(170, 44, 94, 1),
+                      width: size.width,
+                      height: 50,
+                      child: Center(
+                        child: Text(
+                          'Pushed to Finance',
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
                         ),
+                      ),
+                    )
+                  : loading
+                      ? Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : allShippedConfirmed
+                          ? InkWell(
+                              onTap: () async {
+                                final amountController =
+                                    TextEditingController();
+                                final confirm = await showDialog(
+                                  context: context,
+                                  child: AlertDialog(
+                                    title: Text('Fees Charged'),
+                                    content: TextField(
+                                      controller: amountController,
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderSide: BorderSide(
+                                                color: Colors.grey, width: 1.5),
+                                            borderRadius:
+                                                BorderRadius.circular(25),
+                                          ),
+                                          labelText: 'Fees',
+                                          hintText:
+                                              'Enter The Distribution Fees:'),
+                                    ),
+                                    actions: <Widget>[
+                                      FlatButton(
+                                        child: Text(
+                                          'Cancel',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(false);
+                                        },
+                                      ),
+                                      FlatButton(
+                                        child: Text('Ok',
+                                            style:
+                                                TextStyle(color: Colors.green)),
+                                        onPressed: () {
+                                          Navigator.of(context).pop(true);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (!confirm) return;
+                                ordersList.forEach((element) async {
+                                  print(element);
+                                  if (element['shipped']) {
+                                    print('shipped');
+                                    await Firestore.instance
+                                        .collection('orders')
+                                        .document(element['docId'])
+                                        .updateData({'status': 'shipped'});
+                                  } else {
+                                    print('canceled');
+                                    await Firestore.instance
+                                        .collection('orders')
+                                        .document(element['docId'])
+                                        .updateData({'status': 'noAction'});
+                                  }
+                                });
+                                await Firestore.instance
+                                    .collection('routes')
+                                    .document(snapshot.data.documentID)
+                                    .updateData(
+                                  {
+                                    'status': 'shipped',
+                                    'fees': double.parse(amountController.text)
+                                  },
+                                );
+                                Navigator.of(context, rootNavigator: true)
+                                    .pushReplacementNamed('/newRoute');
+                              },
+                              child: Container(
+                                color: Color.fromRGBO(170, 44, 94, 1),
+                                width: size.width,
+                                height: 50,
+                                child: Center(
+                                  child: Text(
+                                    'Push to Shipped',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Container(
+                              color: Color.fromRGBO(170, 44, 94, 1),
+                              width: size.width,
+                              height: 50,
+                              child: Center(
+                                child: Text(
+                                  'Check All Orders First',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
             ],
           );
         },

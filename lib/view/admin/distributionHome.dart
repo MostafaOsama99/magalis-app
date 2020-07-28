@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:provider/provider.dart';
 
 class DistributionHome extends StatefulWidget {
@@ -14,6 +15,7 @@ class _DistributionState extends State<DistributionHome> {
     final user = Provider.of<UserProvider>(context).user;
 
     return Scaffold(
+        bottomNavigationBar: BottomNavigator(),
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
           elevation: 10,
@@ -118,7 +120,7 @@ class _DistributionState extends State<DistributionHome> {
                     ],
                   ),
                 ),
-                user.type== 'admin'
+                user.type == 'admin' || user.type == 'warehouse'
                     ? Padding(
                         padding:
                             EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -166,28 +168,6 @@ class _DistributionState extends State<DistributionHome> {
               ],
             ),
           ),
-          Material(
-            elevation: 20,
-            child: Container(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(
-                      Icons.book,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                    Icon(
-                      Icons.settings,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
         ]));
   }
 }

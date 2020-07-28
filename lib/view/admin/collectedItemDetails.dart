@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 import 'package:maglis_app/widgets/orderTile.dart';
 
@@ -14,6 +15,7 @@ class _CollectedRoutesState extends State<CollectedRoutes> {
   Widget build(BuildContext context) {
     final map = ModalRoute.of(context).settings.arguments as Map;
     Stream routestream;
+
     if (map != null) {
       print(map['date']);
       if (map['type'] == 1) {
@@ -48,6 +50,7 @@ class _CollectedRoutesState extends State<CollectedRoutes> {
     }
 
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
@@ -85,9 +88,10 @@ class _CollectedRoutesState extends State<CollectedRoutes> {
                     child: CircularProgressIndicator(),
                   );
                 final routesData = snapshot.data.documents;
-
+                routesData.sort((a, b) => (a.data['time'] as Timestamp)
+                    .compareTo((b.data['time'] as Timestamp)));
                 return ListView.builder(
-                  itemCount: snapshot.data.documents.length,
+                  itemCount: routesData.length,
                   itemBuilder: (context, i) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),

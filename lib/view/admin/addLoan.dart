@@ -2,6 +2,7 @@
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class AddLoans extends StatefulWidget {
   @override
@@ -113,6 +114,20 @@ class _AddLoansState extends State<AddLoans> {
                                   empName = item['name'];
                                   setState(() => selected = item);
                                 },
+                                textSubmitted: (item) {
+                                  print('itemss:$item');
+                                  empName = item;
+
+                                  setState(() {
+                                    selected['name'] = item;
+                                  });
+                                },
+                                textChanged: (item) {
+                                  print('itesmss:$item');
+                                  empName = item;
+
+                                  selected['name'] = item;
+                                },
                                 key: key,
                                 suggestions: names,
                                 itemBuilder: (context, suggestion) =>
@@ -219,12 +234,16 @@ class _AddLoansState extends State<AddLoans> {
                         .updateData({
                       'loan': totalLoans,
                       'lastDate': date,
+                      'lastTime': DateTime.now(),
                     });
                   }
                 } else {
-                  Firestore.instance
-                      .collection('employee')
-                      .add({'name': name, 'loan': totalLoans, 'lastDate': date});
+                  Firestore.instance.collection('employee').add({
+                    'name': name,
+                    'loan': totalLoans,
+                    'lastDate': date,
+                    'lastTime': DateTime.now()
+                  });
                 }
                 Navigator.of(context).pop(true);
               },
@@ -244,6 +263,7 @@ class _AddLoansState extends State<AddLoans> {
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavigator(),
     );
   }
 }

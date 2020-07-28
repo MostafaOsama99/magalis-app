@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:maglis_app/widgets/gridItems.dart';
 
 class NotApprovedTwo extends StatefulWidget {
@@ -15,6 +16,7 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
+        bottomNavigationBar: BottomNavigator(),
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
           elevation: 10,
@@ -53,6 +55,8 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
                       child: CircularProgressIndicator(),
                     );
                   final documents = snapshot.data.documents;
+                  documents.sort((a, b) => (a.data['time'] as Timestamp)
+                      .compareTo((b.data['time'] as Timestamp)));
                   documents.forEach((element) {
                     if (!dates.contains(element.data['date']))
                       dates.add(element.data['date']);
@@ -78,9 +82,8 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
                                 'route': '/expensesNotApprovedDetails',
                                 'date': dates,
                                 'type': 1,
-                                'logo':'assets/images/DateIcon.png',
-                                'title':'Date',
-
+                                'logo': 'assets/images/DateIcon.png',
+                                'title': 'Date',
                               }),
                               child: Container(
                                 width: size.width / 2.25,
@@ -118,8 +121,8 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
                                 'route': '/expensesNotApprovedDetails',
                                 'date': userName,
                                 'type': 2,
-                                'logo':'assets/images/Person.png',
-                                'title':'User'
+                                'logo': 'assets/images/Person.png',
+                                'title': 'User'
                               }),
                               child: Container(
                                   width: size.width / 2.25,
@@ -165,7 +168,7 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
                                 'route': '/expensesNotApprovedDetails',
                                 'date': supplier,
                                 'type': 3,
-                                'logo':'assets/images/Person.png',
+                                'logo': 'assets/images/Person.png',
                                 'title': 'Supplier',
                               }),
                               child: Container(
@@ -239,28 +242,6 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
                   );
                 }),
           ),
-          Material(
-            elevation: 20,
-            child: Container(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(
-                      Icons.book,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                    Icon(
-                      Icons.settings,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
         ]));
   }
 }

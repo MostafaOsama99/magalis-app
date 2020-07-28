@@ -36,6 +36,7 @@ import 'package:maglis_app/view/admin/distributionType.dart';
 import 'package:maglis_app/view/admin/editOrder.dart';
 import 'package:maglis_app/view/admin/expenses.dart';
 import 'package:maglis_app/view/admin/expensesNotApprobedDetails.dart';
+import 'package:maglis_app/view/admin/filterScreen.dart';
 import 'package:maglis_app/view/admin/finance.dart';
 import 'package:maglis_app/view/admin/financeAndShipments.dart';
 import 'package:maglis_app/view/admin/home.dart';
@@ -76,10 +77,11 @@ import 'package:maglis_app/view/admin/shipment.dart';
 import 'package:maglis_app/view/admin/shippedRouteScreen.dart';
 import 'package:maglis_app/view/admin/splashscreen.dart';
 import 'package:maglis_app/view/admin/RouteItemDetails.dart';
-import 'package:maglis_app/view/admin/OrderRouteDetails.dart';
 import 'package:maglis_app/view/admin/orderHome.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
 import 'package:maglis_app/view/sales/salesHome.dart';
+import 'package:maglis_app/view/warehouse/warehouseHome.dart';
+import 'package:maglis_app/view/warehouse/warehouseOnDistribution.dart';
 import 'package:provider/provider.dart';
 
 class MyApp extends StatefulWidget {
@@ -94,6 +96,9 @@ class _MyAppState extends State<MyApp> {
       value: UserProvider(),
       child: MaterialApp(
         navigatorKey: Get.key,
+        theme: ThemeData(
+          primaryIconTheme: IconThemeData(color: Colors.black),
+        ),
         home: LoginPage(),
         routes: {
           "/splashscreen": (ctx) => SplashScreen(),
@@ -121,6 +126,7 @@ class _MyAppState extends State<MyApp> {
           "/distributionHome": (ctx) => DistributionHome(),
           "/distributionCities": (ctx) => DistributionCities(),
           "/distributionType": (ctx) => DistributionType(),
+
           "/onDistributionType": (ctx) => OnDistributionType(),
           "/editOrder": (ctx) => EditOrder(),
           "/reprePage": (ctx) => ReprePage(),
@@ -128,6 +134,7 @@ class _MyAppState extends State<MyApp> {
           "/addRepresentatives": (ctx) => AddRepresentatives(),
           "/financeAndShipments": (ctx) => FinanceAndShipments(),
           "/shipments": (ctx) => Shipments(),
+          "/filter": (ctx) => FilterScreen(),
           "/shippedRoute": (ctx) => ShippedRouteScreen(),
           "/admin": (ctx) => AdminPage(),
           "/finance": (ctx) => Finance(),
@@ -146,7 +153,6 @@ class _MyAppState extends State<MyApp> {
           "/dateScreen": (ctx) => DateScreen(),
           "/dateDetails": (ctx) => DateDetails(),
           "/routeItemDetails": (ctx) => RouteItemDetails(),
-          "/orderRouteDetails": (ctx) => OrderRouteDetails(),
           "/approved-one": (ctx) => ApprovedOne(),
           "/approvedDate": (ctx) => ApprovedDate(),
           "/notapproved-one": (ctx) => NotApprovedOne(),
@@ -165,7 +171,10 @@ class _MyAppState extends State<MyApp> {
           "/operation": (ctx) => OperationHome(),
           "/operationFinance": (ctx) => OprationFinance(),
           //sales
-          "/sales":(ctx)=>SalesHome(),
+          "/sales": (ctx) => SalesHome(),
+          //warehouse
+          "/warehouse": (ctx) => WarehouseHome(),
+          "/warehouseOnDistribution": (ctx) => WareOnDistribution(),
         },
 
         //initialRoute: '/distributionCities',

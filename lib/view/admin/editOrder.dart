@@ -2,6 +2,7 @@ import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class EditOrder extends StatelessWidget {
   TextEditingController nameController = TextEditingController();
@@ -89,6 +90,7 @@ class EditOrder extends StatelessWidget {
       called = true;
     }
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -235,6 +237,16 @@ class EditOrder extends StatelessWidget {
                                 suffixIcon: Icon(Icons.search)),
                             itemSubmitted: (item) =>
                                 stateCalled(() => selected = item),
+                            textSubmitted: (item) {
+                              print('itemss:$item');
+                              stateCalled(() {
+                                selected = item;
+                              });
+                            },
+                            textChanged: (item) {
+                              print('itesmss:$item');
+                              selected = item;
+                            },
                             key: key,
                             suggestions: goverments,
                             itemBuilder: (context, suggestion) => new Padding(
@@ -572,7 +584,6 @@ class EditOrder extends StatelessWidget {
                           onChanged: null,
                           title: Text("Is Corporate?"),
                           activeColor: Colors.orange,
-                          
                         ),
                       ],
                     ),

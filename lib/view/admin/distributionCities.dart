@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:maglis_app/widgets/gridItems.dart';
+import 'package:provider/provider.dart';
 
 class DistributionCities extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final user = Provider.of<UserProvider>(context).user;
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
@@ -81,7 +86,8 @@ class DistributionCities extends StatelessWidget {
                         ),
                         InkWell(
                           onTap: () => Navigator.of(context)
-                              .pushNamed('/collectedRoutes'),
+                              .pushNamed('/citiesOrders',
+                              arguments: {'type': 4}),
                           child: Container(
                             width: size.width / 2.25,
                             height: 170,
@@ -120,39 +126,42 @@ class DistributionCities extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        InkWell(
-                          onTap: () => Navigator.of(context).pushNamed(
-                              '/citiesOrders',
-                              arguments: {'type': 3}),
-                          child: Container(
-                            width: size.width / 2.25,
-                            height: 170,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(
-                                  width: 2.5, color: Colors.grey[400]),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Container(
-                                  child: Image.asset(
-                                      'assets/images/PersonCheck.png'),
-                                  width: 100,
-                                  height: 100,
+                        user.type != 'warehouse'
+                            ? InkWell(
+                                onTap: () => Navigator.of(context).pushNamed(
+                                    '/citiesOrders',
+                                    arguments: {'type': 3}),
+                                child: Container(
+                                  width: size.width / 2.25,
+                                  height: 170,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        width: 2.5, color: Colors.grey[400]),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: <Widget>[
+                                      Container(
+                                        child: Image.asset(
+                                            'assets/images/PersonCheck.png'),
+                                        width: 100,
+                                        height: 100,
+                                      ),
+                                      Text(
+                                        'Shipped',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            color: Color.fromRGBO(
+                                                134, 134, 134, 1),
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                    ],
+                                  ),
                                 ),
-                                Text(
-                                  'Shipped',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      color: Color.fromRGBO(134, 134, 134, 1),
-                                      fontWeight: FontWeight.bold),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
+                              )
+                            : SizedBox(),
                       ],
                     ),
                   ),

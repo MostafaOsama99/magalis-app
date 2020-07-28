@@ -46,15 +46,18 @@ class Auth {
       }
       final userData = document.data;
 
-      Provider.of<UserProvider>(context,listen: false).setUser(
-          User(name: userData['name'], type: userData['type']));
+      Provider.of<UserProvider>(context, listen: false)
+          .setUser(User(name: userData['name'], type: userData['type']));
       if (userData['type'] == 'admin') {
-        Get.offAndToNamed('/admin');
+        Navigator.pushNamedAndRemoveUntil(context, '/admin', (route) => false);
       } else if (userData['type'] == 'operation') {
-        Get.offAndToNamed('/operation');
-      }else if(userData['type'] == 'sales'){
-                Get.offAndToNamed('/sales');
-
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/operation', (route) => false);
+      } else if (userData['type'] == 'sales') {
+        Navigator.pushNamedAndRemoveUntil(context, '/sales', (route) => false);
+      } else if (userData['type'] == 'warehouse') {
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/warehouse', (route) => false);
       }
       print("Success");
       return true;

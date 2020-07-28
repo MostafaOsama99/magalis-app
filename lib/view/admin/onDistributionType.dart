@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class OnDistributionType extends StatefulWidget {
   @override
@@ -15,6 +16,7 @@ class _OnDistributionState extends State<OnDistributionType> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
+        bottomNavigationBar: BottomNavigator(),
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
           elevation: 10,
@@ -54,6 +56,8 @@ class _OnDistributionState extends State<OnDistributionType> {
                       child: CircularProgressIndicator(),
                     );
                   final documents = snapshot.data.documents;
+                  documents.sort((a, b) => (a.data['time'] as Timestamp)
+                      .compareTo((b.data['time'] as Timestamp)));
                   documents.forEach((element) {
                     if (!dates.contains(element.data['date']))
                       dates.add(element.data['date']);
@@ -239,28 +243,6 @@ class _OnDistributionState extends State<OnDistributionType> {
                   );
                 }),
           ),
-          Material(
-            elevation: 20,
-            child: Container(
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(
-                      Icons.book,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                    Icon(
-                      Icons.settings,
-                      color: Color.fromRGBO(96, 125, 129, 1),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
         ]));
   }
 }

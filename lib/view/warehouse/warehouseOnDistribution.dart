@@ -2,15 +2,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
 import 'package:maglis_app/widgets/bottomNavigator.dart';
+
 import 'package:provider/provider.dart';
 
-class CorporateOrders extends StatelessWidget {
+class WareOnDistribution extends StatefulWidget {
+  @override
+  _WareOnDistributionState createState() => _WareOnDistributionState();
+}
+
+class _WareOnDistributionState extends State<WareOnDistribution> {
   @override
   Widget build(BuildContext context) {
-    final map = ModalRoute.of(context).settings.arguments as Map;
-    final user = Provider.of<UserProvider>(context, listen: false).user;
+    Stream orderstream;
+    final title = 'Returned';
+    final logo = 'assets/images/AllIcon.png';
+    final user = Provider.of<UserProvider>(context).user;
+    orderstream = Firestore.instance
+        .collection('orders')
+        .where('isCairo', isEqualTo: true)
+        .where('isCorporate', isEqualTo: false)
+        .where('returned', isEqualTo: true)
+        .snapshots();
+    // print(map['type']);
+
     return Scaffold(
-      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
@@ -29,9 +44,9 @@ class CorporateOrders extends StatelessWidget {
           Container(
             color: Colors.white,
             child: ListTile(
-              leading: Image.asset('assets/images/OrdersIcon.png'),
+              leading: Image.asset(logo),
               title: Text(
-                'Corporate Orders',
+                title,
                 style: TextStyle(
                     color: Color.fromRGBO(170, 44, 94, 1),
                     fontWeight: FontWeight.bold,
@@ -57,93 +72,87 @@ class CorporateOrders extends StatelessWidget {
                   SizedBox(
                     width: 15,
                   ),
-                  user.type == 'admin' || user.type == 'sales'
-                      ? InkWell(
-                          onTap: () =>
-                              Navigator.of(context).pushNamed('/addOrder'),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: Colors.grey[400], width: 2),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Icon(
-                                Icons.add,
-                                size: 25,
-                                color: Color.fromRGBO(96, 125, 129, 1),
-                              ),
-                            ),
-                          ),
-                        )
-                      : SizedBox(),
                 ],
               ),
             ),
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: Firestore.instance
-                  .collection('orders')
-                  .where('isCorporate', isEqualTo: true)
-                  .where('status', isEqualTo: map['status'])
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting)
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
+                stream: orderstream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
 
-                final ordersData = snapshot.data.documents;
-                ordersData.sort((a, b) => (a.data['time'] as Timestamp)
-                    .compareTo((b.data['time'] as Timestamp)));
-                if (snapshot.data.documents.length <= 0) {
-                  return Center(
-                    child: Text(
-                      'No Orders Exist',
-                      style: TextStyle(
-                          color: Color.fromRGBO(170, 44, 94, 1),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20),
-                    ),
-                  );
-                }
-                return ListView.builder(
-                  itemCount: snapshot.data.documents.length,
-                  itemBuilder: (context, i) {
-                    final line = ordersData[i].data['city'];
-
-                    return InkWell(
-                      onTap: () async {
-                        Navigator.of(context)
-                            .pushNamed('/corporateOrderDetails', arguments: {
-                          'docId': ordersData[i].documentID,
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: orderItem(
-                          title: '${ordersData[i].data['name']}',
-                          price: ordersData[i].data['totalAccount'],
-                          line: '${line}', //area
-                          factoryName: '${ordersData[i].data['line']}',
-                          quantity: ordersData[i].data['quantity'],
-                          date: '${ordersData[i].data['createdAt']}',
-                          description: '${ordersData[i].data['description']}',
-                          phone: '${ordersData[i].data['phone']}',
-                          underAccount:
-                              ordersData[i].data['underAccount'], //underAccount
-                        ),
+                  final ordersData = snapshot.data.documents;
+                  ordersData.sort((a, b) => (a.data['time'] as Timestamp)
+                      .compareTo((b.data['time'] as Timestamp)));
+                  if (snapshot.data.documents.length <= 0) {
+                    return Center(
+                      child: Text(
+                        'No Orders to Routed',
+                        style: TextStyle(
+                            color: Color.fromRGBO(170, 44, 94, 1),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20),
                       ),
                     );
-                  },
-                );
-              },
-            ),
+                  }
+                  return ListView.builder(
+                    itemCount: snapshot.data.documents.length,
+                    itemBuilder: (context, i) {
+                      final line = ordersData[i].data['area'] == null
+                          ? ordersData[i].data['city']
+                          : ordersData[i].data['area'];
+
+                      return InkWell(
+                        onDoubleTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: Text('Description:'),
+                              content:
+                                  Text('${ordersData[i].data['description']}'),
+                              actions: <Widget>[
+                                FlatButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('OK!'))
+                              ],
+                            ),
+                          );
+                        },
+                        onTap: () async {
+                          Navigator.of(context)
+                              .pushNamed('/orderDetails', arguments: {
+                            'docId': ordersData[i].documentID,
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: orderItem(
+                            title: '${ordersData[i].data['name']}',
+                            price: ordersData[i].data['totalAccount'],
+                            line: '${line}', //area
+                            factoryName: '${ordersData[i].data['line']}',
+                            quantity: ordersData[i].data['quantity'],
+                            date: '${ordersData[i].data['createdAt']}',
+                            description: '${ordersData[i].data['description']}',
+                            phone: '${ordersData[i].data['phone']}',
+                            underAccount: ordersData[i]
+                                .data['underAccount'], //underAccount
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }),
           )
         ],
       ),
+      bottomNavigationBar: BottomNavigator(),
     );
   }
 

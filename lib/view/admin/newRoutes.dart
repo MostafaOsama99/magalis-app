@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 import 'package:maglis_app/widgets/orderTile.dart';
+import 'package:provider/provider.dart';
 
 class NewRoutes extends StatefulWidget {
   @override
@@ -13,6 +16,7 @@ class _NewRoutesState extends State<NewRoutes> {
   @override
   Widget build(BuildContext context) {
     final map = ModalRoute.of(context).settings.arguments as Map;
+    final user = Provider.of<UserProvider>(context).user;
     Stream routestream;
     if (map != null) {
       print(map['type']);
@@ -48,6 +52,7 @@ class _NewRoutesState extends State<NewRoutes> {
     }
 
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
@@ -77,40 +82,27 @@ class _NewRoutesState extends State<NewRoutes> {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[400], width: 2),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(6.0),
-                      child: Icon(
-                        Icons.sort,
-                        size: 25,
-                        color: Color.fromRGBO(96, 125, 129, 1),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 15,
-                  ),
-                  InkWell(
-                    onTap: () => Navigator.of(context).pushNamed('/addRoute'),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey[400], width: 2),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(6.0),
-                        child: Icon(
-                          Icons.add,
-                          size: 25,
-                          color: Color.fromRGBO(96, 125, 129, 1),
-                        ),
-                      ),
-                    ),
-                  ),
+                  (user.type == 'admin' || user.type == 'operation')
+                      ? InkWell(
+                          onTap: () =>
+                              Navigator.of(context).pushNamed('/addRoute'),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border:
+                                  Border.all(color: Colors.grey[400], width: 2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(6.0),
+                              child: Icon(
+                                Icons.add,
+                                size: 25,
+                                color: Color.fromRGBO(96, 125, 129, 1),
+                              ),
+                            ),
+                          ),
+                        )
+                      : SizedBox(),
                 ],
               ),
             ),
@@ -123,7 +115,9 @@ class _NewRoutesState extends State<NewRoutes> {
                   return Center(
                     child: CircularProgressIndicator(),
                   );
-
+                final routesData = snapshot.data.documents;
+                routesData.sort((a, b) => (a.data['time'] as Timestamp)
+                    .compareTo((b.data['time'] as Timestamp)));
                 if (snapshot.data == null) {
                   return Center(
                     child: Text(
@@ -133,7 +127,6 @@ class _NewRoutesState extends State<NewRoutes> {
                     ),
                   );
                 }
-                final routesData = snapshot.data.documents;
                 return ListView.builder(
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (context, i) {
@@ -147,6 +140,12 @@ class _NewRoutesState extends State<NewRoutes> {
                                   routesData[i].data['orders'] as List;
                               final routesId =
                                   lastroutes.map((e) => e['docId']).toList();
+                              final orderDoc = await Firestore.instance
+                                  .collection('orders')
+                                  .document(map['docId'])
+                                  .get();
+                              print(orderDoc.data['status']);
+                              if (orderDoc.data['status'] != 'noAction') return;
                               if (!routesId.contains(map['docId'])) {
                                 lastroutes.add({
                                   'docId': map['docId'],
@@ -164,9 +163,13 @@ class _NewRoutesState extends State<NewRoutes> {
                                   'orders': lastroutes,
                                   'totalAmount': totalAmount,
                                 });
-                                Navigator.of(context).pushReplacementNamed(
-                                  '/distribution',
-                                );
+                                await Firestore.instance
+                                    .collection('orders')
+                                    .document(map['docId'])
+                                    .updateData({'status': 'onDistribution'});
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                    '/distribution',
+                                    ModalRoute.withName('/orders'));
                               } else {
                                 showDialog(
                                   context: context,
@@ -183,9 +186,10 @@ class _NewRoutesState extends State<NewRoutes> {
                                               'status': 'onDistribution'
                                             }).then(
                                               (value) => Navigator.of(context)
-                                                  .pushReplacementNamed(
-                                                '/distribution',
-                                              ),
+                                                  .pushNamedAndRemoveUntil(
+                                                      '/distribution',
+                                                      ModalRoute.withName(
+                                                          '/orders')),
                                             );
                                           },
                                           child: Text('OK!'))

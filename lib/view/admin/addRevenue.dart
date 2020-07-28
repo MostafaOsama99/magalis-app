@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:provider/provider.dart';
 
 class AddRevenue extends StatefulWidget {
@@ -32,6 +33,8 @@ class _AddRevenueState extends State<AddRevenue> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final user = Provider.of<UserProvider>(context, listen: false).user;
+    revenueSorce.text = selected;
+
     return FutureBuilder<DocumentSnapshot>(
         future:
             Firestore.instance.collection('myInfo').document('revenue').get(),
@@ -44,6 +47,7 @@ class _AddRevenueState extends State<AddRevenue> {
           }
           sources = snapshot.data.data['sources'];
           return Scaffold(
+              bottomNavigationBar: BottomNavigator(),
               backgroundColor: Colors.grey[200],
               appBar: AppBar(
                 elevation: 10,
@@ -159,6 +163,16 @@ class _AddRevenueState extends State<AddRevenue> {
                                     suffixIcon: Icon(Icons.search)),
                                 itemSubmitted: (item) =>
                                     setState(() => selected = item),
+                                textSubmitted: (item) {
+                                  print('itemss:$item');
+                                  setState(() {
+                                    selected = item;
+                                  });
+                                },
+                                textChanged: (item) {
+                                  print('itesmss:$item');
+                                  selected = item;
+                                },
                                 key: revenKey,
                                 suggestions: sources
                                     .map<String>((e) => e.toString())
@@ -297,6 +311,7 @@ class _AddRevenueState extends State<AddRevenue> {
                                   'source': revenueSorce.text,
                                   'amount': amount,
                                   'status': 'approved',
+                                  'time': DateTime.now(),
                                 };
                               } else {
                                 document = {
@@ -305,6 +320,7 @@ class _AddRevenueState extends State<AddRevenue> {
                                   'source': revenueSorce.text,
                                   'amount': amount,
                                   'status': 'notApproved',
+                                  'time': DateTime.now(),
                                 };
                               }
 

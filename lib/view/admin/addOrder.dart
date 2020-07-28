@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:provider/provider.dart';
 
 enum Channel { Facebook, Instagram, Website }
@@ -75,10 +76,13 @@ class _AddOrderState extends State<AddOrder> {
   String areaSelected = '';
   bool isFinished = false;
   bool isCorporate = false;
+
+  List<String> namesList = [];
+  final user = User(name: 'hos', type: 'admin');
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final user = Provider.of<UserProvider>(context).user;
+    //final user =Provider.of<UserProvider>(context).user;
     if (!isFinished) {
       Firestore.instance
           .collection('myInfo')
@@ -94,6 +98,7 @@ class _AddOrderState extends State<AddOrder> {
     cityController.text = selected;
     areaController.text = areaSelected;
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       resizeToAvoidBottomPadding: false,
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[200],
@@ -312,8 +317,21 @@ class _AddOrderState extends State<AddOrder> {
                               ),
                               hintText: 'Search goverment',
                               suffixIcon: Icon(Icons.search)),
-                          itemSubmitted: (item) =>
-                              setState(() => selected = item),
+                          itemSubmitted: (item) {
+                            print('items' + item);
+
+                            setState(() => selected = item);
+                          },
+                          textSubmitted: (item) {
+                            print('itemss:$item');
+                            setState(() {
+                              selected = item;
+                            });
+                          },
+                          textChanged: (item) {
+                            print('itesmss:$item');
+                            selected = item;
+                          },
                           key: key,
                           suggestions: goverments,
                           itemBuilder: (context, suggestion) => new Padding(
@@ -367,6 +385,16 @@ class _AddOrderState extends State<AddOrder> {
                                     suffixIcon: Icon(Icons.search)),
                                 itemSubmitted: (item) =>
                                     setState(() => areaSelected = item),
+                                textSubmitted: (item) {
+                                  print('itemss:$item');
+                                  setState(() {
+                                    areaSelected = item;
+                                  });
+                                },
+                                textChanged: (item) {
+                                  print('itesmss:$item');
+                                  areaSelected = item;
+                                },
                                 key: areaKey,
                                 suggestions: areas
                                     .map<String>(
@@ -652,27 +680,30 @@ class _AddOrderState extends State<AddOrder> {
                       ],
                     ),
                   ),
-                  user.type == 'admin'? Container(
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey[400], width: 2),
-                        borderRadius: BorderRadius.circular(10)),
-                    margin: EdgeInsets.all(12),
-                    child: Column(
-                      children: [
-                        CheckboxListTile(
-                          value: isCorporate,
-                          onChanged: (v) {
-                            setState(() {
-                              if (v) isCorporate = v;
-                            });
-                          },
-                          title: Text("Is Corporate?"),
-                          activeColor: Colors.orange,
-                        ),
-                      ],
-                    ),
-                  ):SizedBox(),
+                  user.type == 'admin'
+                      ? Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              border:
+                                  Border.all(color: Colors.grey[400], width: 2),
+                              borderRadius: BorderRadius.circular(10)),
+                          margin: EdgeInsets.all(12),
+                          child: Column(
+                            children: [
+                              CheckboxListTile(
+                                value: isCorporate,
+                                onChanged: (v) {
+                                  setState(() {
+                                    if (v) isCorporate = v;
+                                  });
+                                },
+                                title: Text("Is Corporate?"),
+                                activeColor: Colors.orange,
+                              ),
+                            ],
+                          ),
+                        )
+                      : SizedBox(),
                   Container(
                     padding: EdgeInsets.all(16),
                     margin: EdgeInsets.all(10),
@@ -771,6 +802,7 @@ class _AddOrderState extends State<AddOrder> {
                       }
                       if (areaController.text.isNotEmpty) {
                         await Firestore.instance.collection('orders').add({
+                          'time': DateTime.now(),
                           'city': selected,
                           'notes': note,
                           'area': area,
@@ -792,6 +824,7 @@ class _AddOrderState extends State<AddOrder> {
                         });
                       } else {
                         await Firestore.instance.collection('orders').add({
+                          'time': DateTime.now(),
                           'city': selected,
                           'notes': note,
                           'createdAt': date,
@@ -811,6 +844,37 @@ class _AddOrderState extends State<AddOrder> {
                           'channel': channelText,
                         });
                       }
+                      final document = await Firestore.instance
+                          .collection('myInfo')
+                          .document('order')
+                          .get();
+                      final names = (document.data['name'] as List)
+                          .map((e) => e.toString())
+                          .toList();
+                      final addressList = (document.data['address'] as List)
+                          .map((e) => e.toString())
+                          .toList();
+                      final phones = (document.data['phone'] as List)
+                          .map((e) => e.toString())
+                          .toList();
+                      if (!names.contains(name)) {
+                        names.add(name);
+                      }
+                      if (!addressList.contains(address)) {
+                        addressList.add(address);
+                      }
+                      if (!phones.contains(phoneNumber)) {
+                        phones.add(phoneNumber);
+                      }
+
+                      await Firestore.instance
+                          .collection('myInfo')
+                          .document('order')
+                          .updateData({
+                        'name': names,
+                        'address': addressList,
+                        'phone': phones
+                      });
                       await showDialog(
                         context: context,
                         child: AlertDialog(

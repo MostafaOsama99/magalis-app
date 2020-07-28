@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
+import 'package:provider/provider.dart';
 
 class ExpensesNotApprovedDetails extends StatefulWidget {
   @override
@@ -8,13 +11,14 @@ class ExpensesNotApprovedDetails extends StatefulWidget {
 }
 
 class _ApprovedDetailsState extends State<ExpensesNotApprovedDetails> {
+  User user;
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).  size;
+    final size = MediaQuery.of(context).size;
     final map = ModalRoute.of(context).settings.arguments as Map;
     Stream expenseStream;
-    print(map['date']);
-
+    user = Provider.of<UserProvider>(context).user;
+    var totalCash = 0.0;
     if (map['type'] == 1) {
       expenseStream = Firestore.instance
           .collection('expenses')
@@ -39,73 +43,82 @@ class _ApprovedDetailsState extends State<ExpensesNotApprovedDetails> {
           .where('status', isEqualTo: 'notApproved')
           .snapshots();
     }
-    return Scaffold(
-      backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        elevation: 10,
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        title: Image.asset(
-          'assets/images/logo.png',
-          width: 150,
-        ),
-      ),
-      body: Container(
-        width: size.width,
-        height: size.height,
-        child: Column(
-          children: [
-            SizedBox(
-              height: 10,
+    return StreamBuilder<QuerySnapshot>(
+      stream: expenseStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting)
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+
+        final documents = snapshot.data.documents;
+        documents.sort((a, b) => (a.data['time'] as Timestamp)
+            .compareTo((b.data['time'] as Timestamp)));
+        return Scaffold(
+          bottomNavigationBar: BottomNavigator(),
+          backgroundColor: Colors.grey[200],
+          appBar: AppBar(
+            elevation: 10,
+            centerTitle: true,
+            backgroundColor: Colors.white,
+            title: Image.asset(
+              'assets/images/logo.png',
+              width: 150,
             ),
-            Container(
-              color: Colors.white,
-              child: ListTile(
-                title: Text(
-                  'Not Approved ',
-                  style: TextStyle(
-                      color: Color.fromRGBO(170, 44, 94, 1),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20),
+          ),
+          body: Container(
+            width: size.width,
+            height: size.height,
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 10,
                 ),
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                  stream: expenseStream,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting)
-                      return Center(
-                        child: CircularProgressIndicator(),
+                Container(
+                  color: Colors.white,
+                  child: ListTile(
+                    title: Text(
+                      'Not Approved',
+                      style: TextStyle(
+                          color: Color.fromRGBO(170, 44, 94, 1),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20),
+                    ),
+                    trailing:  Text(
+                      '$totalCash EGP',
+                      style: TextStyle(
+                          color: Color.fromRGBO(170, 44, 94, 1),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemBuilder: (ctx, index) {
+                      final userName = documents[index].data['userName'];
+                      final supplier = documents[index].data['supplier'];
+                      final date = documents[index].data['date'];
+                      final amount = documents[index].data['amount'];
+                      return approvedTile(
+                        userName: userName,
+                        suplierName: supplier,
+                        date: date,
+                        amount: amount,
+                        documentId: documents[index].documentID,
                       );
-                    return ListView.builder(
-                      itemBuilder: (ctx, index) {
-                        final userName =
-                            snapshot.data.documents[index].data['userName'];
-                        final supplier =
-                            snapshot.data.documents[index].data['supplier'];
-                        final date =
-                            snapshot.data.documents[index].data['date'];
-                        final amount =
-                            snapshot.data.documents[index].data['amount'];
-                        return approvedTile(
-                          userName: userName,
-                          suplierName: supplier,
-                          date: date,
-                          amount: amount,
-                          documentId: snapshot.data.documents[index].documentID,
-                        );
-                      },
-                      itemCount: snapshot.data.documents.length,
-                    );
-                  }),
-            )
-          ],
-        ),
-      ),
+                    },
+                    itemCount: documents.length,
+                  ),
+                )
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -185,47 +198,50 @@ class _ApprovedDetailsState extends State<ExpensesNotApprovedDetails> {
                       SizedBox(
                         height: 10,
                       ),
-                      InkWell(
-                        onTap: () async {
-                          await Firestore.instance
-                              .collection('expenses')
-                              .document(documentId)
-                              .updateData({
-                            'status': 'cashed',
-                          });
-                          await showDialog(
-                              context: context,
-                              child: AlertDialog(
-                                title: Text('Confirmed'),
-                                content: Text('This item has been confirmed'),
-                                actions: <Widget>[
-                                  FlatButton(
-                                    child: Text('Ok'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  )
-                                ],
-                              ));
-                        },
-                        child: Container(
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Text(
-                                "ADD",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
+                      user != null && user.type == 'admin'
+                          ? InkWell(
+                              onTap: () async {
+                                await Firestore.instance
+                                    .collection('expenses')
+                                    .document(documentId)
+                                    .updateData({
+                                  'status': 'cashed',
+                                });
+                                await showDialog(
+                                    context: context,
+                                    child: AlertDialog(
+                                      title: Text('Confirmed'),
+                                      content:
+                                          Text('This item has been confirmed'),
+                                      actions: <Widget>[
+                                        FlatButton(
+                                          child: Text('Ok'),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        )
+                                      ],
+                                    ));
+                              },
+                              child: Container(
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Text(
+                                      "ADD",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
                               ),
-                            ),
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                      )
+                            )
+                          : SizedBox()
                     ],
                   ),
                 ],

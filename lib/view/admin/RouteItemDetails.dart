@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:provider/provider.dart';
 
 class RouteItemDetails extends StatefulWidget {
@@ -18,6 +19,7 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
     bool loading = false;
     User user = Provider.of<UserProvider>(context, listen: false).user;
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
@@ -130,7 +132,7 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                         ),
                         child: ListTile(
                           onTap: () => Navigator.of(context).pushNamed(
-                              '/orderRouteDetails',
+                              '/orderDetails',
                               arguments: {'docId': ordersList[index]['docId']}),
                           title: Text(
                             '${ordersList[index]['name']}',
@@ -166,7 +168,8 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                   ? Center(
                       child: CircularProgressIndicator(),
                     )
-                  : (user.type == 'admin' && isOperationable)
+                  : ((user.type == 'admin' || user.type == 'warehouse' || user.type == 'operation') &&
+                          isOperationable)
                       ? InkWell(
                           onTap: () async {
                             setState(() {
@@ -218,32 +221,35 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
               SizedBox(
                 height: 8,
               ),
-              InkWell(
-                onTap: () {
-                  Navigator.of(context)
-                      .pushReplacementNamed('/orders', arguments: {
-                    'type': 4,
-                    'routeId': snapshot.data.documentID,
-                    'lastOrders': ordersList,
-                    'status': 'noAction',
-                    'amount': snapshot.data.data['totalAmount'],
-                    'logo': 'assets/images/AllIcon.png',
-                    'title': 'All'
-                  });
-                },
-                child: Container(
-                  color: Color.fromRGBO(170, 44, 94, 1),
-                  width: size.width,
-                  height: 50,
-                  child: Center(
-                    child: Text(
-                      'ADD Order',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              )
+              (user.type != 'sales' && user.type != 'warehouse')
+                  ? InkWell(
+                      onTap: () {
+                        Navigator.of(context)
+                            .pushReplacementNamed('/orders', arguments: {
+                          'type': 4,
+                          'routeId': snapshot.data.documentID,
+                          'lastOrders': ordersList,
+                          'status': 'noAction',
+                          'amount': snapshot.data.data['totalAmount'],
+                          'logo': 'assets/images/AllIcon.png',
+                          'title': 'All'
+                        });
+                      },
+                      child: Container(
+                        color: Color.fromRGBO(170, 44, 94, 1),
+                        width: size.width,
+                        height: 50,
+                        child: Center(
+                          child: Text(
+                            'ADD Order',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    )
+                  : SizedBox()
             ],
           );
         },

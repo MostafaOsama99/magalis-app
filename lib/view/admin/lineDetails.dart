@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 //Screen 42
 class LineDetails extends StatelessWidget {
@@ -10,6 +10,7 @@ class LineDetails extends StatelessWidget {
         AppBar().preferredSize.height -
         MediaQuery.of(context).padding.top;
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
@@ -37,7 +38,6 @@ class LineDetails extends StatelessWidget {
             Container(
               color: Colors.white,
               child: ListTile(
-                
                 leading: Image.asset('assets/images/CairoIcon.png'),
                 title: Text(
                   'Cairo',
@@ -62,7 +62,7 @@ class LineDetails extends StatelessWidget {
                         margin:
                             EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                            color: Colors.white,
                             border:
                                 Border.all(width: 2.5, color: Colors.grey[400]),
                             borderRadius: BorderRadius.circular(12)),

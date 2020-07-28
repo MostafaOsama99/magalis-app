@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class Loans extends StatefulWidget {
   @override
@@ -28,6 +29,7 @@ class _LoansState extends State<Loans> {
     }
 
     return Scaffold(
+      bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         elevation: 10,
@@ -91,25 +93,34 @@ class _LoansState extends State<Loans> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: StreamBuilder<QuerySnapshot>(
-                  stream: Firestore.instance.collection('employee').where('loan',isGreaterThan: 0).snapshots(),
+                  stream: Firestore.instance
+                      .collection('employee')
+                      .where('loan', isGreaterThan: 0)
+                      .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting)
                       return Center(
                         child: CircularProgressIndicator(),
                       );
+
+                    final documents = snapshot.data.documents;
+                    documents.sort((a, b) => (a.data['lastTime'] as Timestamp)
+                        .compareTo((b.data['lastTime'] as Timestamp)));
                     return ListView.builder(
-                      itemCount: snapshot.data.documents.length,
+                      itemCount: documents.length,
                       itemBuilder: (ctx, index) {
-                        Timestamp timestamp = snapshot.data.documents[index]
+                        Timestamp timestamp = documents[index]
                             ['lastDate'] as Timestamp;
-                        DateTime dateStamp = timestamp != null? timestamp.toDate():DateTime.now();
+                        DateTime dateStamp = timestamp != null
+                            ? timestamp.toDate()
+                            : DateTime.now();
                         final date = DateFormat.yMd().format(dateStamp);
                         return InkWell(
                           onTap: () async {
                             print('amounted$amount');
                             if (type != 2 || amount == 0) return;
                             final totalAmount =
-                                snapshot.data.documents[index]['loan'];
+                                documents[index]['loan'];
                             if (totalAmount == 0) return;
                             if (amount <= totalAmount) {
                               final netAmount = totalAmount - amount;
@@ -120,7 +131,7 @@ class _LoansState extends State<Loans> {
                               await Firestore.instance
                                   .collection('employee')
                                   .document(
-                                      snapshot.data.documents[index].documentID)
+                                      documents[index].documentID)
                                   .updateData({'loan': netAmount});
                             } else {
                               setState(() {
@@ -129,7 +140,7 @@ class _LoansState extends State<Loans> {
                               await Firestore.instance
                                   .collection('employee')
                                   .document(
-                                      snapshot.data.documents[index].documentID)
+                                      documents[index].documentID)
                                   .updateData({'loan': 0});
                             }
                             if (amount == 0 && type == 2)
@@ -153,7 +164,7 @@ class _LoansState extends State<Loans> {
                                         MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
                                       Text(
-                                        '${snapshot.data.documents[index]['name']}',
+                                        '${documents[index]['name']}',
                                         style: TextStyle(
                                             color:
                                                 Color.fromRGBO(170, 44, 94, 1),
@@ -161,7 +172,7 @@ class _LoansState extends State<Loans> {
                                             fontSize: 18),
                                       ),
                                       Text(
-                                        '${snapshot.data.documents[index]['loan']}',
+                                        '${documents[index]['loan']}',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16),
@@ -188,7 +199,7 @@ class _LoansState extends State<Loans> {
                                             .pushNamed('/addLoans', arguments: {
                                           'id': snapshot
                                               .data.documents[index].documentID,
-                                          'name': snapshot.data.documents[index]
+                                          'name': documents[index]
                                               ['name'],
                                           'money': snapshot
                                               .data.documents[index]['money']
