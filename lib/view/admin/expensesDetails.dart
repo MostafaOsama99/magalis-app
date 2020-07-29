@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
 import 'package:maglis_app/widgets/bottomNavigator.dart';
+import 'package:provider/provider.dart';
 
 //Screen 7
 class ExpensesDetails extends StatelessWidget {
@@ -14,7 +16,7 @@ class ExpensesDetails extends StatelessWidget {
     final id = map['id'];
     Future<DocumentSnapshot> stream =
         Firestore.instance.collection('expenses').document(id).get();
-
+    final user = Provider.of<UserProvider>(context, listen: false).user;
     return Scaffold(
       bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
@@ -280,7 +282,7 @@ class ExpensesDetails extends StatelessWidget {
                                         }
                                         List notes = data['notes'];
                                         notes.add({
-                                          'from': 'Ahmed Omar',
+                                          'from': user.name,
                                           'note': noteController.text
                                         });
                                         Firestore.instance
@@ -309,8 +311,7 @@ class ExpensesDetails extends StatelessWidget {
                               ),
                               Expanded(
                                 child: (data['notes'] as List) != null
-                                    ? 
-                                    (data['notes'] as List).length <= 0
+                                    ? (data['notes'] as List).length <= 0
                                         ? Center(
                                             child: Text(
                                               'No Notes to Display',
@@ -352,7 +353,8 @@ class ExpensesDetails extends StatelessWidget {
                                             ),
                                             itemCount:
                                                 (data['notes'] as List).length,
-                                          ):SizedBox(),
+                                          )
+                                    : SizedBox(),
                               ),
                             ],
                           ),

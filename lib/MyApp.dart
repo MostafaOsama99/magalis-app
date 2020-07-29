@@ -25,9 +25,9 @@ import 'package:maglis_app/view/admin/corporateOrderDetails.dart';
 import 'package:maglis_app/view/admin/corporateOrders.dart';
 import 'package:maglis_app/view/admin/distribute.dart';
 import 'package:maglis_app/view/admin/cashFlow.dart';
+import 'package:maglis_app/view/admin/editRoute.dart';
 import 'package:maglis_app/view/admin/expensesDetails.dart';
 import 'package:maglis_app/view/admin/collectedRoute.dart';
-import 'package:maglis_app/view/admin/customerServicesHome.dart';
 import 'package:maglis_app/view/admin/dateDetails.dart';
 import 'package:maglis_app/view/admin/dateScreen.dart';
 import 'package:maglis_app/view/admin/distributionCities.dart';
@@ -41,7 +41,6 @@ import 'package:maglis_app/view/admin/finance.dart';
 import 'package:maglis_app/view/admin/financeAndShipments.dart';
 import 'package:maglis_app/view/admin/home.dart';
 import 'package:maglis_app/view/admin/issueScreen.dart';
-import 'package:maglis_app/view/admin/lineDetails.dart';
 import 'package:maglis_app/view/admin/loans.dart';
 import 'package:maglis_app/view/admin/login.dart';
 import 'package:maglis_app/view/admin/monthSalary.dart';
@@ -57,22 +56,14 @@ import 'package:maglis_app/view/admin/onDistributionRoute.dart';
 import 'package:maglis_app/view/admin/onDistributionType.dart';
 import 'package:maglis_app/view/operation/operationFinance.dart';
 import 'package:maglis_app/view/operation/operationHome.dart';
-import 'package:maglis_app/view/admin/operations.dart';
-import 'package:maglis_app/view/admin/orderCustormerScreen.dart';
 import 'package:maglis_app/view/admin/orders.dart';
-import 'package:maglis_app/view/admin/ordersLine.dart';
-import 'package:maglis_app/view/admin/ordersScreen.dart';
-import 'package:maglis_app/view/admin/recivedPage.dart';
-import 'package:maglis_app/view/admin/reports.dart';
 import 'package:maglis_app/view/admin/representativePage.dart';
 import 'package:maglis_app/view/admin/representatives.dart';
 import 'package:maglis_app/view/admin/revenue.dart';
 import 'package:maglis_app/view/admin/revenueNotApprovedDetails.dart';
 import 'package:maglis_app/view/admin/salaries.dart';
-import 'package:maglis_app/view/admin/sales.dart';
-import 'package:maglis_app/view/admin/salesAll.dart';
+
 import 'package:maglis_app/view/admin/OrderDetails.dart';
-import 'package:maglis_app/view/admin/sentPage.dart';
 import 'package:maglis_app/view/admin/shipment.dart';
 import 'package:maglis_app/view/admin/shippedRouteScreen.dart';
 import 'package:maglis_app/view/admin/splashscreen.dart';
@@ -80,6 +71,7 @@ import 'package:maglis_app/view/admin/RouteItemDetails.dart';
 import 'package:maglis_app/view/admin/orderHome.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
 import 'package:maglis_app/view/sales/salesHome.dart';
+import 'package:maglis_app/view/warehouse/totalProduction.dart';
 import 'package:maglis_app/view/warehouse/warehouseHome.dart';
 import 'package:maglis_app/view/warehouse/warehouseOnDistribution.dart';
 import 'package:provider/provider.dart';
@@ -167,6 +159,7 @@ class _MyAppState extends State<MyApp> {
           "/salaries": (ctx) => SalariesScreen(),
           "/monthSalary": (ctx) => MonthSalary(),
           "/addSalary": (ctx) => AddSalary(),
+          "/editRoute": (ctx) => EditRoute(),
           //OperationApp
           "/operation": (ctx) => OperationHome(),
           "/operationFinance": (ctx) => OprationFinance(),
@@ -175,6 +168,7 @@ class _MyAppState extends State<MyApp> {
           //warehouse
           "/warehouse": (ctx) => WarehouseHome(),
           "/warehouseOnDistribution": (ctx) => WareOnDistribution(),
+          "/totalProduction": (ctx) => TotalPro(),
         },
 
         //initialRoute: '/distributionCities',

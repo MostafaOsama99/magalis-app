@@ -2,7 +2,9 @@ import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
 import 'package:maglis_app/widgets/bottomNavigator.dart';
+import 'package:provider/provider.dart';
 
 class EditOrder extends StatelessWidget {
   TextEditingController nameController = TextEditingController();
@@ -89,6 +91,7 @@ class EditOrder extends StatelessWidget {
       isCorporate = orderMap['isCorporate'];
       called = true;
     }
+    final user = Provider.of<UserProvider>(context, listen: false).user;
     return Scaffold(
       bottomNavigationBar: BottomNavigator(),
       resizeToAvoidBottomInset: false,
@@ -637,10 +640,8 @@ class EditOrder extends StatelessWidget {
                         });
                         List notes = (orderMap['notes'] as List);
                         if (noteController.text.isNotEmpty) {
-                          notes.add({
-                            'from': 'Ahmed Karim',
-                            'note': noteController.text
-                          });
+                          notes.add(
+                              {'from': user.name, 'note': noteController.text});
                         }
                         if (areaController.text.isNotEmpty) {
                           await Firestore.instance
@@ -662,7 +663,7 @@ class EditOrder extends StatelessWidget {
                             'isCairo': true,
                             'notes': notes,
                             'edited': true,
-                            'editedBy': "Ahmed Omar",
+                            'editedBy': user.name,
                           });
                         } else {
                           await Firestore.instance
@@ -683,7 +684,7 @@ class EditOrder extends StatelessWidget {
                             'notes': notes,
                             'isCairo': false,
                             'edited': true,
-                            'editedBy': "Ahmed Omar",
+                            'editedBy': user.name,
                           });
                         }
                         await showDialog(

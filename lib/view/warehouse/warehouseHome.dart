@@ -88,6 +88,33 @@ class WarehouseHome extends StatelessWidget {
                           child: Image.asset('assets/images/Reports.png'),
                         ),
                       ),
+                      InkWell(
+                        onTap: () =>
+                            Navigator.of(context).pushNamed('/totalProduction'),
+                        child: Container(
+                          width: size.width / 2.25,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border:
+                                Border.all(width: 2.5, color: Colors.grey[400]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              Image.asset('assets/images/NotApproved.png',width: 100,height: 100,),
+                              Text(
+                                'Total Production',
+                                style: TextStyle(
+                                    color: Color.fromRGBO(170, 44, 94, 1),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),

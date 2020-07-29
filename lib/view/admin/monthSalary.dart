@@ -3,18 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class MonthSalary extends StatelessWidget {
-  final employee = [
-    {'name': 'Nada Hossam', 'salary': '4000 EGP'},
-    {'name': 'Layla Ahmed', 'salary': '5300 EGP'},
-    {'name': 'Ahmed Ayman', 'salary': '3500 EGP'},
-    {'name': 'Omar Ashraf', 'salary': '2500 EGP'},
-    {'name': 'Tarek Aly', 'salary': '4200 EGP'},
-    {'name': 'Sandra Mohsn', 'salary': '4000 EGP'},
-    {'name': 'Mohamed Saaed', 'salary': '3700 EGP'},
-    {'name': 'Mohamed Ahmed', 'salary': '3800 EGP'},
-    {'name': 'Helmy Saaed', 'salary': '4100 EGP'},
-  ];
-
   @override
   Widget build(BuildContext context) {
     final month = ModalRoute.of(context).settings.arguments as int;

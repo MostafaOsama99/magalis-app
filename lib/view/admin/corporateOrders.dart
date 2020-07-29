@@ -96,8 +96,11 @@ class CorporateOrders extends StatelessWidget {
                   );
 
                 final ordersData = snapshot.data.documents;
-                ordersData.sort((a, b) => (a.data['time'] as Timestamp)
-                    .compareTo((b.data['time'] as Timestamp)));
+                ordersData.sort((a, b) {
+                  if(a.data['time']==null || b.data['time']==null) return 1;
+                  return (a.data['time'] as Timestamp)
+                      .compareTo((b.data['time'] as Timestamp));
+                });
                 if (snapshot.data.documents.length <= 0) {
                   return Center(
                     child: Text(

@@ -23,20 +23,25 @@ class _OrdersPageState extends State<OrdersPage> {
 
   bool searched = false;
 
+  bool areaAsc = false;
+  bool areaDes = false;
+  bool timeAsc = false;
+  bool timeDes = false;
+
   List<String> names = [];
   List<String> address = [];
   List<String> phones = [];
 
   List<String> recomendations = [];
 
-  Stream orderstream;
+  Future orderstream;
 
   @override
   Widget build(BuildContext context) {
     final map = ModalRoute.of(context).settings.arguments as Map;
     final title = (map == null) ? 'All' : map['title'];
     final logo = (map == null) ? 'assets/images/AllIcon.png' : map['logo'];
-    final user = User(type: 'admin');
+    final user = Provider.of<UserProvider>(context).user;
     bool cancel = false;
     searchController.text = selected;
     if (!searched) {
@@ -52,7 +57,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
                 .limit(100)
-                .snapshots();
+                .getDocuments();
           } else if (map['type'] == 2) {
             orderstream = Firestore.instance
                 .collection('orders')
@@ -61,7 +66,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
                 .limit(100)
-                .snapshots();
+                .getDocuments();
           } else if (map['type'] == 3) {
             orderstream = Firestore.instance
                 .collection('orders')
@@ -70,7 +75,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
                 .limit(100)
-                .snapshots();
+                .getDocuments();
           } else if (map['type'] == 4) {
             orderstream = Firestore.instance
                 .collection('orders')
@@ -78,7 +83,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
                 .limit(100)
-                .snapshots();
+                .getDocuments();
           } else if (map['type'] == 7) {
             orderstream = Firestore.instance
                 .collection('orders')
@@ -86,7 +91,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
                 .limit(100)
-                .snapshots();
+                .getDocuments();
           } else {
             orderstream = Firestore.instance
                 .collection('orders')
@@ -94,7 +99,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
                 .limit(100)
-                .snapshots();
+                .getDocuments();
           }
         } else {
           orderstream = Firestore.instance
@@ -102,7 +107,7 @@ class _OrdersPageState extends State<OrdersPage> {
               .where('isCairo', isEqualTo: true)
               .where('isCorporate', isEqualTo: false)
               .limit(100)
-              .snapshots();
+              .getDocuments();
         }
       } else {
         List<String> areas = filterData['areas'];
@@ -124,7 +129,7 @@ class _OrdersPageState extends State<OrdersPage> {
           firestoreQuery =
               firestoreQuery.where('status', isEqualTo: map['status']);
         }
-        orderstream = firestoreQuery.snapshots();
+        orderstream = firestoreQuery.getDocuments();
       }
     }
     return FutureBuilder<DocumentSnapshot>(
@@ -196,7 +201,7 @@ class _OrdersPageState extends State<OrdersPage> {
                           orderquery = orderquery.where('status',
                               isEqualTo: map['status']);
                         }
-                        orderstream = orderquery.snapshots();
+                        orderstream = orderquery.getDocuments();
                         isSearch = false;
                         selected = item;
 
@@ -224,7 +229,7 @@ class _OrdersPageState extends State<OrdersPage> {
                           orderquery = orderquery.where('status',
                               isEqualTo: map['status']);
                         }
-                        orderstream = orderquery.snapshots();
+                        orderstream = orderquery.getDocuments();
                         isSearch = false;
                         selected = item;
 
@@ -309,6 +314,82 @@ class _OrdersPageState extends State<OrdersPage> {
                             padding: const EdgeInsets.all(0.0),
                             child: InkWell(
                               onTap: () async {
+                                filterData = await showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                          title: Text('Sort By'),
+                                          actions: <Widget>[
+                                            FlatButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    areaAsc = true;
+                                                    areaDes = false;
+                                                    timeAsc = false;
+                                                    timeDes = false;
+                                                  });
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: Text('Area ascending')),
+                                            FlatButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    timeDes = false;
+                                                    areaAsc = false;
+                                                    areaDes = true;
+                                                    timeAsc = false;
+                                                  });
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: Text('Area descending')),
+                                            FlatButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    areaAsc = false;
+                                                    areaDes = false;
+                                                    timeAsc = true;
+                                                    timeDes = false;
+                                                  });
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: Text('Time ascending')),
+                                            FlatButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    areaAsc = false;
+                                                    areaDes = false;
+                                                    timeAsc = false;
+                                                    timeDes = true;
+                                                  });
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: Text('Time descending'))
+                                          ],
+                                        ));
+                                print(filterData);
+                              },
+                              child: Icon(
+                                Icons.sort,
+                                size: 25,
+                                color: Color.fromRGBO(96, 125, 129, 1),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            border:
+                                Border.all(color: Colors.grey[400], width: 2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(0.0),
+                            child: InkWell(
+                              onTap: () async {
                                 filterData = await Navigator.of(context)
                                     .pushNamed('/filter') as Map;
                                 print(filterData);
@@ -353,8 +434,8 @@ class _OrdersPageState extends State<OrdersPage> {
                   ),
                 ),
                 Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                      stream: orderstream,
+                  child: FutureBuilder<QuerySnapshot>(
+                      future: orderstream,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting)
                           return Center(
@@ -369,10 +450,22 @@ class _OrdersPageState extends State<OrdersPage> {
                           ordersData.removeWhere((element) =>
                               !lines.contains(element.data['line']));
                         }
-                        if (!searched)
-                          ordersData.sort((b, a) =>
-                              (a.data['time'] as Timestamp)
-                                  .compareTo((b.data['time'] as Timestamp)));
+                        if (!searched) {
+                          if (areaAsc) {
+                            ordersData.sort((a, b) => (a.data['area'] as String)
+                                .compareTo((b.data['area'] as String)));
+                          } else if (areaDes) {
+                            ordersData.sort((b, a) => (a.data['area'] as String)
+                                .compareTo((b.data['area'] as String)));
+                          } else if (timeAsc) {
+                            ordersData.sort((a, b) =>
+                                (a.data['time'] as Timestamp)
+                                    .compareTo((b.data['time'] as Timestamp)));
+                          } else
+                            ordersData.sort((b, a) =>
+                                (a.data['time'] as Timestamp)
+                                    .compareTo((b.data['time'] as Timestamp)));
+                        }
                         if (snapshot.data.documents.length <= 0) {
                           return Center(
                             child: Text(

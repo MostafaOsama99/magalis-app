@@ -60,9 +60,24 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                         fontWeight: FontWeight.bold,
                         fontSize: 20),
                   ),
-                  trailing: Icon(
-                    Icons.search,
-                    size: 30,
+                  trailing: InkWell(
+                    onTap: ()=>Navigator.of(context).pushNamed('/editRoute',arguments: {
+                      'name':routeData['name'],
+                      'area':routeData['area'],
+                      'date':routeData['date'],
+                      'id':snapshot.data.documentID,
+                    }),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 1.5, color: Colors.grey.withOpacity(0.5)),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Icon(
+                        Icons.edit,
+                        color: Colors.grey,
+                        size: 30,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -168,7 +183,9 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                   ? Center(
                       child: CircularProgressIndicator(),
                     )
-                  : ((user.type == 'admin' || user.type == 'warehouse' || user.type == 'operation') &&
+                  : ((user.type == 'admin' ||
+                              user.type == 'warehouse' ||
+                              user.type == 'operation') &&
                           isOperationable)
                       ? InkWell(
                           onTap: () async {

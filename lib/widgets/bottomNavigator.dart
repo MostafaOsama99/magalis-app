@@ -6,6 +6,8 @@ class BottomNavigator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserProvider>(context).user;
+
+    //final user = Provider.of<UserProvider>(context).user;
     final size = MediaQuery.of(context).size;
     if (user.type == 'admin') {
       return Container(
