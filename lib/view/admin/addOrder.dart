@@ -758,9 +758,36 @@ class _AddOrderState extends State<AddOrder> {
                           priceController.text.isEmpty ||
                           underAccountController.text.isEmpty ||
                           addressController.text.isEmpty) {
-                        print('complete all field');
+                        showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                                  title: Text('Validation Error'),
+                                  content: Text('Please complete all fields'),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        child: Text('Ok!'))
+                                  ],
+                                ));
                         return;
                       }
+                      if (selected == 'Cairo' && areaController.text.isEmpty) {
+                        showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                                  title: Text('Validation Error'),
+                                  content: Text('Please select order\'s area'),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        child: Text('Ok!'))
+                                  ],
+                                ));
+                        return;
+                      }
+
                       String name = nameController.text;
                       int quantity = int.parse(quantityController.text);
                       String area = areaController.text;
@@ -775,7 +802,22 @@ class _AddOrderState extends State<AddOrder> {
                       setState(() {
                         loading = true;
                       });
-
+                      if (downpayment > amount) {
+                        showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                                  title: Text('Validation Error'),
+                                  content: Text(
+                                      'The downpayment can\'t be greater than total amount'),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        child: Text('Ok!'))
+                                  ],
+                                ));
+                        return;
+                      }
                       if (area != null) {
                         if (!areas.contains(area)) {
                           areas.add(area);
@@ -800,7 +842,7 @@ class _AddOrderState extends State<AddOrder> {
                       } else {
                         channelText = 'Website';
                       }
-                      if (areaController.text.isNotEmpty) {
+                      if (selected.toLowerCase() == 'cairo') {
                         await Firestore.instance.collection('orders').add({
                           'time': DateTime.now(),
                           'city': selected,

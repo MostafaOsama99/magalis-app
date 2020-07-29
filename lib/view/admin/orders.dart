@@ -51,6 +51,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('area', isEqualTo: map['date'])
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
+                .limit(100)
                 .snapshots();
           } else if (map['type'] == 2) {
             orderstream = Firestore.instance
@@ -59,6 +60,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('createdAt', isEqualTo: map['date'])
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
+                .limit(100)
                 .snapshots();
           } else if (map['type'] == 3) {
             orderstream = Firestore.instance
@@ -67,6 +69,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('line', isEqualTo: map['date'])
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
+                .limit(100)
                 .snapshots();
           } else if (map['type'] == 4) {
             orderstream = Firestore.instance
@@ -74,6 +77,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('status', isEqualTo: map['status'])
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
+                .limit(100)
                 .snapshots();
           } else if (map['type'] == 7) {
             orderstream = Firestore.instance
@@ -81,6 +85,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('status', whereIn: map['status'])
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
+                .limit(100)
                 .snapshots();
           } else {
             orderstream = Firestore.instance
@@ -88,6 +93,7 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('status', isEqualTo: map['status'])
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
+                .limit(100)
                 .snapshots();
           }
         } else {
@@ -95,6 +101,7 @@ class _OrdersPageState extends State<OrdersPage> {
               .collection('orders')
               .where('isCairo', isEqualTo: true)
               .where('isCorporate', isEqualTo: false)
+              .limit(100)
               .snapshots();
         }
       } else {
@@ -104,7 +111,8 @@ class _OrdersPageState extends State<OrdersPage> {
         Query firestoreQuery = Firestore.instance
             .collection('orders')
             .where('isCairo', isEqualTo: true)
-            .where('isCorporate', isEqualTo: false);
+            .where('isCorporate', isEqualTo: false)
+            .limit(100);
         if (areas != null && areas.length > 0) {
           firestoreQuery = firestoreQuery.where('area', whereIn: areas);
         }
@@ -172,22 +180,16 @@ class _OrdersPageState extends State<OrdersPage> {
                         if (names.contains(item)) {
                           orderquery = Firestore.instance
                               .collection('orders')
-                              .where('isCairo', isEqualTo: true)
-                              .where('isCorporate', isEqualTo: false)
                               .where('name', isEqualTo: item);
                         }
                         if (address.contains(item)) {
                           orderquery = Firestore.instance
                               .collection('orders')
-                              .where('isCairo', isEqualTo: true)
-                              .where('isCorporate', isEqualTo: false)
                               .where('address', isEqualTo: item);
                         }
                         if (phones.contains(item)) {
                           orderquery = Firestore.instance
                               .collection('orders')
-                              .where('isCairo', isEqualTo: true)
-                              .where('isCorporate', isEqualTo: false)
                               .where('phone', isEqualTo: item);
                         }
                         if (map['status'] != null) {
@@ -206,22 +208,16 @@ class _OrdersPageState extends State<OrdersPage> {
                         if (names.contains(item)) {
                           orderquery = Firestore.instance
                               .collection('orders')
-                              .where('isCairo', isEqualTo: true)
-                              .where('isCorporate', isEqualTo: false)
                               .where('name', isEqualTo: item);
                         }
                         if (address.contains(item)) {
                           orderquery = Firestore.instance
                               .collection('orders')
-                              .where('isCairo', isEqualTo: true)
-                              .where('isCorporate', isEqualTo: false)
                               .where('address', isEqualTo: item);
                         }
                         if (phones.contains(item)) {
                           orderquery = Firestore.instance
                               .collection('orders')
-                              .where('isCairo', isEqualTo: true)
-                              .where('isCorporate', isEqualTo: false)
                               .where('phone', isEqualTo: item);
                         }
                         if (map['status'] != null) {
@@ -321,7 +317,7 @@ class _OrdersPageState extends State<OrdersPage> {
                                 });
                               },
                               child: Icon(
-                                Icons.sort,
+                                Icons.filter_list,
                                 size: 25,
                                 color: Color.fromRGBO(96, 125, 129, 1),
                               ),
@@ -373,8 +369,10 @@ class _OrdersPageState extends State<OrdersPage> {
                           ordersData.removeWhere((element) =>
                               !lines.contains(element.data['line']));
                         }
-                        ordersData.sort((a, b) => (a.data['time'] as Timestamp)
-                            .compareTo((b.data['time'] as Timestamp)));
+                        if (!searched)
+                          ordersData.sort((b, a) =>
+                              (a.data['time'] as Timestamp)
+                                  .compareTo((b.data['time'] as Timestamp)));
                         if (snapshot.data.documents.length <= 0) {
                           return Center(
                             child: Text(
@@ -484,7 +482,7 @@ class _OrdersPageState extends State<OrdersPage> {
                               },
                               child: Padding(
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                    const EdgeInsets.symmetric(vertical: 1.0),
                                 child: orderItem(
                                   title: '${ordersData[i].data['name']}',
                                   price: ordersData[i].data['totalAccount'],
@@ -495,8 +493,9 @@ class _OrdersPageState extends State<OrdersPage> {
                                   description:
                                       '${ordersData[i].data['description']}',
                                   phone: '${ordersData[i].data['phone']}',
-                                  underAccount: ordersData[i]
-                                      .data['underAccount'], //underAccount
+                                  underAccount:
+                                      ordersData[i].data['underAccount'],
+                                  number: ordersData[i].data['orderNumber'],
                                 ),
                               ),
                             );
@@ -513,6 +512,7 @@ class _OrdersPageState extends State<OrdersPage> {
   Widget orderItem(
       {id,
       title,
+      number,
       price,
       line,
       factoryName,
@@ -544,6 +544,13 @@ class _OrdersPageState extends State<OrdersPage> {
                     color: Color.fromRGBO(170, 44, 94, 1),
                     fontWeight: FontWeight.bold,
                     fontSize: 18),
+              ),
+              Text(
+                '#${number}',
+                style: TextStyle(
+                    color: Color.fromRGBO(170, 44, 94, 1),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20),
               ),
               Text(
                 '${price} EGP',

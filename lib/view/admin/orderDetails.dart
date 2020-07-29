@@ -1081,6 +1081,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                                           ],
                                         ),
                                       );
+                                      
                                       if (!confirmation) return;
                                       final issuesDocs = await Firestore
                                           .instance
