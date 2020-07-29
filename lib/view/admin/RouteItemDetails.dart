@@ -30,11 +30,11 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
           width: 150,
         ),
       ),
-      body: FutureBuilder<DocumentSnapshot>(
-        future: Firestore.instance
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: Firestore.instance
             .collection('routes')
             .document(map['docId'])
-            .get(),
+            .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting)
             return Center(
@@ -60,24 +60,98 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                         fontWeight: FontWeight.bold,
                         fontSize: 20),
                   ),
-                  trailing: InkWell(
-                    onTap: ()=>Navigator.of(context).pushNamed('/editRoute',arguments: {
-                      'name':routeData['name'],
-                      'area':routeData['area'],
-                      'date':routeData['date'],
-                      'id':snapshot.data.documentID,
-                    }),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(width: 1.5, color: Colors.grey.withOpacity(0.5)),
-                        borderRadius: BorderRadius.circular(15),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      InkWell(
+                        onTap: () async {
+                          Navigator.of(context)
+                              .pushNamed('/editRoute', arguments: {
+                            'name': routeData['name'],
+                            'area': routeData['area'],
+                            'date': routeData['date'],
+                            'id': snapshot.data.documentID,
+                            'orderList':snapshot.data.data['orders']
+                          });
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                width: 1.5,
+                                color: Colors.grey.withOpacity(0.5)),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.edit,
+                            color: Colors.grey,
+                            size: 30,
+                          ),
+                        ),
                       ),
-                      child: Icon(
-                        Icons.edit,
-                        color: Colors.grey,
-                        size: 30,
+                      SizedBox(
+                        width: 8,
                       ),
-                    ),
+                      InkWell(
+                        onTap: () async {
+                          final confirmation = await showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: Text('Confirmation'),
+                              content: Text(
+                                'Do you want to procssed?',
+                              ),
+                              actions: <Widget>[
+                                FlatButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: Text(
+                                      'No',
+                                      style: TextStyle(color: Colors.red),
+                                    )),
+                                FlatButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(true),
+                                    child: Text(
+                                      'Yes',
+                                      style: TextStyle(color: Colors.green),
+                                    ))
+                              ],
+                            ),
+                          );
+
+                          if (!confirmation) return;
+                          for (var element in ordersList) {
+                            final docId = element['docId'];
+                            await Firestore.instance
+                                .collection('orders')
+                                .document(docId)
+                                .updateData({'status': 'noAction'});
+                          }
+                          await Firestore.instance
+                              .collection('routes')
+                              .document(snapshot.data.documentID)
+                              .delete();
+                          Navigator.of(context).pop();
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                width: 1.5,
+                                color: Colors.grey.withOpacity(0.5)),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                            size: 30,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

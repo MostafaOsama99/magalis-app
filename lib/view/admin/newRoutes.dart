@@ -168,7 +168,7 @@ class _NewRoutesState extends State<NewRoutes> {
                                     .document(map['docId'])
                                     .updateData({'status': 'onDistribution'});
                                 Navigator.of(context).pushNamedAndRemoveUntil(
-                                    '/distribution',
+                                    '/newRoute',
                                     ModalRoute.withName('/orders'));
                               } else {
                                 showDialog(

@@ -7,6 +7,7 @@ import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 import 'package:maglis_app/widgets/orderTile.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart' as url;
 
 class OrdersPage extends StatefulWidget {
   @override
@@ -27,6 +28,8 @@ class _OrdersPageState extends State<OrdersPage> {
   bool areaDes = false;
   bool timeAsc = false;
   bool timeDes = false;
+  bool numberAsc = false;
+  bool numberDes = false;
 
   List<String> names = [];
   List<String> address = [];
@@ -35,6 +38,8 @@ class _OrdersPageState extends State<OrdersPage> {
   List<String> recomendations = [];
 
   Future orderstream;
+
+  List<String> checkedOrder = [];
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +61,6 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('area', isEqualTo: map['date'])
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
-                .limit(100)
                 .getDocuments();
           } else if (map['type'] == 2) {
             orderstream = Firestore.instance
@@ -65,7 +69,6 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('createdAt', isEqualTo: map['date'])
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
-                .limit(100)
                 .getDocuments();
           } else if (map['type'] == 3) {
             orderstream = Firestore.instance
@@ -74,7 +77,6 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('line', isEqualTo: map['date'])
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
-                .limit(100)
                 .getDocuments();
           } else if (map['type'] == 4) {
             orderstream = Firestore.instance
@@ -82,7 +84,6 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('status', isEqualTo: map['status'])
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
-                .limit(100)
                 .getDocuments();
           } else if (map['type'] == 7) {
             orderstream = Firestore.instance
@@ -90,7 +91,6 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('status', whereIn: map['status'])
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
-                .limit(100)
                 .getDocuments();
           } else {
             orderstream = Firestore.instance
@@ -98,7 +98,6 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('status', isEqualTo: map['status'])
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
-                .limit(100)
                 .getDocuments();
           }
         } else {
@@ -106,7 +105,6 @@ class _OrdersPageState extends State<OrdersPage> {
               .collection('orders')
               .where('isCairo', isEqualTo: true)
               .where('isCorporate', isEqualTo: false)
-              .limit(100)
               .getDocuments();
         }
       } else {
@@ -116,8 +114,7 @@ class _OrdersPageState extends State<OrdersPage> {
         Query firestoreQuery = Firestore.instance
             .collection('orders')
             .where('isCairo', isEqualTo: true)
-            .where('isCorporate', isEqualTo: false)
-            .limit(100);
+            .where('isCorporate', isEqualTo: false);
         if (areas != null && areas.length > 0) {
           firestoreQuery = firestoreQuery.where('area', whereIn: areas);
         }
@@ -362,7 +359,35 @@ class _OrdersPageState extends State<OrdersPage> {
                                                   });
                                                   Navigator.of(context).pop();
                                                 },
-                                                child: Text('Time descending'))
+                                                child: Text('Time descending')),
+                                            FlatButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    areaAsc = false;
+                                                    areaDes = false;
+                                                    timeAsc = false;
+                                                    timeDes = false;
+                                                    numberAsc = true;
+                                                    numberDes = false;
+                                                  });
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child:
+                                                    Text('number ascending')),
+                                            FlatButton(
+                                                onPressed: () {
+                                                  setState(() {
+                                                    areaAsc = false;
+                                                    areaDes = false;
+                                                    timeAsc = false;
+                                                    timeDes = false;
+                                                    numberAsc = false;
+                                                    numberDes = true;
+                                                  });
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child:
+                                                    Text('number descending'))
                                           ],
                                         ));
                                 print(filterData);
@@ -461,10 +486,19 @@ class _OrdersPageState extends State<OrdersPage> {
                             ordersData.sort((a, b) =>
                                 (a.data['time'] as Timestamp)
                                     .compareTo((b.data['time'] as Timestamp)));
-                          } else
+                          } else if (timeDes) {
                             ordersData.sort((b, a) =>
                                 (a.data['time'] as Timestamp)
                                     .compareTo((b.data['time'] as Timestamp)));
+                          } else if (numberAsc) {
+                            ordersData.sort((a, b) =>
+                                (a.data['orderNumber'] as int)
+                                    .compareTo((b.data['orderNumber'] as int)));
+                          } else {
+                            ordersData.sort((b, a) =>
+                                (a.data['orderNumber'] as int)
+                                    .compareTo((b.data['orderNumber'] as int)));
+                          }
                         }
                         if (snapshot.data.documents.length <= 0) {
                           return Center(
@@ -484,114 +518,196 @@ class _OrdersPageState extends State<OrdersPage> {
                                 ? ordersData[i].data['city']
                                 : ordersData[i].data['area'];
 
-                            return InkWell(
-                              onDoubleTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    title: Text('Description:'),
-                                    content: Text(
-                                        '${ordersData[i].data['description']}'),
-                                    actions: <Widget>[
-                                      FlatButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text('OK!'))
-                                    ],
-                                  ),
-                                );
-                              },
-                              onTap: () async {
-                                if (map['type'] == 4) {
-                                  final lastOrders = map['lastOrders'] as List;
-                                  final totalAmount = map['amount'];
-                                  final ordersId = lastOrders
-                                      .map((e) => e['docId'])
-                                      .toList();
-                                  if (ordersId.contains(map['docId'])) {
-                                    return;
-                                  }
-                                  lastOrders.add({
-                                    'docId': ordersData[i].documentID,
-                                    'name': ordersData[i].data['name'],
-                                    'address': ordersData[i].data['address'],
-                                    'totalAccount':
-                                        ordersData[i].data['totalAccount'],
-                                  });
-                                  final orderAmount = totalAmount +
-                                      ordersData[i].data['totalAccount'];
-                                  await Firestore.instance
-                                      .collection('routes')
-                                      .document(map['routeId'])
-                                      .updateData({
-                                    'orders': lastOrders,
-                                    'totalAmount': orderAmount
-                                  });
-                                  final issuesDocs = await Firestore.instance
-                                      .collection('orders')
-                                      .document(ordersData[i].documentID)
-                                      .collection('issues')
-                                      .getDocuments();
-                                  issuesDocs.documents.forEach((element) {
-                                    Firestore.instance
+                            return StatefulBuilder(
+                                builder: (context, orderStat) {
+                              return InkWell(
+                                onDoubleTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      title: Text('Description:'),
+                                      content: Text(
+                                          '${ordersData[i].data['description']}'),
+                                      actions: <Widget>[
+                                        FlatButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text('OK!'))
+                                      ],
+                                    ),
+                                  );
+                                },
+                                onTap: () async {
+                                  if (map['type'] == 4) {
+                                    final confirmation = await showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: Text('Confirmation'),
+                                        content: Text(
+                                          'Do you want to procssed?',
+                                        ),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(false),
+                                              child: Text(
+                                                'No',
+                                                style: TextStyle(
+                                                    color: Colors.red),
+                                              )),
+                                          FlatButton(
+                                              onPressed: () =>
+                                                  Navigator.of(context)
+                                                      .pop(true),
+                                              child: Text(
+                                                'Yes',
+                                                style: TextStyle(
+                                                    color: Colors.green),
+                                              ))
+                                        ],
+                                      ),
+                                    );
+
+                                    if (!confirmation) return;
+
+                                    final lastOrders =
+                                        map['lastOrders'] as List;
+                                    final totalAmount = map['amount'];
+                                    final ordersIds = lastOrders
+                                        .map((e) => e['docId'])
+                                        .toList();
+                                    if (ordersIds
+                                        .contains(ordersData[i].documentID)) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: Text('Validation Error'),
+                                          content: Text(
+                                              'This order is already in the route'),
+                                          actions: <Widget>[
+                                            FlatButton(
+                                                onPressed: () =>
+                                                    Navigator.of(context).pop(),
+                                                child: Text('Ok!'))
+                                          ],
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                    if (ordersData[i].data['status'] !=
+                                        'noAction') {
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: Text('Validation Error'),
+                                          content: Text(
+                                              'This order is already on Distribution'),
+                                          actions: <Widget>[
+                                            FlatButton(
+                                                onPressed: () =>
+                                                    Navigator.of(context).pop(),
+                                                child: Text('Ok!'))
+                                          ],
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                    checkedOrder.add(ordersData[i].documentID);
+                                    orderStat(() {});
+                                    lastOrders.add({
+                                      'docId': ordersData[i].documentID,
+                                      'name': ordersData[i].data['name'],
+                                      'address': ordersData[i].data['address'],
+                                      'totalAccount':
+                                          ordersData[i].data['totalAccount'],
+                                    });
+                                    final orderAmount = totalAmount +
+                                        ordersData[i].data['totalAccount'];
+                                    await Firestore.instance
+                                        .collection('routes')
+                                        .document(map['routeId'])
+                                        .updateData({
+                                      'orders': lastOrders,
+                                      'totalAmount': orderAmount
+                                    });
+                                    final issuesDocs = await Firestore.instance
                                         .collection('orders')
                                         .document(ordersData[i].documentID)
                                         .collection('issues')
-                                        .document(element.documentID)
-                                        .updateData({'isSolved': true});
-                                  });
-                                  await Firestore.instance
-                                      .collection('orders')
-                                      .document(ordersData[i].documentID)
-                                      .updateData({'status': 'onDistribution'});
-
-                                  await Navigator.of(context)
-                                      .pushReplacementNamed(
-                                    '/newRoute',
-                                  );
-                                } else {
-                                  if (ordersData[i].data['isCairo'] &&
-                                      !ordersData[i].data['isCorporate']) {
-                                    Navigator.of(context)
-                                        .pushNamed('/orderDetails', arguments: {
-                                      'docId': ordersData[i].documentID,
+                                        .getDocuments();
+                                    issuesDocs.documents.forEach((element) {
+                                      Firestore.instance
+                                          .collection('orders')
+                                          .document(ordersData[i].documentID)
+                                          .collection('issues')
+                                          .document(element.documentID)
+                                          .updateData({'isSolved': true});
                                     });
-                                  } else if (!ordersData[i].data['isCairo'] &&
-                                      !ordersData[i].data['isCorporate']) {
-                                    Navigator.of(context).pushNamed(
-                                        '/citiyOrderDetails',
-                                        arguments: {
-                                          'docId': ordersData[i].documentID,
-                                        });
+                                    await Firestore.instance
+                                        .collection('orders')
+                                        .document(ordersData[i].documentID)
+                                        .updateData(
+                                            {'status': 'onDistribution'});
                                   } else {
-                                    Navigator.of(context).pushNamed(
-                                        '/corporateOrderDetails',
-                                        arguments: {
-                                          'docId': ordersData[i].documentID,
-                                        });
+                                    if (ordersData[i].data['isCairo'] &&
+                                        !ordersData[i].data['isCorporate']) {
+                                      Navigator.of(context).pushNamed(
+                                          '/orderDetails',
+                                          arguments: {
+                                            'docId': ordersData[i].documentID,
+                                          });
+                                    } else if (!ordersData[i].data['isCairo'] &&
+                                        !ordersData[i].data['isCorporate']) {
+                                      Navigator.of(context).pushNamed(
+                                          '/citiyOrderDetails',
+                                          arguments: {
+                                            'docId': ordersData[i].documentID,
+                                          });
+                                    } else {
+                                      Navigator.of(context).pushNamed(
+                                          '/corporateOrderDetails',
+                                          arguments: {
+                                            'docId': ordersData[i].documentID,
+                                          });
+                                    }
                                   }
-                                }
-                              },
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 1.0),
-                                child: orderItem(
-                                  title: '${ordersData[i].data['name']}',
-                                  price: ordersData[i].data['totalAccount'],
-                                  line: '${line}', //area
-                                  factoryName: '${ordersData[i].data['line']}',
-                                  quantity: ordersData[i].data['quantity'],
-                                  date: '${ordersData[i].data['createdAt']}',
-                                  description:
-                                      '${ordersData[i].data['description']}',
-                                  phone: '${ordersData[i].data['phone']}',
-                                  underAccount:
-                                      ordersData[i].data['underAccount'],
-                                  number: ordersData[i].data['orderNumber'],
-                                ),
-                              ),
-                            );
+                                },
+                                child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 1.0),
+                                    child: orderItem(
+                                        id: ordersData[i].documentID,
+                                        address: ordersData[i].data['address'],
+                                        title: '${ordersData[i].data['name']}',
+                                        price:
+                                            ordersData[i].data['totalAccount'],
+                                        line: '${line}', //area
+                                        factoryName:
+                                            '${ordersData[i].data['line']}',
+                                        quantity:
+                                            ordersData[i].data['quantity'],
+                                        date:
+                                            '${ordersData[i].data['createdAt']}',
+                                        description:
+                                            '${ordersData[i].data['description']}',
+                                        phone: '${ordersData[i].data['phone']}',
+                                        underAccount:
+                                            ordersData[i].data['underAccount'],
+                                        number:
+                                            ordersData[i].data['orderNumber'],
+                                        isChecked: checkedOrder
+                                            .contains(ordersData[i].documentID),
+                                        type: (ordersData[i].data['status'] ==
+                                                'noAction' &&
+                                            ordersData[i].data['returned'] !=
+                                                null &&
+                                            !ordersData[i].data['returned'] &&
+                                            user.type != 'sales' &&
+                                            user.type != 'warehouse'))),
+                              );
+                            });
                           },
                         );
                       }),
@@ -613,7 +729,10 @@ class _OrdersPageState extends State<OrdersPage> {
       date,
       underAccount,
       phone,
-      description}) {
+      description,
+      isChecked,
+      type,
+      address}) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -664,6 +783,12 @@ class _OrdersPageState extends State<OrdersPage> {
                     fontWeight: FontWeight.bold,
                     fontSize: 16),
               ),
+              isChecked != null && isChecked
+                  ? Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                    )
+                  : SizedBox(),
               Text(
                 'QTY : ${quantity}',
                 style: TextStyle(
@@ -683,6 +808,91 @@ class _OrdersPageState extends State<OrdersPage> {
                     fontWeight: FontWeight.bold,
                     fontSize: 16),
               ),
+              InkWell(
+                onTap: () => url.launch('tel:${phone}'),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                        width: 1.5, color: Colors.grey.withOpacity(0.5)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.call,
+                    color: Colors.green,
+                    size: 30,
+                  ),
+                ),
+              ),
+              type
+                  ? InkWell(
+                      onTap: () async {
+                        final confirmation = await showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: Text('Confirmation'),
+                            content: Text(
+                              'Do you want to procssed?',
+                            ),
+                            actions: <Widget>[
+                              FlatButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(false),
+                                  child: Text(
+                                    'No',
+                                    style: TextStyle(color: Colors.red),
+                                  )),
+                              FlatButton(
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(true),
+                                  child: Text(
+                                    'Yes',
+                                    style: TextStyle(color: Colors.green),
+                                  ))
+                            ],
+                          ),
+                        );
+
+                        if (!confirmation) return;
+                        final issuesDocs = await Firestore.instance
+                            .collection('orders')
+                            .document(id)
+                            .collection('issues')
+                            .getDocuments();
+                        issuesDocs.documents.forEach((element) {
+                          Firestore.instance
+                              .collection('orders')
+                              .document(id)
+                              .collection('issues')
+                              .document(element.documentID)
+                              .updateData({'isSolved': true});
+                        });
+                        await Navigator.of(context)
+                            .pushNamed('/newRoute', arguments: {
+                          'type': 2,
+                          'docId': id,
+                          'address': address,
+                          'name': title,
+                          'totalAccount': price,
+                        });
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                              width: 1.5, color: Colors.grey.withOpacity(0.5)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.add,
+                          color: Colors.grey,
+                          size: 30,
+                        ),
+                      ),
+                    )
+                  : SizedBox(),
               Text(
                 '${date}',
                 style: TextStyle(

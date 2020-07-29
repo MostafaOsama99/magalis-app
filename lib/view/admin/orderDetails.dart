@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
+import 'package:maglis_app/view/admin/distribute.dart';
 import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' as url;
@@ -21,7 +22,7 @@ class _OrderDetailsState extends State<OrderDetails> {
   bool isCalled = false;
 
   bool isIssue = false;
-
+  bool distributed = false;
   int orderNumber;
   @override
   Widget build(BuildContext context) {
@@ -1046,10 +1047,11 @@ class _OrderDetailsState extends State<OrderDetails> {
                           children: <Widget>[
                             Expanded(child: SizedBox()),
                             (order['status'] == 'noAction' &&
-                                    order['returned'] != null &&
-                                    !order['returned'] &&
-                                    user.type != 'sales' &&
-                                    user.type != 'warehouse')
+                                        order['returned'] != null &&
+                                        !order['returned'] &&
+                                        user.type != 'sales' &&
+                                        user.type != 'warehouse') &&
+                                    !distributed
                                 ? InkWell(
                                     onTap: () async {
                                       final confirmation = await showDialog(
@@ -1081,7 +1083,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                                           ],
                                         ),
                                       );
-                                      
+
                                       if (!confirmation) return;
                                       final issuesDocs = await Firestore
                                           .instance
@@ -1106,7 +1108,10 @@ class _OrderDetailsState extends State<OrderDetails> {
                                           'name': order['name'],
                                           'totalAccount': order['totalAccount']
                                         });
-                                        Navigator.of(context).pop();
+                                        setState(() {
+                                          distributed = true;
+                                        });
+                                        // Navigator.of(context).pop();
                                       } else {
                                         Firestore.instance
                                             .collection('orders')
@@ -1208,7 +1213,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               )
-                                        : order['status'] == 'onDistribution'
+                                        : order['status'] == 'onDistribution' ||
+                                                distributed
                                             ? Text(
                                                 'On Distribution',
                                                 style: TextStyle(

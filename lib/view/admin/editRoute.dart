@@ -35,6 +35,7 @@ class _EditRouteState extends State<EditRoute> {
   String areaSelected = '';
   bool firstTime = false;
   String id;
+  List ordersList = [];
   @override
   Widget build(BuildContext context) {
     nameController.text = selected;
@@ -45,6 +46,7 @@ class _EditRouteState extends State<EditRoute> {
       final name = map['name'];
       final area = map['area'];
       id = map['id'];
+      ordersList = map['orderList'];
       nameController.text = name;
       areaController.text = area;
     }
@@ -303,158 +305,132 @@ class _EditRouteState extends State<EditRoute> {
                                 width: size.width,
                                 height: 300,
                                 padding: EdgeInsets.symmetric(horizontal: 8),
-                                child: StreamBuilder<DocumentSnapshot>(
-                                    stream: Firestore.instance
-                                        .collection('routes')
-                                        .document(id)
-                                        .snapshots(),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      }
-                                      final ordersList =
-                                          snapshot.data.data['orders'] as List;
-
-                                      return ListView.builder(
-                                        itemBuilder: (context, index) {
-                                          return Container(
-                                            margin: EdgeInsets.symmetric(
-                                                vertical: 5),
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: Colors.grey
-                                                      .withOpacity(0.5),
-                                                  width: 2),
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: ListTile(
-                                              onTap: () => Navigator.of(context)
-                                                  .pushNamed('/orderDetails',
-                                                      arguments: {
-                                                    'docId': ordersList[index]
-                                                        ['docId']
-                                                  }),
-                                              title: Text(
-                                                '${ordersList[index]['name']}',
-                                                style: TextStyle(
-                                                    color: Color.fromRGBO(
-                                                        170, 44, 94, 1),
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 18),
-                                              ),
-                                              subtitle: Text(
-                                                '${ordersList[index]['address']}',
-                                                style: TextStyle(
-                                                    color: Color.fromRGBO(
-                                                        96, 125, 130, 1),
-                                                    fontSize: 14),
-                                              ),
-                                              trailing: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: <Widget>[
-                                                  InkWell(
-                                                      child: Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                          border: Border.all(
-                                                              color: Colors.grey
-                                                                  .withOpacity(
-                                                                      0.7),
-                                                              width: 1.5),
-                                                        ),
-                                                        child: Icon(
-                                                          Icons.delete,
-                                                          color: Colors.red,
-                                                        ),
-                                                      ),
-                                                      onTap: () async {
-                                                        bool confirm =
-                                                            await showDialog(
-                                                          context: context,
-                                                          builder: (ctx) =>
-                                                              AlertDialog(
-                                                            title: Text(
-                                                                'Confirmation?'),
-                                                            content: Text(
-                                                                'Do you want to processed?'),
-                                                            actions: <Widget>[
-                                                              FlatButton(
-                                                                onPressed: () =>
-                                                                    Navigator.of(
-                                                                            context)
-                                                                        .pop(
-                                                                            false),
-                                                                child: Text(
-                                                                  'No',
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .red),
-                                                                ),
-                                                              ),
-                                                              FlatButton(
-                                                                onPressed: () =>
-                                                                    Navigator.of(
-                                                                            context)
-                                                                        .pop(
-                                                                            true),
-                                                                child: Text(
-                                                                  'Yes',
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .green),
-                                                                ),
-                                                              )
-                                                            ],
+                                child: ListView.builder(
+                                  itemBuilder: (context, index) {
+                                    return Container(
+                                      margin: EdgeInsets.symmetric(vertical: 5),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            width: 2),
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: ListTile(
+                                        onTap: () => Navigator.of(context)
+                                            .pushNamed('/orderDetails',
+                                                arguments: {
+                                              'docId': ordersList[index]
+                                                  ['docId']
+                                            }),
+                                        title: Text(
+                                          '${ordersList[index]['name']}',
+                                          style: TextStyle(
+                                              color: Color.fromRGBO(
+                                                  170, 44, 94, 1),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18),
+                                        ),
+                                        subtitle: Text(
+                                          '${ordersList[index]['address']}',
+                                          style: TextStyle(
+                                              color: Color.fromRGBO(
+                                                  96, 125, 130, 1),
+                                              fontSize: 14),
+                                        ),
+                                        trailing: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: <Widget>[
+                                            InkWell(
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    border: Border.all(
+                                                        color: Colors.grey
+                                                            .withOpacity(0.7),
+                                                        width: 1.5),
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.delete,
+                                                    color: Colors.red,
+                                                  ),
+                                                ),
+                                                onTap: () async {
+                                                  bool confirm =
+                                                      await showDialog(
+                                                    context: context,
+                                                    builder: (ctx) =>
+                                                        AlertDialog(
+                                                      title:
+                                                          Text('Confirmation?'),
+                                                      content: Text(
+                                                          'Do you want to processed?'),
+                                                      actions: <Widget>[
+                                                        FlatButton(
+                                                          onPressed: () =>
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop(false),
+                                                          child: Text(
+                                                            'No',
+                                                            style: TextStyle(
+                                                                color:
+                                                                    Colors.red),
                                                           ),
-                                                        );
-                                                        if (!confirm) return;
-                                                        await Firestore.instance
-                                                            .collection(
-                                                                'orders')
-                                                            .document(
-                                                                ordersList[
-                                                                        index]
-                                                                    ['docId'])
-                                                            .updateData({
-                                                          'status': 'noAction'
-                                                        });
-                                                        print(ordersList);
-                                                        ordersList
-                                                            .removeAt(index);
-                                                        print(ordersList);
+                                                        ),
+                                                        FlatButton(
+                                                          onPressed: () =>
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop(true),
+                                                          child: Text(
+                                                            'Yes',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .green),
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  );
+                                                  if (!confirm) return;
+                                                  print(ordersList);
 
-                                                        await Firestore.instance
-                                                            .collection(
-                                                                'routes')
-                                                            .document(id)
-                                                            .updateData({
-                                                          'orders': ordersList
-                                                        });
-                                                      }),
-                                                  Text(
-                                                    '${ordersList[index]['totalAccount']} EGP',
-                                                    style: TextStyle(
-                                                        color: Colors.black,
-                                                        fontSize: 18),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        itemCount: ordersList.length,
-                                      );
-                                    }),
+                                                  print(ordersList);
+                                                  await Firestore.instance
+                                                      .collection('orders')
+                                                      .document(
+                                                          ordersList[index]
+                                                              ['docId'])
+                                                      .updateData({
+                                                    'status': 'noAction'
+                                                  });
+                                                  ordersList.removeAt(index);
+
+                                                  await Firestore.instance
+                                                      .collection('routes')
+                                                      .document(id)
+                                                      .updateData({
+                                                    'orders': ordersList
+                                                  });
+                                                  setState(() {});
+                                                }),
+                                            Text(
+                                              '${ordersList[index]['totalAccount']} EGP',
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 18),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  itemCount: ordersList.length,
+                                ),
                               ),
                             ],
                           ),
