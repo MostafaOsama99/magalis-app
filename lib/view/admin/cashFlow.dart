@@ -211,7 +211,8 @@ class _CashFlowState extends State<CashFlow> {
                             ],
                           ),
                         ),
-                        Expanded(
+                        Container(
+                          height: MediaQuery.of(context).size.height / 2.4,
                           child: allDocs.length + shortageIndex + excessIndex ==
                                   0
                               ? Center(
@@ -499,7 +500,7 @@ class _CashFlowState extends State<CashFlow> {
                                   final revenueDocument = {
                                     'userName': element.data['name'],
                                     'date': element.data['date'],
-                                    'source': 'Cairo Distribution',
+                                    'source': 'Cairo Distribution revenue',
                                     'amount': element.data['totalAmount'],
                                     'status': 'approved',
                                     'isCairo': true,
@@ -535,6 +536,8 @@ class _CashFlowState extends State<CashFlow> {
                                 barrierDismissible: false,
                                 child: AlertDialog(
                                   title: Text('Budget deficit'),
+                                  content:
+                                      Text('The deficit equal${loan.abs()}'),
                                   actions: <Widget>[
                                     FlatButton.icon(
                                       onPressed: () {
@@ -548,14 +551,14 @@ class _CashFlowState extends State<CashFlow> {
                                         Navigator.of(context).pop(true);
                                       },
                                       icon: Icon(Icons.person),
-                                      label: (amountCollected > net && net > 0)
+                                      label: (amountCollected > net && net >= 0)
                                           ? Text('Remove a Loan')
                                           : Text('Save as a Loan'),
                                     ),
                                   ],
                                 ),
                               );
-
+                              if (type == null) return;
                               final result = await Firestore.instance
                                   .collection('cashFlow')
                                   .add({
@@ -655,12 +658,12 @@ class _CashFlowState extends State<CashFlow> {
                                     .collection('myInfo')
                                     .document('info')
                                     .updateData({
-                                  'cashMoney': -net,
+                                  'cashMoney': net.abs(),
                                   'cashed': 0
                                 }).then((value) => Navigator.of(context).pop());
                               } else if (!type &&
                                   amountCollected > net &&
-                                  net > 0) {
+                                  net >= 0) {
                                 Firestore.instance
                                     .collection('myInfo')
                                     .document('info')
@@ -772,7 +775,7 @@ class _CashFlowState extends State<CashFlow> {
         .document('info')
         .updateData({'cashMoney': 0, 'cashed': 0});
     final done = await Navigator.of(context)
-        .pushNamed('/addLoans', arguments: {'money': -net});
+        .pushNamed('/addLoans', arguments: {'money': net.abs()});
     if (done == null || !done) {
       await showDialog(
         context: context,

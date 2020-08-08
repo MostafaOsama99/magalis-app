@@ -60,7 +60,7 @@ class _CorporateHomeState extends State<CorporateHome> {
                         InkWell(
                           onTap: () => Navigator.of(context).pushNamed(
                               '/corporateOrders',
-                              arguments: {'status': 'noAction'}),
+                              arguments: {'status': 'noAction', 'type': 2}),
                           child: Container(
                             width: size.width / 2.25,
                             height: 150,
@@ -93,7 +93,7 @@ class _CorporateHomeState extends State<CorporateHome> {
                         InkWell(
                           onTap: () => Navigator.of(context).pushNamed(
                               '/corporateOrders',
-                              arguments: {'status': 'collected'}),
+                              arguments: {'status': 'collected', 'type': 3}),
                           child: Container(
                               width: size.width / 2.25,
                               height: 150,

@@ -685,7 +685,7 @@ class _AddExpenseState extends State<AddExpense> {
                               List notes = [];
                               noteController.text.isNotEmpty
                                   ? notes.add({
-                                      'from': 'Ahmed Omar',
+                                      'from': user.name,
                                       'note': noteController.text
                                     })
                                   : notes.length;

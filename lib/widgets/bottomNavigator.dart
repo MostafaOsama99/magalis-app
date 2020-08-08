@@ -65,7 +65,7 @@ class BottomNavigator extends StatelessWidget {
             VerticalDivider(),
             InkWell(
               onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/issueScreen', ModalRoute.withName('/admin')),
+                  '/issueHome', ModalRoute.withName('/admin')),
               child: Column(
                 children: <Widget>[
                   Image.asset(
@@ -136,7 +136,7 @@ class BottomNavigator extends StatelessWidget {
             VerticalDivider(),
             InkWell(
               onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/issueScreen', ModalRoute.withName('/operation')),
+                  '/issueHome', ModalRoute.withName('/operation')),
               child: Column(
                 children: <Widget>[
                   Image.asset(
@@ -192,7 +192,7 @@ class BottomNavigator extends StatelessWidget {
             VerticalDivider(),
             InkWell(
               onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/issueScreen', ModalRoute.withName('/warehouse')),
+                  '/issueHome', ModalRoute.withName('/warehouse')),
               child: Column(
                 children: <Widget>[
                   Image.asset(
@@ -233,7 +233,7 @@ class BottomNavigator extends StatelessWidget {
           VerticalDivider(),
           InkWell(
             onTap: () => Navigator.of(context).pushNamedAndRemoveUntil(
-                '/issueScreen', ModalRoute.withName('/sales')),
+                '/issueHome', ModalRoute.withName('/sales')),
             child: Column(
               children: <Widget>[
                 Image.asset(

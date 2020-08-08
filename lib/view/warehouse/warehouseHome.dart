@@ -2,7 +2,33 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:maglis_app/widgets/bottomNavigator.dart';
 
-class WarehouseHome extends StatelessWidget {
+class WarehouseHome extends StatefulWidget {
+  @override
+  _WarehouseHomeState createState() => _WarehouseHomeState();
+}
+
+class _WarehouseHomeState extends State<WarehouseHome> {
+  Future<bool> _onWillPop() async {
+    return (await showDialog(
+          context: context,
+          builder: (context) => new AlertDialog(
+            title: new Text('Are you sure?'),
+            content: new Text('Do you want to exit an App'),
+            actions: <Widget>[
+              new FlatButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: new Text('No'),
+              ),
+              new FlatButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: new Text('Yes'),
+              ),
+            ],
+          ),
+        )) ??
+        false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -10,118 +36,135 @@ class WarehouseHome extends StatelessWidget {
         AppBar().preferredSize.height -
         MediaQuery.of(context).padding.top;
 
-    return Scaffold(
-      backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        leading: Container(),
-        elevation: 10,
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        title: Image.asset(
-          'assets/images/logo.png',
-          width: 150,
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: Colors.grey[200],
+        appBar: AppBar(
+          leading: Container(),
+          elevation: 10,
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          title: Image.asset(
+            'assets/images/logo.png',
+            width: 150,
+          ),
+          actions: <Widget>[
+            IconButton(
+                icon: Icon(Icons.exit_to_app),
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil('/login', (route) => false);
+                })
+          ],
         ),
-      ),
-      body: Column(
-        children: <Widget>[
-          SizedBox(
-            height: 10,
-          ),
-          Expanded(
-            child: Column(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      InkWell(
-                        onTap: () => Navigator.of(context)
-                            .pushNamed('/operationFinance'),
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Image.asset('assets/images/Finance.png'),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () => Navigator.of(context)
-                            .pushNamed('/distributionHome'),
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Image.asset('assets/images/Distribution.png'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/issueScreen'),
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Image.asset('assets/images/Reports.png'),
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/totalProduction'),
-                        child: Container(
-                          width: size.width / 2.25,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border:
-                                Border.all(width: 2.5, color: Colors.grey[400]),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: <Widget>[
-                              Image.asset('assets/images/NotApproved.png',width: 100,height: 100,),
-                              Text(
-                                'Total Production',
-                                style: TextStyle(
-                                    color: Color.fromRGBO(170, 44, 94, 1),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+        body: Column(
+          children: <Widget>[
+            SizedBox(
+              height: 10,
             ),
-          ),
-        ],
+            Expanded(
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        InkWell(
+                          onTap: () => Navigator.of(context)
+                              .pushNamed('/operationFinance'),
+                          child: Container(
+                            width: size.width / 2.25,
+                            height: 150,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                  width: 2.5, color: Colors.grey[400]),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Image.asset('assets/images/Finance.png'),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () => Navigator.of(context)
+                              .pushNamed('/distributionHome'),
+                          child: Container(
+                            width: size.width / 2.25,
+                            height: 150,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                  width: 2.5, color: Colors.grey[400]),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child:
+                                Image.asset('assets/images/Distribution.png'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        InkWell(
+                          onTap: () =>
+                              Navigator.of(context).pushNamed('/issueHome'),
+                          child: Container(
+                            width: size.width / 2.25,
+                            height: 150,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                  width: 2.5, color: Colors.grey[400]),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Image.asset('assets/images/Reports.png'),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () => Navigator.of(context)
+                              .pushNamed('/totalProduction'),
+                          child: Container(
+                            width: size.width / 2.25,
+                            height: 150,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                  width: 2.5, color: Colors.grey[400]),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: <Widget>[
+                                Image.asset(
+                                  'assets/images/NotApproved.png',
+                                  width: 100,
+                                  height: 100,
+                                ),
+                                Text(
+                                  'Total Production',
+                                  style: TextStyle(
+                                      color: Color.fromRGBO(170, 44, 94, 1),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

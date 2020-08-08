@@ -55,8 +55,13 @@ class _NotApprovedTwoState extends State<NotApprovedTwo> {
                       child: CircularProgressIndicator(),
                     );
                   final documents = snapshot.data.documents;
-                  documents.sort((a, b) => (a.data['time'] as Timestamp)
-                      .compareTo((b.data['time'] as Timestamp)));
+                  documents.sort((a, b) {
+                    if (a.data['time'] == null) return -1;
+                    if (b.data['time'] == null) return 1;
+                    return (a.data['time'] as Timestamp).compareTo(
+                      (b.data['time'] as Timestamp),
+                    );
+                  });
                   documents.forEach((element) {
                     if (!dates.contains(element.data['date']))
                       dates.add(element.data['date']);

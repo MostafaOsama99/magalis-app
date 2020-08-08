@@ -82,8 +82,7 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                           Firestore.instance
                               .collection('orders')
                               .document(docId)
-                              .updateData({'status': 'canceled'}).then(
-                                  (value) => Navigator.of(context).pop());
+                              .updateData({'status': 'canceled'});
                         } else if (val == 'Archive') {
                           //canceled  archived
                           final issuesDocs = await Firestore.instance
@@ -102,14 +101,12 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                           Firestore.instance
                               .collection('orders')
                               .document(docId)
-                              .updateData({'status': 'archived'}).then(
-                                  (value) => Navigator.of(context).pop());
+                              .updateData({'status': 'archived'});
                         } else if (val == 'No Action') {
                           Firestore.instance
                               .collection('orders')
                               .document(docId)
-                              .updateData({'status': 'noAction'}).then(
-                                  (value) => Navigator.of(context).pop());
+                              .updateData({'status': 'noAction'});
                         }
                       },
                       itemBuilder: ((BuildContext context) {
@@ -172,7 +169,7 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                 child: ListView(
                   children: <Widget>[
                     Container(
-                      height: 180,
+                      height: 210,
                       width: MediaQuery.of(context).size.width,
                       margin: EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -1025,7 +1022,7 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                           Expanded(child: SizedBox()),
                           order['status'] == 'noAction' &&
                                   (user.type == 'admin' ||
-                                      user.type == 'warehouse')
+                                      user.type == 'operation')
                               ? InkWell(
                                   onTap: () async {
                                     bool confirm = await showDialog(
@@ -1058,16 +1055,15 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                                               ],
                                             ));
                                     if (!confirm) return;
-                                    Firestore.instance
+                                    await Firestore.instance
                                         .collection('orders')
                                         .document(snapshot.data.documentID)
                                         .updateData({
-                                      'status': 'shipped',
-                                    }).then((value) =>
-                                            Navigator.of(context).pop());
+                                      'status': 'onDistribution',
+                                    });
                                   },
                                   child: Text(
-                                    'Shipped',
+                                    'Add to Distribution',
                                     style: TextStyle(
                                       color: Color.fromRGBO(96, 125, 130, 1),
                                       fontWeight: FontWeight.bold,
@@ -1076,7 +1072,7 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                                 )
                               : order['status'] == 'noAction' &&
                                       (user.type != 'admin' &&
-                                          user.type != 'warehouse')
+                                          user.type != 'operation')
                                   ? Text(
                                       'No Action',
                                       style: TextStyle(
@@ -1084,92 +1080,198 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     )
-                                  : order['status'] == 'canceled'
-                                      ? Text(
-                                          'Cancelled',
-                                          style: TextStyle(
-                                            color: Colors.red,
-                                            fontWeight: FontWeight.bold,
+                                  : order['status'] == 'onDistribution' &&
+                                          (user.type == 'admin' ||
+                                              user.type == 'warehouse' ||
+                                              user.type == 'operation')
+                                      ? InkWell(
+                                          onTap: () async {
+                                            bool confirm = await showDialog(
+                                                context: context,
+                                                builder: (ctx) => AlertDialog(
+                                                      title:
+                                                          Text('Confirmation?'),
+                                                      content: Text(
+                                                          'Do you want to processe?'),
+                                                      actions: <Widget>[
+                                                        FlatButton(
+                                                          onPressed: () =>
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop(false),
+                                                          child: Text(
+                                                            'No',
+                                                            style: TextStyle(
+                                                                color:
+                                                                    Colors.red),
+                                                          ),
+                                                        ),
+                                                        FlatButton(
+                                                          onPressed: () =>
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop(true),
+                                                          child: Text(
+                                                            'Yes',
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .green),
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ));
+                                            if (!confirm) return;
+                                            await Firestore.instance
+                                                .collection('orders')
+                                                .document(
+                                                    snapshot.data.documentID)
+                                                .updateData({
+                                              'status': 'shipped',
+                                            });
+                                          },
+                                          child: Text(
+                                            'Shipped',
+                                            style: TextStyle(
+                                              color: Colors.green,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
                                         )
-                                      : order['status'] == 'shipped' &&
-                                              (user.type != 'sales' &&
+                                      : order['status'] == 'onDistribution' &&
+                                              (user.type != 'admin' &&
                                                   user.type != 'warehouse')
-                                          ? InkWell(
-                                              onTap: () async {
-                                                bool confirm = await showDialog(
-                                                    context: context,
-                                                    builder: (ctx) =>
-                                                        AlertDialog(
-                                                          title: Text(
-                                                              'Confirmation?'),
-                                                          content: Text(
-                                                              'Do you want to processe?'),
-                                                          actions: <Widget>[
-                                                            FlatButton(
-                                                              onPressed: () =>
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop(
-                                                                          false),
-                                                              child: Text(
-                                                                'No',
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .red),
-                                                              ),
-                                                            ),
-                                                            FlatButton(
-                                                              onPressed: () =>
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop(
-                                                                          true),
-                                                              child: Text(
-                                                                'Yes',
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .green),
-                                                              ),
-                                                            )
-                                                          ],
-                                                        ));
-                                                if (!confirm) return;
-                                                Firestore.instance
-                                                    .collection('orders')
-                                                    .document(snapshot
-                                                        .data.documentID)
-                                                    .updateData({
-                                                  'status': 'cashed',
-                                                }).then((value) =>
-                                                        Navigator.of(context)
-                                                            .pop());
-                                              },
-                                              child: Text(
-                                                'Add to Finance',
-                                                style: TextStyle(
-                                                  color: Colors.green
-                                                      .withOpacity(0.7),
-                                                  fontWeight: FontWeight.bold,
-                                                ),
+                                          ? Text(
+                                              'On Distribtuion',
+                                              style: TextStyle(
+                                                color: Color.fromRGBO(
+                                                    96, 125, 130, 1),
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             )
-                                          : order['status'] == 'collected'
+                                          : order['status'] == 'canceled'
                                               ? Text(
-                                                  'Collected',
+                                                  'Cancelled',
                                                   style: TextStyle(
-                                                    color: Colors.green,
+                                                    color: Colors.red,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 )
-                                              : Text(
-                                                  'Arechived',
-                                                  style: TextStyle(
-                                                    color: Color.fromRGBO(
-                                                        226, 208, 168, 1),
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
+                                              : order['status'] == 'shipped' &&
+                                                      (user.type == 'admin')
+                                                  ? InkWell(
+                                                      onTap: () async {
+                                                        bool confirm =
+                                                            await showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder: (ctx) =>
+                                                                    AlertDialog(
+                                                                      title: Text(
+                                                                          'Confirmation?'),
+                                                                      content: Text(
+                                                                          'Do you want to processe?'),
+                                                                      actions: <
+                                                                          Widget>[
+                                                                        FlatButton(
+                                                                          onPressed: () =>
+                                                                              Navigator.of(context).pop(false),
+                                                                          child:
+                                                                              Text(
+                                                                            'No',
+                                                                            style:
+                                                                                TextStyle(color: Colors.red),
+                                                                          ),
+                                                                        ),
+                                                                        FlatButton(
+                                                                          onPressed: () =>
+                                                                              Navigator.of(context).pop(true),
+                                                                          child:
+                                                                              Text(
+                                                                            'Yes',
+                                                                            style:
+                                                                                TextStyle(color: Colors.green),
+                                                                          ),
+                                                                        )
+                                                                      ],
+                                                                    ));
+                                                        if (!confirm) return;
+                                                        await Firestore.instance
+                                                            .collection(
+                                                                'orders')
+                                                            .document(snapshot
+                                                                .data
+                                                                .documentID)
+                                                            .updateData({
+                                                          'status': 'cashed',
+                                                        });
+                                                      },
+                                                      child: Text(
+                                                        'Add to Finance',
+                                                        style: TextStyle(
+                                                          color: Colors.green
+                                                              .withOpacity(0.7),
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : order['status'] ==
+                                                              'shipped' &&
+                                                          user.type != 'admin'
+                                                      ? Text(
+                                                          'Shipped',
+                                                          style: TextStyle(
+                                                            color: Colors.green
+                                                                .withOpacity(
+                                                                    0.7),
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        )
+                                                      : order['status'] ==
+                                                              'collected'
+                                                          ? Text(
+                                                              'Collected',
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .green,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            )
+                                                          : order['status'] ==
+                                                                  'cashed'
+                                                              ? Text(
+                                                                  'Cashed',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Color
+                                                                        .fromRGBO(
+                                                                            226,
+                                                                            208,
+                                                                            168,
+                                                                            1),
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                )
+                                                              : Text(
+                                                                  'Arechived',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Color
+                                                                        .fromRGBO(
+                                                                            226,
+                                                                            208,
+                                                                            168,
+                                                                            1),
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                  ),
+                                                                ),
                           SizedBox(
                             width: 10,
                           ),
@@ -1189,30 +1291,34 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                               ),
                             ),
                           ),
-                          order['status'] == 'noAction' &&
+                          order['status'] == 'onDistribution' &&
                                   (user.type == 'admin' ||
-                                      user.type == 'warehouse')
+                                      user.type == 'warehouse' ||
+                                      user.type == 'operation')
                               ? Expanded(child: SizedBox())
                               : SizedBox(),
-                          order['status'] == 'noAction' &&
+                          order['status'] == 'onDistribution' &&
                                   (user.type == 'admin' ||
-                                      user.type == 'warehouse')
+                                      user.type == 'warehouse' ||
+                                      user.type == 'operation')
                               ? VerticalDivider(
                                   color: Color.fromRGBO(170, 44, 94, 1),
                                   thickness: 3,
                                 )
                               : SizedBox(),
-                          order['status'] == 'noAction' &&
+                          order['status'] == 'onDistribution' &&
                                   (user.type == 'admin' ||
-                                      user.type == 'warehouse')
+                                      user.type == 'warehouse' ||
+                                      user.type == 'operation')
                               ? Expanded(child: SizedBox())
                               : SizedBox(),
-                          order['status'] == 'noAction' &&
+                          order['status'] == 'onDistribution' &&
                                   (user.type == 'admin' ||
-                                      user.type == 'warehouse')
+                                      user.type == 'warehouse' ||
+                                      user.type == 'operation')
                               ? InkWell(
                                   child: Text(
-                                    'Canclled',
+                                    'Returned',
                                     style: TextStyle(
                                       color: Colors.red,
                                       fontWeight: FontWeight.bold,
@@ -1260,7 +1366,7 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                                                     color: Colors.green),
                                               ),
                                               onPressed: () async {
-                                                showDialog(
+                                                await showDialog(
                                                   useRootNavigator: true,
                                                   barrierDismissible: false,
                                                   context: context,
@@ -1315,37 +1421,30 @@ class _CitiyOrderDetailsState extends State<CitiyOrderDetails> {
                                                                 color: Colors
                                                                     .green),
                                                           ),
-                                                          onPressed: () async {
-                                                            if (textEditingController
-                                                                .text.isEmpty)
-                                                              return;
-                                                            await Firestore
-                                                                .instance
-                                                                .collection(
-                                                                    'orders')
-                                                                .document(snapshot
-                                                                    .data
-                                                                    .documentID)
-                                                                .updateData({
-                                                              'status':
-                                                                  'canceled',
-                                                              'reason':
-                                                                  textEditingController
-                                                                      .text
-                                                            });
-                                                            textEditingController
-                                                                .clear();
-
+                                                          onPressed: () {
                                                             Navigator.of(
                                                                     context)
                                                                 .pop();
-                                                            setState(() {});
                                                           },
                                                         ),
                                                       ],
                                                     );
                                                   },
                                                 );
+                                                if (textEditingController
+                                                    .text.isEmpty) return;
+                                                await Firestore.instance
+                                                    .collection('orders')
+                                                    .document(snapshot
+                                                        .data.documentID)
+                                                    .updateData({
+                                                  'status': 'noAction',
+                                                  'returned': true,
+                                                  'reason':
+                                                      textEditingController.text
+                                                });
+                                                textEditingController.clear();
+                                                setState(() {});
                                               },
                                             ),
                                           ],

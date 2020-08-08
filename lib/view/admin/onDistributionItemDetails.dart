@@ -543,16 +543,65 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                 ),
                               ),
                             )
-                          : Container(
-                              color: Color.fromRGBO(170, 44, 94, 1),
-                              width: size.width,
-                              height: 50,
-                              child: Center(
-                                child: Text(
-                                  'Check All Orders First',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold),
+                          : InkWell(
+                              onTap: () async {
+                                bool confirmation = await showDialog(
+                                  context: context,
+                                  child: AlertDialog(
+                                    title: Text('Confirmation'),
+                                    content: Text(
+                                        'Are you sure about completeing this process'),
+                                    actions: <Widget>[
+                                      FlatButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop(false);
+                                        },
+                                        child: Text(
+                                          'No',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                      FlatButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop(true);
+                                        },
+                                        child: Text(
+                                          'Yes',
+                                          style: TextStyle(color: Colors.green),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                );
+                                if (!confirmation) return;
+                                double total = 0.0;
+                                ordersList.forEach((element) {
+                                  element['shipped'] = true;
+                                  total += (0.0 + element['totalAccount']);
+                                });
+
+                                allShippedConfirmed = true;
+                                await Firestore.instance
+                                    .collection('routes')
+                                    .document(snapshot.data.documentID)
+                                    .updateData({
+                                  'orders': ordersList,
+                                  'totalAmount': total
+                                });
+
+                                setState(() {});
+                              },
+                              child: Container(
+                                color: Color.fromRGBO(170, 44, 94, 1),
+                                width: size.width,
+                                height: 50,
+                                child: Center(
+                                  child: Text(
+                                    'Check All Orders First',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                               ),
                             ),

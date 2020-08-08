@@ -42,6 +42,7 @@ class Auth {
             ),
           ),
         );
+        FirebaseAuth.instance.signOut();
         return false;
       }
       final userData = document.data;

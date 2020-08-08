@@ -178,11 +178,11 @@ class _CashFlowState extends State<OldCashFlow> {
                             ),
                             Container(
                               width: MediaQuery.of(context).size.width,
-                              height: MediaQuery.of(context).size.height / 1.8,
+                              height: MediaQuery.of(context).size.height / 2.2,
                               child: allDocs.length == 0
                                   ? Center(
                                       child: Text(
-                                      'No Cash Flow Exist!!',
+                                      'No Cashed Item, Just Shortage in cash out and excess in cash in',
                                       style: TextStyle(
                                           color: Color.fromRGBO(170, 44, 94, 1),
                                           fontWeight: FontWeight.bold,

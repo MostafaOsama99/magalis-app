@@ -316,7 +316,7 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                   ? InkWell(
                       onTap: () {
                         Navigator.of(context)
-                            .pushReplacementNamed('/orders', arguments: {
+                            .pushNamed('/orders', arguments: {
                           'type': 4,
                           'routeId': snapshot.data.documentID,
                           'lastOrders': ordersList,

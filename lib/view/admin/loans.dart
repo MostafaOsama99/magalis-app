@@ -104,13 +104,21 @@ class _LoansState extends State<Loans> {
                       );
 
                     final documents = snapshot.data.documents;
-                    documents.sort((a, b) => (a.data['lastTime'] as Timestamp)
-                        .compareTo((b.data['lastTime'] as Timestamp)));
+                    documents.sort((a, b) {
+                      if (a.data['lastTime'] == null) {
+                        return 1;
+                      }
+                      if (b.data['lastTime'] == null) {
+                        return -1;
+                      }
+                      return (a.data['lastTime'] as Timestamp)
+                          .compareTo((b.data['lastTime'] as Timestamp));
+                    });
                     return ListView.builder(
                       itemCount: documents.length,
                       itemBuilder: (ctx, index) {
-                        Timestamp timestamp = documents[index]
-                            ['lastDate'] as Timestamp;
+                        Timestamp timestamp =
+                            documents[index]['lastDate'] as Timestamp;
                         DateTime dateStamp = timestamp != null
                             ? timestamp.toDate()
                             : DateTime.now();
@@ -119,8 +127,7 @@ class _LoansState extends State<Loans> {
                           onTap: () async {
                             print('amounted$amount');
                             if (type != 2 || amount == 0) return;
-                            final totalAmount =
-                                documents[index]['loan'];
+                            final totalAmount = documents[index]['loan'];
                             if (totalAmount == 0) return;
                             if (amount <= totalAmount) {
                               final netAmount = totalAmount - amount;
@@ -130,8 +137,7 @@ class _LoansState extends State<Loans> {
                               });
                               await Firestore.instance
                                   .collection('employee')
-                                  .document(
-                                      documents[index].documentID)
+                                  .document(documents[index].documentID)
                                   .updateData({'loan': netAmount});
                             } else {
                               setState(() {
@@ -139,8 +145,7 @@ class _LoansState extends State<Loans> {
                               });
                               await Firestore.instance
                                   .collection('employee')
-                                  .document(
-                                      documents[index].documentID)
+                                  .document(documents[index].documentID)
                                   .updateData({'loan': 0});
                             }
                             if (amount == 0 && type == 2)
@@ -199,8 +204,7 @@ class _LoansState extends State<Loans> {
                                             .pushNamed('/addLoans', arguments: {
                                           'id': snapshot
                                               .data.documents[index].documentID,
-                                          'name': documents[index]
-                                              ['name'],
+                                          'name': documents[index]['name'],
                                           'money': snapshot
                                               .data.documents[index]['money']
                                         }),

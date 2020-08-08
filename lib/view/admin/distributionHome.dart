@@ -120,7 +120,8 @@ class _DistributionState extends State<DistributionHome> {
                     ],
                   ),
                 ),
-                user.type == 'admin' || user.type == 'warehouse'
+                user.type == 'admin' || user.type == 'warehouse'||
+                                      user.type == 'operation'
                     ? Padding(
                         padding:
                             EdgeInsets.symmetric(vertical: 5, horizontal: 10),

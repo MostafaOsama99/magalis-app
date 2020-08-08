@@ -172,7 +172,7 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                   child: ListView(
                     children: <Widget>[
                       Container(
-                        height: 180,
+                        height: 210,
                         width: MediaQuery.of(context).size.width,
                         margin: EdgeInsets.all(12),
                         decoration: BoxDecoration(
@@ -1072,7 +1072,8 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                             Expanded(child: SizedBox()),
                             order['status'] == 'noAction' &&
                                     (user.type == 'admin' ||
-                                        user.type == 'warehouse')
+                                        user.type == 'warehouse'||
+                                      user.type == 'operation')
                                 ? InkWell(
                                     onTap: () async {
                                       bool confirm = await showDialog(
@@ -1187,12 +1188,14 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                             ),
                             order['status'] == 'noAction' &&
                                     (user.type == 'admin' ||
-                                        user.type == 'warehouse')
+                                        user.type == 'warehouse'||
+                                      user.type == 'operation')
                                 ? Expanded(child: SizedBox())
                                 : SizedBox(),
                             order['status'] == 'noAction' &&
                                     (user.type == 'admin' ||
-                                        user.type == 'warehouse')
+                                        user.type == 'warehouse'||
+                                      user.type == 'operation')
                                 ? VerticalDivider(
                                     color: Color.fromRGBO(170, 44, 94, 1),
                                     thickness: 3,
@@ -1200,12 +1203,14 @@ class _CorporateOrderDetailsState extends State<CorporateOrderDetails> {
                                 : SizedBox(),
                             order['status'] == 'noAction' &&
                                     (user.type == 'admin' ||
-                                        user.type == 'warehouse')
+                                        user.type == 'warehouse'||
+                                      user.type == 'operation')
                                 ? Expanded(child: SizedBox())
                                 : SizedBox(),
                             order['status'] == 'noAction' &&
                                     (user.type == 'admin' ||
-                                        user.type == 'warehouse')
+                                        user.type == 'warehouse'||
+                                      user.type == 'operation')
                                 ? InkWell(
                                     child: Text(
                                       'Canclled',

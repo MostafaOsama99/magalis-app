@@ -282,7 +282,7 @@ class _BlCalcState extends State<BlCalc> {
     String suplierName,
     String userName,
     String date,
-    double amount,
+    amount,
     String documentId,
   }) {
     return Padding(

@@ -32,6 +32,7 @@ class _AddOrderState extends State<AddOrder> {
 
   TextEditingController noteController = TextEditingController();
   TextEditingController cityController = TextEditingController();
+  TextEditingController channelController = TextEditingController();
 
   String lineType = 'Bean Bags';
 
@@ -147,7 +148,7 @@ class _AddOrderState extends State<AddOrder> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text(
-                          'Order channel',
+                          'Channel',
                           style: TextStyle(
                               color: Color.fromRGBO(170, 44, 94, 1),
                               fontWeight: FontWeight.bold,
@@ -157,55 +158,17 @@ class _AddOrderState extends State<AddOrder> {
                           color: Color.fromRGBO(128, 151, 155, 0.6),
                           thickness: 2.5,
                         ),
-                        CheckboxListTile(
-                          value: channel == Channel.Facebook,
-                          onChanged: (v) {
-                            setState(() {
-                              if (v) channel = Channel.Facebook;
-                            });
-                          },
-                          title: Text("Facebook"),
-                          activeColor: Colors.orange,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 18,
+                        TextField(
+                          controller: channelController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide:
+                                  BorderSide(color: Colors.grey, width: 1.5),
+                            ),
+                            hintText: 'Write Here',
                           ),
-                          child: Divider(
-                            color: Colors.black,
-                            thickness: 2,
-                          ),
-                        ),
-                        CheckboxListTile(
-                          value: channel == Channel.Instagram,
-                          onChanged: (v) {
-                            setState(() {
-                              if (v) channel = Channel.Instagram;
-                            });
-                          },
-                          title: Text("Instagram"),
-                          activeColor: Colors.orange,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 18,
-                          ),
-                          child: Divider(
-                            color: Colors.black,
-                            thickness: 2,
-                          ),
-                        ),
-                        CheckboxListTile(
-                          value: channel == Channel.Website,
-                          onChanged: (v) {
-                            if (v)
-                              setState(() {
-                                channel = Channel.Website;
-                              });
-                          },
-                          title: Text("Website"),
-                          activeColor: Colors.orange,
-                        ),
+                        ) //rgb(128, 151, 155)
                       ],
                     ),
                   ),
@@ -757,7 +720,8 @@ class _AddOrderState extends State<AddOrder> {
                           phoneController.text.isEmpty ||
                           priceController.text.isEmpty ||
                           underAccountController.text.isEmpty ||
-                          addressController.text.isEmpty) {
+                          addressController.text.isEmpty ||
+                          channelController.text.isEmpty) {
                         showDialog(
                             context: context,
                             builder: (ctx) => AlertDialog(
@@ -799,6 +763,7 @@ class _AddOrderState extends State<AddOrder> {
                       double downpayment =
                           double.parse(underAccountController.text);
                       String date = DateFormat.yMd().format(DateTime.now());
+                      String channel = channelController.text;
                       setState(() {
                         loading = true;
                       });
@@ -829,19 +794,10 @@ class _AddOrderState extends State<AddOrder> {
                       }
                       List note = [];
                       if (noteController.text.isNotEmpty) {
-                        note.add({
-                          'note': noteController.text,
-                          'from': 'Ahmed Omar'
-                        });
+                        note.add(
+                            {'note': noteController.text, 'from': user.name});
                       }
-                      String channelText;
-                      if (channel == Channel.Facebook) {
-                        channelText = 'Facebook';
-                      } else if (channel == Channel.Instagram) {
-                        channelText = 'Instagram';
-                      } else {
-                        channelText = 'Website';
-                      }
+                      
                       if (selected.toLowerCase() == 'cairo') {
                         await Firestore.instance.collection('orders').add({
                           'time': DateTime.now(),
@@ -862,7 +818,7 @@ class _AddOrderState extends State<AddOrder> {
                           'isCorporate': isCorporate,
                           'issued': false,
                           'returned': false,
-                          'channel': channelText,
+                          'channel': channel,
                         });
                       } else {
                         await Firestore.instance.collection('orders').add({
@@ -883,7 +839,7 @@ class _AddOrderState extends State<AddOrder> {
                           'isCorporate': isCorporate,
                           'issued': false,
                           'returned': false,
-                          'channel': channelText,
+                          'channel': channel,
                         });
                       }
                       final document = await Firestore.instance

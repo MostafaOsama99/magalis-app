@@ -41,6 +41,7 @@ import 'package:maglis_app/view/admin/filterScreen.dart';
 import 'package:maglis_app/view/admin/finance.dart';
 import 'package:maglis_app/view/admin/financeAndShipments.dart';
 import 'package:maglis_app/view/admin/home.dart';
+import 'package:maglis_app/view/admin/issueHome.dart';
 import 'package:maglis_app/view/admin/issueScreen.dart';
 import 'package:maglis_app/view/admin/loans.dart';
 import 'package:maglis_app/view/admin/login.dart';
@@ -88,6 +89,7 @@ class _MyAppState extends State<MyApp> {
     return ChangeNotifierProvider.value(
       value: UserProvider(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         navigatorKey: Get.key,
         theme: ThemeData(
           primaryIconTheme: IconThemeData(color: Colors.black),
@@ -138,6 +140,7 @@ class _MyAppState extends State<MyApp> {
           "/cashFlow": (ctx) => CashFlow(),
           "/cashFlowHome": (ctx) => CashFlowHome(),
           "/oldCashFlow": (ctx) => OldCashFlow(),
+          "/issueHome": (ctx) => IssueHome(),
           "/issueScreen": (ctx) => IssueScreen(),
           "/oldCashFlowHome": (ctx) => OldCashFlowHome(),
           "/expensesDetails": (ctx) => ExpensesDetails(),

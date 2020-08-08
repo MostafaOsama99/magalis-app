@@ -1,11 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
 import 'package:maglis_app/widgets/bottomNavigator.dart';
+import 'package:provider/provider.dart';
 
 class IssueScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final map = ModalRoute.of(context).settings.arguments as Map;
+    Stream issueStream;
+    final user = Provider.of<UserProvider>(context).user;
+    if (map['type'] == 1) {
+      issueStream = Firestore.instance
+          .collection('issues')
+          .where('isSolved', isEqualTo: false)
+          .snapshots();
+    } else {
+      issueStream = Firestore.instance
+          .collection('issues')
+          .where('isSolved', isEqualTo: true)
+          .snapshots();
+    }
     return Scaffold(
       bottomNavigationBar: BottomNavigator(),
       backgroundColor: Colors.grey[200],
@@ -42,7 +58,7 @@ class IssueScreen extends StatelessWidget {
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: Firestore.instance.collection('issues').snapshots(),
+              stream: issueStream,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return Center(
@@ -87,7 +103,11 @@ class IssueScreen extends StatelessWidget {
                                   .collection('issues')
                                   .document(
                                       snapshot.data.documents[index].documentID)
-                                  .updateData({'isSolved': true});
+                                  .updateData({
+                                'isSolved': true,
+                                'solver': user.name,
+                                'solvedAt': DateTime.now()
+                              });
                             }
                           },
                           color: Colors.green,
@@ -129,7 +149,11 @@ class IssueScreen extends StatelessWidget {
                                   .collection('issues')
                                   .document(
                                       snapshot.data.documents[index].documentID)
-                                  .updateData({'isSolved': true});
+                                  .updateData({
+                                'isSolved': true,
+                                'solver': user.name,
+                                'solvedAt': DateTime.now()
+                              });
                             }
                           },
                           color: Colors.green,
@@ -138,6 +162,8 @@ class IssueScreen extends StatelessWidget {
                         )
                       ],
                       child: approvedTile(
+                          isCairo:
+                              snapshot.data.documents[index].data['isCairo'],
                           suplierName: snapshot
                               .data.documents[index].data['createdUser'],
                           date: snapshot
@@ -152,7 +178,11 @@ class IssueScreen extends StatelessWidget {
                           isSolved:
                               snapshot.data.documents[index].data['isSolved'],
                           issueNumber: snapshot
-                              .data.documents[index].data['issueNumber']),
+                              .data.documents[index].data['issueNumber'],
+                          documentId:
+                              snapshot.data.documents[index].data['orderId'],
+                          solver: snapshot.data.documents[index].data['solver']
+                              ),
                     ); //isCairo
                   },
                   itemCount: snapshot.data.documents.length,
@@ -173,14 +203,21 @@ class IssueScreen extends StatelessWidget {
       String documentId,
       issueNumber,
       isSolved,
-      context}) {
+      context,
+      isCairo,
+      solver}) {
     return InkWell(
-      onTap: () => showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          content: Text('$description'),
-        ),
-      ),
+      onTap: () {
+        if (isCairo) {
+          Navigator.of(context).pushNamed('/orderDetails', arguments: {
+            'docId': documentId,
+          });
+        } else {
+          Navigator.of(context).pushNamed('/citiyOrderDetails', arguments: {
+            'docId': documentId,
+          });
+        }
+      },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
@@ -240,11 +277,15 @@ class IssueScreen extends StatelessWidget {
                             ),
                       Text(
                         'Issue Number:$issueNumber',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16
-                        ),
-                      )
+                        style: TextStyle(color: Colors.black, fontSize: 16),
+                      ),
+                      solver != null
+                          ? Text(
+                              'Solver:$solver',
+                              style:
+                                  TextStyle(color: Colors.black, fontSize: 16),
+                            )
+                          : SizedBox()
                     ],
                   )
                 ],

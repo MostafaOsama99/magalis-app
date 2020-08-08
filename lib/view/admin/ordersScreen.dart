@@ -50,7 +50,7 @@ class _RevenueState extends State<OrderScreen> {
                       fontWeight: FontWeight.bold,
                       fontSize: 20),
                 ),
-                trailing: user.type == 'admin' || user.type == 'sales'
+                trailing: user.type == 'admin' || user.type == 'sales'|| user.type == 'operation'
                     ? InkWell(
                         onTap: () =>
                             Navigator.of(context).pushNamed('/addOrder'),

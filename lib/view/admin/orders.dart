@@ -194,10 +194,6 @@ class _OrdersPageState extends State<OrdersPage> {
                               .collection('orders')
                               .where('phone', isEqualTo: item);
                         }
-                        if (map['status'] != null) {
-                          orderquery = orderquery.where('status',
-                              isEqualTo: map['status']);
-                        }
                         orderstream = orderquery.getDocuments();
                         isSearch = false;
                         selected = item;
@@ -278,442 +274,588 @@ class _OrdersPageState extends State<OrdersPage> {
                     ),
                   ),
                 ),
+                map['type'] == 4
+                    ? InkWell(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            border:
+                                Border.all(color: Colors.grey[400], width: 2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'done',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      )
+                    : SizedBox(),
               ],
             ),
-            body: Column(
-              children: [
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  color: Colors.white,
-                  child: ListTile(
-                    leading: Image.asset(logo),
-                    title: Text(
-                      title,
-                      style: TextStyle(
-                          color: Color.fromRGBO(170, 44, 94, 1),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20),
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            border:
-                                Border.all(color: Colors.grey[400], width: 2),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(0.0),
-                            child: InkWell(
-                              onTap: () async {
-                                filterData = await showDialog(
-                                    context: context,
-                                    builder: (ctx) => AlertDialog(
-                                          title: Text('Sort By'),
-                                          actions: <Widget>[
-                                            FlatButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    areaAsc = true;
-                                                    areaDes = false;
-                                                    timeAsc = false;
-                                                    timeDes = false;
-                                                  });
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('Area ascending')),
-                                            FlatButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    timeDes = false;
-                                                    areaAsc = false;
-                                                    areaDes = true;
-                                                    timeAsc = false;
-                                                  });
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('Area descending')),
-                                            FlatButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    areaAsc = false;
-                                                    areaDes = false;
-                                                    timeAsc = true;
-                                                    timeDes = false;
-                                                  });
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('Time ascending')),
-                                            FlatButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    areaAsc = false;
-                                                    areaDes = false;
-                                                    timeAsc = false;
-                                                    timeDes = true;
-                                                  });
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('Time descending')),
-                                            FlatButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    areaAsc = false;
-                                                    areaDes = false;
-                                                    timeAsc = false;
-                                                    timeDes = false;
-                                                    numberAsc = true;
-                                                    numberDes = false;
-                                                  });
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child:
-                                                    Text('number ascending')),
-                                            FlatButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    areaAsc = false;
-                                                    areaDes = false;
-                                                    timeAsc = false;
-                                                    timeDes = false;
-                                                    numberAsc = false;
-                                                    numberDes = true;
-                                                  });
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child:
-                                                    Text('number descending'))
-                                          ],
-                                        ));
-                                print(filterData);
-                              },
-                              child: Icon(
-                                Icons.sort,
-                                size: 25,
-                                color: Color.fromRGBO(96, 125, 129, 1),
+            body: FutureBuilder<QuerySnapshot>(
+                future: orderstream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+
+                  final ordersData = snapshot.data.documents;
+
+                  if (filterData != null &&
+                      (filterData['lines'] as List) != null &&
+                      (filterData['lines'] as List).length > 0) {
+                    final lines = filterData['lines'] as List;
+                    ordersData.removeWhere(
+                        (element) => !lines.contains(element.data['line']));
+                  }
+                  if (filterData != null &&
+                      (filterData['month'] as int) != null &&
+                      (filterData['month'] as int) > 0) {
+                    final month = filterData['month'] as int;
+                    print(month);
+                    print(ordersData.length);
+                    ordersData.removeWhere((element) {
+                      return !((element.data['time'] as Timestamp)
+                              .toDate()
+                              .month ==
+                          month);
+                    });
+                    print(ordersData.length);
+                  }
+                  if (!searched) {
+                    if (areaAsc) {
+                      ordersData.sort((a, b) {
+                        if (a.data['area'] == null) {
+                          return 1;
+                        }
+                        if (b.data['area'] == null) {
+                          return -1;
+                        }
+                        return (a.data['area'] as String)
+                            .toLowerCase()
+                            .compareTo(
+                                (b.data['area'] as String).toLowerCase());
+                      });
+                    } else if (areaDes) {
+                      ordersData.sort((b, a) {
+                        if (a.data['area'] == null) {
+                          return 1;
+                        }
+                        if (b.data['area'] == null) {
+                          return -1;
+                        }
+                        return (a.data['area'] as String)
+                            .toLowerCase()
+                            .compareTo(
+                                (b.data['area'] as String).toLowerCase());
+                      });
+                    } else if (timeAsc) {
+                      ordersData.sort((a, b) {
+                        if (a.data['time'] == null) {
+                          return 1;
+                        }
+                        if (b.data['time'] == null) {
+                          return -1;
+                        }
+                        return (a.data['time'] as Timestamp)
+                            .compareTo((b.data['time'] as Timestamp));
+                      });
+                    } else if (timeDes) {
+                      ordersData.sort((b, a) {
+                        if (a.data['time'] == null) {
+                          return 1;
+                        }
+                        if (b.data['time'] == null) {
+                          return -1;
+                        }
+                        return (a.data['time'] as Timestamp)
+                            .compareTo((b.data['time'] as Timestamp));
+                      });
+                    } else if (numberDes) {
+                      ordersData.sort((b, a) {
+                        if (a.data['orderNumber'] == null) {
+                          return 1;
+                        }
+                        if (b.data['orderNumber'] == null) {
+                          return -1;
+                        }
+                        return (a.data['orderNumber'] as int)
+                            .compareTo((b.data['orderNumber'] as int));
+                      });
+                    } else {
+                      ordersData.sort((a, b) {
+                        if (a.data['orderNumber'] == null) {
+                          return 1;
+                        }
+                        if (b.data['orderNumber'] == null) {
+                          return -1;
+                        }
+                        return (a.data['orderNumber'] as int)
+                            .compareTo((b.data['orderNumber'] as int));
+                      });
+                    }
+                  }
+
+                  var qty = 0;
+                  var ordersQuantity = 0;
+                  ordersQuantity = ordersData.length;
+                  ordersData.forEach((element) {
+                    qty += element.data['quantity'];
+                  });
+                  return Column(
+                    children: [
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        color: Colors.white,
+                        child: ListTile(
+                          title: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                '$title',
+                                style: TextStyle(
+                                    color: Color.fromRGBO(170, 44, 94, 1),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18),
                               ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            border:
-                                Border.all(color: Colors.grey[400], width: 2),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(0.0),
-                            child: InkWell(
-                              onTap: () async {
-                                filterData = await Navigator.of(context)
-                                    .pushNamed('/filter') as Map;
-                                print(filterData);
-                                setState(() {
-                                  searched = false;
-                                });
-                              },
-                              child: Icon(
-                                Icons.filter_list,
-                                size: 25,
-                                color: Color.fromRGBO(96, 125, 129, 1),
+                              Text(
+                                'Order:${ordersQuantity}',
+                                style: TextStyle(
+                                    color: Color.fromRGBO(170, 44, 94, 1),
+                                    fontSize: 16),
                               ),
-                            ),
+                              Text(
+                                'Qty:${qty}',
+                                style: TextStyle(
+                                    color: Color.fromRGBO(170, 44, 94, 1),
+                                    fontSize: 16),
+                              ),
+                            ],
                           ),
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        user.type == 'admin' || user.type == 'sales'
-                            ? InkWell(
-                                onTap: () => Navigator.of(context)
-                                    .pushNamed('/addOrder'),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.grey[400], width: 2),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(6.0),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Container(
+                                width: 30,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.grey[400], width: 2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(0.0),
+                                  child: InkWell(
+                                    onTap: () async {
+                                      filterData = await showDialog(
+                                          context: context,
+                                          builder: (ctx) => AlertDialog(
+                                                title: Text('Sort By'),
+                                                actions: <Widget>[
+                                                  FlatButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          areaAsc = true;
+                                                          areaDes = false;
+                                                          timeAsc = false;
+                                                          timeDes = false;
+                                                        });
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child: Text(
+                                                          'Area ascending')),
+                                                  FlatButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          timeDes = false;
+                                                          areaAsc = false;
+                                                          areaDes = true;
+                                                          timeAsc = false;
+                                                        });
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child: Text(
+                                                          'Area descending')),
+                                                  FlatButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          areaAsc = false;
+                                                          areaDes = false;
+                                                          timeAsc = true;
+                                                          timeDes = false;
+                                                        });
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child: Text(
+                                                          'Time ascending')),
+                                                  FlatButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          areaAsc = false;
+                                                          areaDes = false;
+                                                          timeAsc = false;
+                                                          timeDes = true;
+                                                        });
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child: Text(
+                                                          'Time descending')),
+                                                  FlatButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          areaAsc = false;
+                                                          areaDes = false;
+                                                          timeAsc = false;
+                                                          timeDes = false;
+                                                          numberAsc = true;
+                                                          numberDes = false;
+                                                        });
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child: Text(
+                                                          'number ascending')),
+                                                  FlatButton(
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          areaAsc = false;
+                                                          areaDes = false;
+                                                          timeAsc = false;
+                                                          timeDes = false;
+                                                          numberAsc = false;
+                                                          numberDes = true;
+                                                        });
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child: Text(
+                                                          'number descending'))
+                                                ],
+                                              ));
+                                      print(filterData);
+                                    },
                                     child: Icon(
-                                      Icons.add,
+                                      Icons.sort,
                                       size: 25,
                                       color: Color.fromRGBO(96, 125, 129, 1),
                                     ),
                                   ),
                                 ),
-                              )
-                            : SizedBox(),
-                      ],
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: FutureBuilder<QuerySnapshot>(
-                      future: orderstream,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting)
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-
-                        final ordersData = snapshot.data.documents;
-                        if (filterData != null &&
-                            (filterData['lines'] as List) != null &&
-                            (filterData['lines'] as List).length > 0) {
-                          final lines = filterData['lines'] as List;
-                          ordersData.removeWhere((element) =>
-                              !lines.contains(element.data['line']));
-                        }
-                        if (!searched) {
-                          if (areaAsc) {
-                            ordersData.sort((a, b) => (a.data['area'] as String)
-                                .compareTo((b.data['area'] as String)));
-                          } else if (areaDes) {
-                            ordersData.sort((b, a) => (a.data['area'] as String)
-                                .compareTo((b.data['area'] as String)));
-                          } else if (timeAsc) {
-                            ordersData.sort((a, b) =>
-                                (a.data['time'] as Timestamp)
-                                    .compareTo((b.data['time'] as Timestamp)));
-                          } else if (timeDes) {
-                            ordersData.sort((b, a) =>
-                                (a.data['time'] as Timestamp)
-                                    .compareTo((b.data['time'] as Timestamp)));
-                          } else if (numberAsc) {
-                            ordersData.sort((a, b) =>
-                                (a.data['orderNumber'] as int)
-                                    .compareTo((b.data['orderNumber'] as int)));
-                          } else {
-                            ordersData.sort((b, a) =>
-                                (a.data['orderNumber'] as int)
-                                    .compareTo((b.data['orderNumber'] as int)));
-                          }
-                        }
-                        if (snapshot.data.documents.length <= 0) {
-                          return Center(
-                            child: Text(
-                              'No Orders to Routed',
-                              style: TextStyle(
-                                  color: Color.fromRGBO(170, 44, 94, 1),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20),
-                            ),
-                          );
-                        }
-                        return ListView.builder(
-                          itemCount: ordersData.length,
-                          itemBuilder: (context, i) {
-                            final line = ordersData[i].data['area'] == null
-                                ? ordersData[i].data['city']
-                                : ordersData[i].data['area'];
-
-                            return StatefulBuilder(
-                                builder: (context, orderStat) {
-                              return InkWell(
-                                onDoubleTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (ctx) => AlertDialog(
-                                      title: Text('Description:'),
-                                      content: Text(
-                                          '${ordersData[i].data['description']}'),
-                                      actions: <Widget>[
-                                        FlatButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text('OK!'))
-                                      ],
-                                    ),
-                                  );
-                                },
-                                onTap: () async {
-                                  if (map['type'] == 4) {
-                                    final confirmation = await showDialog(
-                                      context: context,
-                                      builder: (ctx) => AlertDialog(
-                                        title: Text('Confirmation'),
-                                        content: Text(
-                                          'Do you want to procssed?',
-                                        ),
-                                        actions: <Widget>[
-                                          FlatButton(
-                                              onPressed: () =>
-                                                  Navigator.of(context)
-                                                      .pop(false),
-                                              child: Text(
-                                                'No',
-                                                style: TextStyle(
-                                                    color: Colors.red),
-                                              )),
-                                          FlatButton(
-                                              onPressed: () =>
-                                                  Navigator.of(context)
-                                                      .pop(true),
-                                              child: Text(
-                                                'Yes',
-                                                style: TextStyle(
-                                                    color: Colors.green),
-                                              ))
-                                        ],
-                                      ),
-                                    );
-
-                                    if (!confirmation) return;
-
-                                    final lastOrders =
-                                        map['lastOrders'] as List;
-                                    final totalAmount = map['amount'];
-                                    final ordersIds = lastOrders
-                                        .map((e) => e['docId'])
-                                        .toList();
-                                    if (ordersIds
-                                        .contains(ordersData[i].documentID)) {
-                                      showDialog(
-                                        context: context,
-                                        builder: (ctx) => AlertDialog(
-                                          title: Text('Validation Error'),
-                                          content: Text(
-                                              'This order is already in the route'),
-                                          actions: <Widget>[
-                                            FlatButton(
-                                                onPressed: () =>
-                                                    Navigator.of(context).pop(),
-                                                child: Text('Ok!'))
-                                          ],
-                                        ),
-                                      );
-                                      return;
-                                    }
-                                    if (ordersData[i].data['status'] !=
-                                        'noAction') {
-                                      showDialog(
-                                        context: context,
-                                        builder: (ctx) => AlertDialog(
-                                          title: Text('Validation Error'),
-                                          content: Text(
-                                              'This order is already on Distribution'),
-                                          actions: <Widget>[
-                                            FlatButton(
-                                                onPressed: () =>
-                                                    Navigator.of(context).pop(),
-                                                child: Text('Ok!'))
-                                          ],
-                                        ),
-                                      );
-                                      return;
-                                    }
-                                    checkedOrder.add(ordersData[i].documentID);
-                                    orderStat(() {});
-                                    lastOrders.add({
-                                      'docId': ordersData[i].documentID,
-                                      'name': ordersData[i].data['name'],
-                                      'address': ordersData[i].data['address'],
-                                      'totalAccount':
-                                          ordersData[i].data['totalAccount'],
-                                    });
-                                    final orderAmount = totalAmount +
-                                        ordersData[i].data['totalAccount'];
-                                    await Firestore.instance
-                                        .collection('routes')
-                                        .document(map['routeId'])
-                                        .updateData({
-                                      'orders': lastOrders,
-                                      'totalAmount': orderAmount
-                                    });
-                                    final issuesDocs = await Firestore.instance
-                                        .collection('orders')
-                                        .document(ordersData[i].documentID)
-                                        .collection('issues')
-                                        .getDocuments();
-                                    issuesDocs.documents.forEach((element) {
-                                      Firestore.instance
-                                          .collection('orders')
-                                          .document(ordersData[i].documentID)
-                                          .collection('issues')
-                                          .document(element.documentID)
-                                          .updateData({'isSolved': true});
-                                    });
-                                    await Firestore.instance
-                                        .collection('orders')
-                                        .document(ordersData[i].documentID)
-                                        .updateData(
-                                            {'status': 'onDistribution'});
-                                  } else {
-                                    if (ordersData[i].data['isCairo'] &&
-                                        !ordersData[i].data['isCorporate']) {
-                                      Navigator.of(context).pushNamed(
-                                          '/orderDetails',
-                                          arguments: {
-                                            'docId': ordersData[i].documentID,
-                                          });
-                                    } else if (!ordersData[i].data['isCairo'] &&
-                                        !ordersData[i].data['isCorporate']) {
-                                      Navigator.of(context).pushNamed(
-                                          '/citiyOrderDetails',
-                                          arguments: {
-                                            'docId': ordersData[i].documentID,
-                                          });
-                                    } else {
-                                      Navigator.of(context).pushNamed(
-                                          '/corporateOrderDetails',
-                                          arguments: {
-                                            'docId': ordersData[i].documentID,
-                                          });
-                                    }
-                                  }
-                                },
+                              ),
+                              SizedBox(
+                                width: 15,
+                              ),
+                              Container(
+                                width: 30,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.grey[400], width: 2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                                 child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 1.0),
-                                    child: orderItem(
-                                        id: ordersData[i].documentID,
-                                        address: ordersData[i].data['address'],
-                                        title: '${ordersData[i].data['name']}',
-                                        price:
-                                            ordersData[i].data['totalAccount'],
-                                        line: '${line}', //area
-                                        factoryName:
-                                            '${ordersData[i].data['line']}',
-                                        quantity:
-                                            ordersData[i].data['quantity'],
-                                        date:
-                                            '${ordersData[i].data['createdAt']}',
-                                        description:
-                                            '${ordersData[i].data['description']}',
-                                        phone: '${ordersData[i].data['phone']}',
-                                        underAccount:
-                                            ordersData[i].data['underAccount'],
-                                        number:
-                                            ordersData[i].data['orderNumber'],
-                                        isChecked: checkedOrder
-                                            .contains(ordersData[i].documentID),
-                                        type: (ordersData[i].data['status'] ==
-                                                'noAction' &&
-                                            ordersData[i].data['returned'] !=
-                                                null &&
-                                            !ordersData[i].data['returned'] &&
-                                            user.type != 'sales' &&
-                                            user.type != 'warehouse'))),
-                              );
-                            });
-                          },
-                        );
-                      }),
-                )
-              ],
-            ),
+                                  padding: const EdgeInsets.all(0.0),
+                                  child: InkWell(
+                                    onTap: () async {
+                                      filterData = await Navigator.of(context)
+                                          .pushNamed('/filter') as Map;
+                                      print(filterData);
+                                      setState(() {
+                                        searched = false;
+                                      });
+                                    },
+                                    child: Icon(
+                                      Icons.filter_list,
+                                      size: 25,
+                                      color: Color.fromRGBO(96, 125, 129, 1),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 15,
+                              ),
+                              user.type == 'admin' || user.type == 'sales'
+                                  ? InkWell(
+                                      onTap: () => Navigator.of(context)
+                                          .pushNamed('/addOrder'),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Colors.grey[400],
+                                              width: 2),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(6.0),
+                                          child: Icon(
+                                            Icons.add,
+                                            size: 25,
+                                            color:
+                                                Color.fromRGBO(96, 125, 129, 1),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : SizedBox(),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: (snapshot.data.documents.length <= 0)
+                            ? Center(
+                                child: Text(
+                                  'No Orders',
+                                  style: TextStyle(
+                                      color: Color.fromRGBO(170, 44, 94, 1),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20),
+                                ),
+                              )
+                            : ListView.builder(
+                                itemCount: ordersData.length,
+                                itemBuilder: (context, i) {
+                                  final line =
+                                      ordersData[i].data['area'] == null
+                                          ? ordersData[i].data['city']
+                                          : ordersData[i].data['area'];
+
+                                  return StatefulBuilder(
+                                      builder: (context, orderStat) {
+                                    return InkWell(
+                                      onDoubleTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (ctx) => AlertDialog(
+                                            title: Text('Description:'),
+                                            content: Text(
+                                                '${ordersData[i].data['description']}'),
+                                            actions: <Widget>[
+                                              FlatButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  child: Text('OK!'))
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                      onTap: () async {
+                                        if (map['type'] == 4) {
+                                          final confirmation = await showDialog(
+                                            context: context,
+                                            builder: (ctx) => AlertDialog(
+                                              title: Text('Confirmation'),
+                                              content: Text(
+                                                'Do you want to procssed?',
+                                              ),
+                                              actions: <Widget>[
+                                                FlatButton(
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(false),
+                                                    child: Text(
+                                                      'No',
+                                                      style: TextStyle(
+                                                          color: Colors.red),
+                                                    )),
+                                                FlatButton(
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(true),
+                                                    child: Text(
+                                                      'Yes',
+                                                      style: TextStyle(
+                                                          color: Colors.green),
+                                                    ))
+                                              ],
+                                            ),
+                                          );
+
+                                          if (!confirmation) return;
+
+                                          final lastOrders =
+                                              map['lastOrders'] as List;
+                                          final totalAmount = map['amount'];
+                                          final ordersIds = lastOrders
+                                              .map((e) => e['docId'])
+                                              .toList();
+                                          if (ordersIds.contains(
+                                              ordersData[i].documentID)) {
+                                            showDialog(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                title: Text('Validation Error'),
+                                                content: Text(
+                                                    'This order is already in the route'),
+                                                actions: <Widget>[
+                                                  FlatButton(
+                                                      onPressed: () =>
+                                                          Navigator.of(context)
+                                                              .pop(),
+                                                      child: Text('Ok!'))
+                                                ],
+                                              ),
+                                            );
+                                            return;
+                                          }
+                                          if (ordersData[i].data['status'] !=
+                                              'noAction') {
+                                            showDialog(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                title: Text('Validation Error'),
+                                                content: Text(
+                                                    'This order is already on Distribution'),
+                                                actions: <Widget>[
+                                                  FlatButton(
+                                                      onPressed: () =>
+                                                          Navigator.of(context)
+                                                              .pop(),
+                                                      child: Text('Ok!'))
+                                                ],
+                                              ),
+                                            );
+                                            return;
+                                          }
+                                          checkedOrder
+                                              .add(ordersData[i].documentID);
+                                          orderStat(() {});
+                                          lastOrders.add({
+                                            'docId': ordersData[i].documentID,
+                                            'name': ordersData[i].data['name'],
+                                            'address':
+                                                ordersData[i].data['address'],
+                                            'totalAccount': ordersData[i]
+                                                .data['totalAccount'],
+                                          });
+                                          final orderAmount = totalAmount +
+                                              ordersData[i]
+                                                  .data['totalAccount'];
+                                          await Firestore.instance
+                                              .collection('routes')
+                                              .document(map['routeId'])
+                                              .updateData({
+                                            'orders': lastOrders,
+                                            'totalAmount': orderAmount
+                                          });
+                                          final issuesDocs = await Firestore
+                                              .instance
+                                              .collection('orders')
+                                              .document(
+                                                  ordersData[i].documentID)
+                                              .collection('issues')
+                                              .getDocuments();
+                                          issuesDocs.documents
+                                              .forEach((element) {
+                                            Firestore.instance
+                                                .collection('orders')
+                                                .document(
+                                                    ordersData[i].documentID)
+                                                .collection('issues')
+                                                .document(element.documentID)
+                                                .updateData({'isSolved': true});
+                                          });
+                                          await Firestore.instance
+                                              .collection('orders')
+                                              .document(
+                                                  ordersData[i].documentID)
+                                              .updateData(
+                                                  {'status': 'onDistribution'});
+                                        } else {
+                                          if (ordersData[i].data['isCairo'] &&
+                                              !ordersData[i]
+                                                  .data['isCorporate']) {
+                                            Navigator.of(context).pushNamed(
+                                                '/orderDetails',
+                                                arguments: {
+                                                  'docId':
+                                                      ordersData[i].documentID,
+                                                });
+                                          } else if (!ordersData[i]
+                                                  .data['isCairo'] &&
+                                              !ordersData[i]
+                                                  .data['isCorporate']) {
+                                            Navigator.of(context).pushNamed(
+                                                '/citiyOrderDetails',
+                                                arguments: {
+                                                  'docId':
+                                                      ordersData[i].documentID,
+                                                });
+                                          } else {
+                                            Navigator.of(context).pushNamed(
+                                                '/corporateOrderDetails',
+                                                arguments: {
+                                                  'docId':
+                                                      ordersData[i].documentID,
+                                                });
+                                          }
+                                        }
+                                      },
+                                      child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 1.0),
+                                          child: orderItem(
+                                              id: ordersData[i].documentID,
+                                              address:
+                                                  ordersData[i].data['address'],
+                                              title:
+                                                  '${ordersData[i].data['name']}',
+                                              price: ordersData[i]
+                                                  .data['totalAccount'],
+                                              line: '${line}', //area
+                                              factoryName:
+                                                  '${ordersData[i].data['line']}',
+                                              quantity: ordersData[i]
+                                                  .data['quantity'],
+                                              date:
+                                                  '${ordersData[i].data['createdAt']}',
+                                              description:
+                                                  '${ordersData[i].data['description']}',
+                                              phone:
+                                                  '${ordersData[i].data['phone']}',
+                                              underAccount: ordersData[i]
+                                                  .data['underAccount'],
+                                              number: ordersData[i]
+                                                  .data['orderNumber'],
+                                              isChecked: checkedOrder.contains(
+                                                  ordersData[i].documentID),
+                                              type: (ordersData[i]
+                                                          .data['status'] ==
+                                                      'noAction' &&
+                                                  ordersData[i]
+                                                          .data['returned'] !=
+                                                      null &&
+                                                  !ordersData[i]
+                                                      .data['returned'] &&
+                                                  user.type != 'sales' &&
+                                                  user.type != 'warehouse'))),
+                                    );
+                                  });
+                                },
+                              ),
+                      )
+                    ],
+                  );
+                }),
           );
         });
   }

@@ -68,7 +68,7 @@ class DistributionCities extends StatelessWidget {
                               children: <Widget>[
                                 Container(
                                   child: Image.asset(
-                                      'assets/images/NotApproved.png'),
+                                      'assets/images/CancelIcon.png'),
                                   width: 100,
                                   height: 100,
                                 ),
@@ -86,11 +86,12 @@ class DistributionCities extends StatelessWidget {
                         ),
                         InkWell(
                           onTap: () => Navigator.of(context)
-                              .pushNamed('/citiesOrders',
-                              arguments: {'type': 4}),
+                              .pushNamed('/citiesOrders', arguments: {
+                            'type': 2,
+                          }),
                           child: Container(
                             width: size.width / 2.25,
-                            height: 170,
+                            height: 150,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               border: Border.all(
@@ -102,13 +103,12 @@ class DistributionCities extends StatelessWidget {
                               children: <Widget>[
                                 Container(
                                   child: Image.asset(
-                                      'assets/images/PersonCheck.png'),
+                                      'assets/images/NotApproved.png'),
                                   width: 100,
                                   height: 100,
                                 ),
                                 Text(
-                                  'Collected Orders',
-                                  textAlign: TextAlign.center,
+                                  'On Distribution',
                                   style: TextStyle(
                                       fontSize: 18,
                                       color: Color.fromRGBO(134, 134, 134, 1),
@@ -162,8 +162,155 @@ class DistributionCities extends StatelessWidget {
                                 ),
                               )
                             : SizedBox(),
+                        InkWell(
+                          onTap: () => Navigator.of(context).pushNamed(
+                              '/citiesOrders',
+                              arguments: {'type': 4}),
+                          child: Container(
+                            width: size.width / 2.25,
+                            height: 170,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                  width: 2.5, color: Colors.grey[400]),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Container(
+                                  child: Image.asset(
+                                      'assets/images/PersonCheck.png'),
+                                  width: 100,
+                                  height: 100,
+                                ),
+                                Text(
+                                  'Collected Orders',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Color.fromRGBO(134, 134, 134, 1),
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        InkWell(
+                          onTap: () => Navigator.of(context)
+                              .pushNamed('/citiesOrders', arguments: {
+                            'type': 5,
+                          }),
+                          child: Container(
+                            width: size.width / 2.25,
+                            height: 150,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                  width: 2.5, color: Colors.grey[400]),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Container(
+                                  child:
+                                      Image.asset('assets/images/DateIcon.png'),
+                                  width: 100,
+                                  height: 100,
+                                ),
+                                Text(
+                                  'Archived',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Color.fromRGBO(134, 134, 134, 1),
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () => Navigator.of(context)
+                              .pushNamed('/citiesOrders', arguments: {
+                            'type': 6,
+                          }),
+                          child: Container(
+                            width: size.width / 2.25,
+                            height: 150,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(
+                                  width: 2.5, color: Colors.grey[400]),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Container(
+                                  child: Image.asset(
+                                      'assets/images/CancelIcon.png'),
+                                  width: 100,
+                                  height: 100,
+                                ),
+                                Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Color.fromRGBO(134, 134, 134, 1),
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical:8.0,horizontal: 5.0),
+                    child: InkWell(
+                            onTap: () => Navigator.of(context)
+                                .pushNamed('/citiesOrders', arguments: {
+                              'type': 10,
+                            }),
+                            child: Container(
+                              width: size.width / 2.25,
+                              height: 150,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(
+                                    width: 2.5, color: Colors.grey[400]),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Container(
+                                    child: Image.asset(
+                                        'assets/images/AllIcon.png'),
+                                    width: 100,
+                                    height: 100,
+                                  ),
+                                  Text(
+                                    'All',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: Color.fromRGBO(134, 134, 134, 1),
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
                   ),
                 ],
               ),

@@ -81,8 +81,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                             Firestore.instance
                                 .collection('orders')
                                 .document(docId)
-                                .updateData({'status': 'canceled'}).then(
-                                    (value) => Navigator.of(context).pop());
+                                .updateData({'status': 'canceled'});
                           } else if (val == 'Archive') {
                             //canceled  archived
                             final issuesDocs = await Firestore.instance
@@ -96,19 +95,24 @@ class _OrderDetailsState extends State<OrderDetails> {
                                   .document(snapshot.data.documentID)
                                   .collection('issues')
                                   .document(element.documentID)
-                                  .updateData({'isSolved': true});
+                                  .updateData({
+                                'isSolved': true,
+                                'solver': user.name,
+                                'solvedAt': DateTime.now()
+                              });
                             });
                             Firestore.instance
                                 .collection('orders')
                                 .document(docId)
-                                .updateData({'status': 'archived'}).then(
-                                    (value) => Navigator.of(context).pop());
+                                .updateData({'status': 'archived'});
+                            setState(() {});
                           } else if (val == 'No Action') {
                             Firestore.instance
                                 .collection('orders')
                                 .document(docId)
-                                .updateData({'status': 'noAction'}).then(
-                                    (value) => Navigator.of(context).pop());
+                                .updateData({'status': 'noAction'});
+
+                            setState(() {});
                           }
                         },
                         itemBuilder: ((BuildContext context) {
@@ -172,7 +176,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                   child: ListView(
                     children: <Widget>[
                       Container(
-                        height: 180,
+                        height: 210,
                         width: MediaQuery.of(context).size.width,
                         margin: EdgeInsets.all(12),
                         decoration: BoxDecoration(
@@ -445,105 +449,93 @@ class _OrderDetailsState extends State<OrderDetails> {
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18),
                                 ),
-                                (order['status'] !=
-                                            'collected' && //canceled  archived
-                                        order['status'] != 'archived' &&
-                                        order['status'] != 'canceled')
-                                    ? RaisedButton(
-                                        onPressed: () async {
-                                          TextEditingController noteController =
-                                              TextEditingController();
-                                          bool confrimation = await showDialog(
-                                            context: context,
-                                            builder: (ctx) => AlertDialog(
-                                              title: Text('Add New Note'),
-                                              content: TextField(
-                                                controller: noteController,
-                                                decoration: InputDecoration(
-                                                  labelText: 'Note',
-                                                  hintText:
-                                                      'Write the Note here:',
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                    borderSide: BorderSide(
-                                                        color: Colors.blue,
-                                                        width: 1.5),
-                                                  ),
-                                                ),
-                                              ),
-                                              actions: <Widget>[
-                                                FlatButton(
-                                                  onPressed: () =>
-                                                      Navigator.of(context)
-                                                          .pop(false),
-                                                  child: Text(
-                                                    'Cancel',
-                                                    style: TextStyle(
-                                                        color: Colors.red),
-                                                  ),
-                                                ),
-                                                FlatButton(
-                                                  onPressed: () =>
-                                                      Navigator.of(context)
-                                                          .pop(true),
-                                                  child: Text(
-                                                    'Send',
-                                                    style: TextStyle(
-                                                        color: Colors.green),
-                                                  ),
-                                                ),
-                                              ],
+                                RaisedButton(
+                                  onPressed: () async {
+                                    TextEditingController noteController =
+                                        TextEditingController();
+                                    bool confrimation = await showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: Text('Add New Note'),
+                                        content: TextField(
+                                          controller: noteController,
+                                          decoration: InputDecoration(
+                                            labelText: 'Note',
+                                            hintText: 'Write the Note here:',
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              borderSide: BorderSide(
+                                                  color: Colors.blue,
+                                                  width: 1.5),
                                             ),
-                                          );
-                                          if (confrimation) {
-                                            if (noteController.text.isEmpty) {
-                                              await showDialog(
-                                                context: context,
-                                                builder: (ctx) => AlertDialog(
-                                                  title:
-                                                      Text('Validation Error'),
-                                                  content: Text(
-                                                      'You must define the note\'s description'),
-                                                  actions: <Widget>[
-                                                    FlatButton(
-                                                        onPressed: () =>
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop(),
-                                                        child: Text('Ok!'))
-                                                  ],
-                                                ),
-                                              );
-                                              return;
-                                            }
-                                            List notes = order['notes'];
-                                            notes.add({
-                                              'from': user.name,
-                                              'note': noteController.text,
-                                              'time': DateFormat.yMd()
-                                                  .add_jm()
-                                                  .format(DateTime.now())
-                                            });
-                                            Firestore.instance
-                                                .collection('orders')
-                                                .document(
-                                                    snapshot.data.documentID)
-                                                .updateData({'notes': notes});
-                                          }
-                                        },
-                                        child: Text(
-                                          'Add Note',
-                                          style: TextStyle(color: Colors.white),
+                                          ),
                                         ),
-                                        color: Color.fromRGBO(170, 44, 94, 1),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                      )
-                                    : SizedBox(),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                            onPressed: () =>
+                                                Navigator.of(context)
+                                                    .pop(false),
+                                            child: Text(
+                                              'Cancel',
+                                              style:
+                                                  TextStyle(color: Colors.red),
+                                            ),
+                                          ),
+                                          FlatButton(
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(true),
+                                            child: Text(
+                                              'Send',
+                                              style: TextStyle(
+                                                  color: Colors.green),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confrimation) {
+                                      if (noteController.text.isEmpty) {
+                                        await showDialog(
+                                          context: context,
+                                          builder: (ctx) => AlertDialog(
+                                            title: Text('Validation Error'),
+                                            content: Text(
+                                                'You must define the note\'s description'),
+                                            actions: <Widget>[
+                                              FlatButton(
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(),
+                                                  child: Text('Ok!'))
+                                            ],
+                                          ),
+                                        );
+                                        return;
+                                      }
+                                      List notes = order['notes'];
+                                      notes.add({
+                                        'from': user.name,
+                                        'note': noteController.text,
+                                        'time': DateFormat.yMd()
+                                            .add_jm()
+                                            .format(DateTime.now())
+                                      });
+                                      Firestore.instance
+                                          .collection('orders')
+                                          .document(snapshot.data.documentID)
+                                          .updateData({'notes': notes});
+                                    }
+                                  },
+                                  child: Text(
+                                    'Add Note',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  color: Color.fromRGBO(170, 44, 94, 1),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                )
                               ],
                             ),
                             Padding(
@@ -634,104 +626,94 @@ class _OrderDetailsState extends State<OrderDetails> {
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18),
                                 ),
-                                order['status'] == 'noAction'
-                                    ? RaisedButton(
-                                        onPressed: () async {
-                                          TextEditingController
-                                              issueDescription =
-                                              TextEditingController();
-                                          bool confirmation = await showDialog(
-                                            context: context,
-                                            builder: (ctx) => AlertDialog(
-                                              title: Text('Add New Issue'),
-                                              content: TextField(
-                                                controller: issueDescription,
-                                                decoration: InputDecoration(
-                                                  labelText: 'Description',
-                                                  hintText:
-                                                      'Write the Description here:',
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                    borderSide: BorderSide(
-                                                        color: Colors.blue,
-                                                        width: 1.5),
-                                                  ),
-                                                ),
-                                              ),
-                                              actions: <Widget>[
-                                                FlatButton(
-                                                  onPressed: () =>
-                                                      Navigator.of(context)
-                                                          .pop(false),
-                                                  child: Text(
-                                                    'Cancel',
-                                                    style: TextStyle(
-                                                        color: Colors.red),
-                                                  ),
-                                                ),
-                                                FlatButton(
-                                                  onPressed: () =>
-                                                      Navigator.of(context)
-                                                          .pop(true),
-                                                  child: Text(
-                                                    'Send',
-                                                    style: TextStyle(
-                                                        color: Colors.green),
-                                                  ),
-                                                ),
-                                              ],
+                                RaisedButton(
+                                  onPressed: () async {
+                                    TextEditingController issueDescription =
+                                        TextEditingController();
+                                    bool confirmation = await showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: Text('Add New Issue'),
+                                        content: TextField(
+                                          controller: issueDescription,
+                                          decoration: InputDecoration(
+                                            labelText: 'Description',
+                                            hintText:
+                                                'Write the Description here:',
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                              borderSide: BorderSide(
+                                                  color: Colors.blue,
+                                                  width: 1.5),
                                             ),
-                                          );
-                                          if (confirmation) {
-                                            if (issueDescription.text.isEmpty) {
-                                              await showDialog(
-                                                context: context,
-                                                builder: (ctx) => AlertDialog(
-                                                  title:
-                                                      Text('Validation Error'),
-                                                  content: Text(
-                                                      'You must define the issue\'s description'),
-                                                  actions: <Widget>[
-                                                    FlatButton(
-                                                        onPressed: () =>
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop(),
-                                                        child: Text('Ok!'))
-                                                  ],
-                                                ),
-                                              );
-                                              return;
-                                            }
-                                            Firestore.instance
-                                                .collection('issues')
-                                                .add({
-                                              'description':
-                                                  issueDescription.text,
-                                              'createdUser': user.name,
-                                              'createdDate': DateFormat.yMd()
-                                                  .add_jm()
-                                                  .format(DateTime.now()),
-                                              'isCairo': order['isCairo'],
-                                              'isSolved': false,
-                                              'orderId':
-                                                  snapshot.data.documentID
-                                            });
-                                          }
-                                        },
-                                        child: Text(
-                                          'Add Issue',
-                                          style: TextStyle(color: Colors.white),
+                                          ),
                                         ),
-                                        color: Color.fromRGBO(170, 44, 94, 1),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                      )
-                                    : SizedBox(),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                            onPressed: () =>
+                                                Navigator.of(context)
+                                                    .pop(false),
+                                            child: Text(
+                                              'Cancel',
+                                              style:
+                                                  TextStyle(color: Colors.red),
+                                            ),
+                                          ),
+                                          FlatButton(
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(true),
+                                            child: Text(
+                                              'Send',
+                                              style: TextStyle(
+                                                  color: Colors.green),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirmation) {
+                                      if (issueDescription.text.isEmpty) {
+                                        await showDialog(
+                                          context: context,
+                                          builder: (ctx) => AlertDialog(
+                                            title: Text('Validation Error'),
+                                            content: Text(
+                                                'You must define the issue\'s description'),
+                                            actions: <Widget>[
+                                              FlatButton(
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(),
+                                                  child: Text('Ok!'))
+                                            ],
+                                          ),
+                                        );
+                                        return;
+                                      }
+                                      Firestore.instance
+                                          .collection('issues')
+                                          .add({
+                                        'description': issueDescription.text,
+                                        'createdUser': user.name,
+                                        'createdDate': DateFormat.yMd()
+                                            .add_jm()
+                                            .format(DateTime.now()),
+                                        'isCairo': order['isCairo'],
+                                        'isSolved': false,
+                                        'orderId': snapshot.data.documentID
+                                      });
+                                    }
+                                  },
+                                  child: Text(
+                                    'Add Issue',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  color: Color.fromRGBO(170, 44, 94, 1),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                )
                               ],
                             ),
                             Padding(
@@ -826,7 +808,9 @@ class _OrderDetailsState extends State<OrderDetails> {
                                                                       .documentID)
                                                               .updateData({
                                                             'isSolved': true,
-                                                            'solver': user.name
+                                                            'solver': user.name,
+                                                            'solvedAt':
+                                                                DateTime.now()
                                                           });
                                                         }
                                                       },
@@ -892,7 +876,9 @@ class _OrderDetailsState extends State<OrderDetails> {
                                                                       .documentID)
                                                               .updateData({
                                                             'isSolved': true,
-                                                            'solver': true
+                                                            'solver': user.name,
+                                                            'solvedAt':
+                                                                DateTime.now()
                                                           });
                                                         }
                                                       },
@@ -1099,28 +1085,18 @@ class _OrderDetailsState extends State<OrderDetails> {
                                             .document(element.documentID)
                                             .updateData({'isSolved': true});
                                       });
-                                      if (order['isCairo']) {
-                                        await Navigator.of(context)
-                                            .pushNamed('/newRoute', arguments: {
-                                          'type': 2,
-                                          'docId': snapshot.data.documentID,
-                                          'address': order['address'],
-                                          'name': order['name'],
-                                          'totalAccount': order['totalAccount']
-                                        });
-                                        setState(() {
-                                          distributed = true;
-                                        });
-                                        // Navigator.of(context).pop();
-                                      } else {
-                                        Firestore.instance
-                                            .collection('orders')
-                                            .document(snapshot.data.documentID)
-                                            .updateData({
-                                          'status': 'onShipping',
-                                        }).then((value) =>
-                                                Navigator.of(context).pop());
-                                      }
+                                      await Navigator.of(context)
+                                          .pushNamed('/newRoute', arguments: {
+                                        'type': 2,
+                                        'docId': snapshot.data.documentID,
+                                        'address': order['address'],
+                                        'name': order['name'],
+                                        'totalAccount': order['totalAccount']
+                                      });
+                                      setState(() {
+                                        distributed = true;
+                                      });
+                                      // Navigator.of(context).pop();
                                     },
                                     child: Text(
                                       'Add To Distribution',
@@ -1147,7 +1123,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                                             order['returned'] != null &&
                                             order['returned'])
                                         ? (user.type == 'admin' ||
-                                                user.type == 'warehouse')
+                                                user.type == 'warehouse' ||
+                                                user.type == 'operation')
                                             ? InkWell(
                                                 onTap: () async {
                                                   bool confirmation =

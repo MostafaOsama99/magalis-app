@@ -97,8 +97,13 @@ class _ApprovedDetailsState extends State<NotApprovedDetails> {
                 docs.forEach((element) {
                   print('docs:${element.data}');
                 });
-                docs.sort((a, b) => (a.data['time'] as Timestamp)
-                    .compareTo((b.data['time'] as Timestamp)));
+                docs.sort((a, b) {
+                      if (a.data['time'] == null) return -1;
+                      if (b.data['time'] == null) return 1;
+                      return (a.data['time'] as Timestamp).compareTo(
+                        (b.data['time'] as Timestamp),
+                      );
+                    });
                 docs.forEach((element) {
                   print('docs:${element.data}');
                 });
