@@ -13,6 +13,29 @@ class _TotalProState extends State<TotalPro> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserProvider>(context).user;
+    final map = ModalRoute.of(context).settings.arguments as Map;
+    Stream productionStream;
+    if (map['type'] == 1) {
+      productionStream = Firestore.instance
+          .collection('orders')
+          .where('status', isEqualTo: 'onDistribution')
+          .where('isCairo', isEqualTo: true)
+          .where('isCorporate', isEqualTo: false)
+          .snapshots();
+    } else if (map['type'] == 2) {
+      productionStream = Firestore.instance
+          .collection('orders')
+          .where('status', isEqualTo: 'onDistribution')
+          .where('isCairo', isEqualTo: false)
+          .where('isCorporate', isEqualTo: false)
+          .snapshots();
+    } else if (map['type'] == 3) {
+      productionStream = Firestore.instance
+          .collection('orders')
+          .where('status', isEqualTo: 'onDistribution')
+          .where('isCorporate', isEqualTo: true)
+          .snapshots();
+    }
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
@@ -44,10 +67,7 @@ class _TotalProState extends State<TotalPro> {
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream: Firestore.instance
-                  .collection('orders')
-                  .where('status', isEqualTo: 'noAction')
-                  .snapshots(),
+              stream: productionStream,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return Center(

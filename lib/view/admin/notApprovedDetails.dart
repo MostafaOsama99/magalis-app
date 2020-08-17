@@ -9,11 +9,13 @@ class NotApprovedDetails extends StatefulWidget {
 }
 
 class _ApprovedDetailsState extends State<NotApprovedDetails> {
+  Map filterData;
+
   @override
   Widget build(BuildContext context) {
     final map = ModalRoute.of(context).settings.arguments as Map;
     Stream revenuetream;
-
+    print('This is Not Approved revenue');
     if (map != null) {
       if (map['type'] == 1) {
         revenuetream = Firestore.instance
@@ -54,7 +56,7 @@ class _ApprovedDetailsState extends State<NotApprovedDetails> {
           .snapshots();
     }
     return Scaffold(
-      bottomNavigationBar: BottomNavigator(),
+        bottomNavigationBar: BottomNavigator(),
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
           elevation: 10,
@@ -64,6 +66,32 @@ class _ApprovedDetailsState extends State<NotApprovedDetails> {
             'assets/images/logo.png',
             width: 150,
           ),
+          actions: [
+            InkWell(
+                  onTap: () async {
+                    filterData =
+                        await Navigator.of(context).pushNamed('/financeFilter') as Map;
+                    print(filterData);
+                    setState(() {});
+                  },
+                  child:Container(
+                 width: 50,
+                  height: 50,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[400], width: 2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(0.0),
+                child:  Icon(
+                    Icons.filter_list,
+                    size: 25,
+                    color: Color.fromRGBO(96, 125, 129, 1),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         body: Container(
             child: ListView(children: [
@@ -98,25 +126,36 @@ class _ApprovedDetailsState extends State<NotApprovedDetails> {
                   print('docs:${element.data}');
                 });
                 docs.sort((a, b) {
-                      if (a.data['time'] == null) return -1;
-                      if (b.data['time'] == null) return 1;
-                      return (a.data['time'] as Timestamp).compareTo(
-                        (b.data['time'] as Timestamp),
-                      );
+                  if (a.data['time'] == null) return -1;
+                  if (b.data['time'] == null) return 1;
+                  return (a.data['time'] as Timestamp).compareTo(
+                    (b.data['time'] as Timestamp),
+                  );
+                });
+                if (filterData != null &&
+                      (filterData['month'] as int) != null &&
+                      (filterData['month'] as int) > 0) {
+                    final month = filterData['month'] as int;
+                    print(month);
+                    print(docs.length);
+                    docs.removeWhere((element) {
+                      return !((element.data['time'] as Timestamp)
+                              .toDate()
+                              .month ==
+                          month);
                     });
+                    print(docs.length);
+                  }
                 docs.forEach((element) {
                   print('docs:${element.data}');
                 });
                 return ListView.builder(
                   itemBuilder: (ctx, index) {
                     print(index);
-                    final userName =
-                        docs[index].data['userName'];
-                    final supplier =
-                        docs[index].data['supplier'];
+                    final userName = docs[index].data['userName'];
+                    final supplier = docs[index].data['supplier'];
                     final date = docs[index].data['date'];
-                    final amount =
-                        docs[index].data['amount'];
+                    final amount = docs[index].data['amount'];
                     return approvedTile(supplier, userName, date, amount,
                         docs[index].documentID);
                   },

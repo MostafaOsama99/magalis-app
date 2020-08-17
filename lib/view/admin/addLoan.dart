@@ -216,9 +216,27 @@ class _AddLoansState extends State<AddLoans> {
                 );
                 if (!confirm) return;
                 final name = nameController.text;
-                if (moneyController.text.isEmpty) return;
-                final date = DateTime.now();
-                double totalLoans = double.parse(moneyController.text);
+                if (moneyController.text.isEmpty) {
+                  await showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text('Validation Error'),
+                      content: Text('You have insert the value amount'),
+                      actions: <Widget>[
+                        FlatButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: Text(
+                            'OK',
+                            style: TextStyle(color: Colors.green),
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                  return;
+                }
+                final loanValue = double.parse(moneyController.text);
+                double totalLoans = loanValue;
                 print(names);
                 int loanIndex =
                     names.indexWhere((element) => element['name'] == name);
@@ -228,24 +246,45 @@ class _AddLoansState extends State<AddLoans> {
                     if (loanData['loans'] != null) {
                       totalLoans += loanData['loans'] + 0.0;
                     }
-                    Firestore.instance
+                    final time = DateTime.now();
+                    await Firestore.instance
                         .collection('employee')
                         .document(loanData['docId'])
                         .updateData({
                       'loan': totalLoans,
-                      'lastDate': date,
-                      'lastTime': DateTime.now(),
+                      'lastTime': time,
                     });
+                    await Firestore.instance
+                        .collection('employee')
+                        .document(loanData['docId'])
+                        .collection('loans')
+                        .add({
+                      'loan': loanValue,
+                      'time': time,
+                    });
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/loans',
+                      ModalRoute.withName('/finance'),
+                    );
                   }
                 } else {
-                  Firestore.instance.collection('employee').add({
-                    'name': name,
-                    'loan': totalLoans,
-                    'lastDate': date,
-                    'lastTime': DateTime.now()
-                  });
+                  await showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text('Validation Error'),
+                      content: Text('This employee is not exist in the system'),
+                      actions: <Widget>[
+                        FlatButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: Text(
+                            'OK',
+                            style: TextStyle(color: Colors.green),
+                          ),
+                        )
+                      ],
+                    ),
+                  );
                 }
-                Navigator.of(context).pop(true);
               },
               child: Container(
                 color: Color.fromRGBO(170, 44, 94, 1),

@@ -149,30 +149,140 @@ class _CitiesOrdersState extends State<CitiesOrders> {
         orderstream = firestoreQuery.getDocuments();
       }
     }
-    return FutureBuilder<DocumentSnapshot>(
-        future: Firestore.instance.collection('myInfo').document('order').get(),
+    return FutureBuilder<QuerySnapshot>(
+        future: orderstream,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting &&
-              !isCalled) {
+          if (snapshot.connectionState == ConnectionState.waiting)
             return Center(
               child: CircularProgressIndicator(),
             );
+
+          final ordersData = snapshot.data.documents;
+          if (filterData != null &&
+              (filterData['lines'] as List) != null &&
+              (filterData['lines'] as List).length > 0) {
+            final lines = filterData['lines'] as List;
+            ordersData.removeWhere(
+                (element) => !lines.contains(element.data['line']));
           }
+          if (filterData != null &&
+              (filterData['month'] as int) != null &&
+              (filterData['month'] as int) > 0) {
+            final month = filterData['month'] as int;
+            print(month);
+            print(ordersData.length);
+            ordersData.removeWhere((element) {
+              return !((element.data['time'] as Timestamp).toDate().month ==
+                  month);
+            });
+            print(ordersData.length);
+          }
+          if (!searched) {
+            if (!searched) {
+              if (areaAsc) {
+                ordersData.sort((a, b) {
+                  if (a.data['area'] == null) {
+                    return 1;
+                  }
+                  if (b.data['area'] == null) {
+                    return -1;
+                  }
+                  return (a.data['area'] as String)
+                      .toLowerCase()
+                      .compareTo((b.data['area'] as String).toLowerCase());
+                });
+              } else if (areaDes) {
+                ordersData.sort((b, a) {
+                  if (a.data['area'] == null) {
+                    return 1;
+                  }
+                  if (b.data['area'] == null) {
+                    return -1;
+                  }
+                  return (a.data['area'] as String)
+                      .toLowerCase()
+                      .compareTo((b.data['area'] as String).toLowerCase());
+                });
+              } else if (timeAsc) {
+                ordersData.sort((a, b) {
+                  if (a.data['time'] == null) {
+                    return 1;
+                  }
+                  if (b.data['time'] == null) {
+                    return -1;
+                  }
+                  return (a.data['time'] as Timestamp)
+                      .compareTo((b.data['time'] as Timestamp));
+                });
+              } else if (timeDes) {
+                ordersData.sort((b, a) {
+                  if (a.data['time'] == null) {
+                    return 1;
+                  }
+                  if (b.data['time'] == null) {
+                    return -1;
+                  }
+                  return (a.data['time'] as Timestamp)
+                      .compareTo((b.data['time'] as Timestamp));
+                });
+              } else if (numberDes) {
+                ordersData.sort((b, a) {
+                  if (a.data['orderNumber'] == null) {
+                    return 1;
+                  }
+                  if (b.data['orderNumber'] == null) {
+                    return -1;
+                  }
+                  return (a.data['orderNumber'] as int)
+                      .compareTo((b.data['orderNumber'] as int));
+                });
+              } else {
+                ordersData.sort((a, b) {
+                  if (a.data['orderNumber'] == null) {
+                    return 1;
+                  }
+                  if (b.data['orderNumber'] == null) {
+                    return -1;
+                  }
+                  return (a.data['orderNumber'] as int)
+                      .compareTo((b.data['orderNumber'] as int));
+                });
+              }
+            }
+          }
+          if (snapshot.data.documents.length <= 0) {
+            return Center(
+              child: Text(
+                'No Orders to Routed',
+                style: TextStyle(
+                    color: Color.fromRGBO(170, 44, 94, 1),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20),
+              ),
+            );
+          }
+          var qty = 0;
+          var ordersQuantity = 0;
+          ordersQuantity = ordersData.length;
+          ordersData.forEach((element) {
+            qty += element.data['quantity'];
+          });
+
           if (!isCalled) {
-            recomendations.addAll(
-                (snapshot.data.data['name'] as List).map((e) => e.toString()));
-            names = (snapshot.data.data['name'] as List)
-                .map((e) => e.toString())
+            recomendations.addAll((snapshot.data.documents)
+                .map<String>((e) => e.data['name'].toString()));
+            names = (snapshot.data.documents)
+                .map<String>((e) => e.data['name'].toString())
                 .toList();
-            recomendations.addAll((snapshot.data.data['address'] as List)
-                .map((e) => e.toString()));
-            address = (snapshot.data.data['address'] as List)
-                .map((e) => e.toString())
+            recomendations.addAll((snapshot.data.documents)
+                .map<String>((e) => e.data['address'].toString()));
+            address = (snapshot.data.documents)
+                .map<String>((e) => e.data['address'].toString())
                 .toList();
-            recomendations.addAll(
-                (snapshot.data.data['phone'] as List).map((e) => e.toString()));
-            phones = (snapshot.data.data['phone'] as List)
-                .map((e) => e.toString())
+            recomendations.addAll((snapshot.data.documents)
+                .map<String>((e) => e.data['phone'].toString()));
+            phones = (snapshot.data.documents)
+                .map<String>((e) => e.data['phone'].toString())
                 .toList();
             isCalled = true;
           }
@@ -297,405 +407,262 @@ class _CitiesOrdersState extends State<CitiesOrders> {
                 ),
               ],
             ),
-            body: FutureBuilder<QuerySnapshot>(
-                future: orderstream,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting)
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-
-                  final ordersData = snapshot.data.documents;
-                  if (filterData != null &&
-                      (filterData['lines'] as List) != null &&
-                      (filterData['lines'] as List).length > 0) {
-                    final lines = filterData['lines'] as List;
-                    ordersData.removeWhere(
-                        (element) => !lines.contains(element.data['line']));
-                  }
-                  if (filterData != null &&
-                      (filterData['month'] as int) != null &&
-                      (filterData['month'] as int) > 0) {
-                    final month = filterData['month'] as int;
-                    print(month);
-                    print(ordersData.length);
-                    ordersData.removeWhere((element) {
-                      return !((element.data['time'] as Timestamp)
-                              .toDate()
-                              .month ==
-                          month);
-                    });
-                    print(ordersData.length);
-                  }
-                  if (!searched) {
-                    if (!searched) {
-                      if (areaAsc) {
-                        ordersData.sort((a, b) {
-                          if (a.data['area'] == null) {
-                            return 1;
-                          }
-                          if (b.data['area'] == null) {
-                            return -1;
-                          }
-                          return (a.data['area'] as String)
-                              .toLowerCase()
-                              .compareTo(
-                                  (b.data['area'] as String).toLowerCase());
-                        });
-                      } else if (areaDes) {
-                        ordersData.sort((b, a) {
-                          if (a.data['area'] == null) {
-                            return 1;
-                          }
-                          if (b.data['area'] == null) {
-                            return -1;
-                          }
-                          return (a.data['area'] as String)
-                              .toLowerCase()
-                              .compareTo(
-                                  (b.data['area'] as String).toLowerCase());
-                        });
-                      } else if (timeAsc) {
-                        ordersData.sort((a, b) {
-                          if (a.data['time'] == null) {
-                            return 1;
-                          }
-                          if (b.data['time'] == null) {
-                            return -1;
-                          }
-                          return (a.data['time'] as Timestamp)
-                              .compareTo((b.data['time'] as Timestamp));
-                        });
-                      } else if (timeDes) {
-                        ordersData.sort((b, a) {
-                          if (a.data['time'] == null) {
-                            return 1;
-                          }
-                          if (b.data['time'] == null) {
-                            return -1;
-                          }
-                          return (a.data['time'] as Timestamp)
-                              .compareTo((b.data['time'] as Timestamp));
-                        });
-                      } else if (numberDes) {
-                        ordersData.sort((b, a) {
-                          if (a.data['orderNumber'] == null) {
-                            return 1;
-                          }
-                          if (b.data['orderNumber'] == null) {
-                            return -1;
-                          }
-                          return (a.data['orderNumber'] as int)
-                              .compareTo((b.data['orderNumber'] as int));
-                        });
-                      } else {
-                        ordersData.sort((a, b) {
-                          if (a.data['orderNumber'] == null) {
-                            return 1;
-                          }
-                          if (b.data['orderNumber'] == null) {
-                            return -1;
-                          }
-                          return (a.data['orderNumber'] as int)
-                              .compareTo((b.data['orderNumber'] as int));
-                        });
-                      }
-                    }
-                  }
-                  if (snapshot.data.documents.length <= 0) {
-                    return Center(
-                      child: Text(
-                        'No Orders to Routed',
+            body: Column(children: [
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                color: Colors.white,
+                child: ListTile(
+                  title: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        '$title',
                         style: TextStyle(
                             color: Color.fromRGBO(170, 44, 94, 1),
                             fontWeight: FontWeight.bold,
-                            fontSize: 20),
+                            fontSize: 18),
                       ),
-                    );
-                  }
-                  var qty = 0;
-                  var ordersQuantity = 0;
-                  ordersQuantity = ordersData.length;
-                  ordersData.forEach((element) {
-                    qty += element.data['quantity'];
-                  });
-                  return Column(children: [
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      color: Colors.white,
-                      child: ListTile(
-                        title: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              '$title',
-                              style: TextStyle(
-                                  color: Color.fromRGBO(170, 44, 94, 1),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18),
-                            ),
-                            Text(
-                              'Order:${ordersQuantity}',
-                              style: TextStyle(
-                                  color: Color.fromRGBO(170, 44, 94, 1),
-                                  fontSize: 16),
-                            ),
-                            Text(
-                              'Qty:${qty}',
-                              style: TextStyle(
-                                  color: Color.fromRGBO(170, 44, 94, 1),
-                                  fontSize: 16),
-                            ),
-                          ],
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Colors.grey[400], width: 2),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(0.0),
-                                child: InkWell(
-                                  onTap: () async {
-                                    filterData = await showDialog(
-                                        context: context,
-                                        builder: (ctx) => AlertDialog(
-                                              title: Text('Sort By'),
-                                              actions: <Widget>[
-                                                FlatButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        areaAsc = true;
-                                                        areaDes = false;
-                                                        timeAsc = false;
-                                                        timeDes = false;
-                                                      });
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                    child:
-                                                        Text('Area ascending')),
-                                                FlatButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        timeDes = false;
-                                                        areaAsc = false;
-                                                        areaDes = true;
-                                                        timeAsc = false;
-                                                      });
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                    child: Text(
-                                                        'Area descending')),
-                                                FlatButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        areaAsc = false;
-                                                        areaDes = false;
-                                                        timeAsc = true;
-                                                        timeDes = false;
-                                                      });
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                    child:
-                                                        Text('Time ascending')),
-                                                FlatButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        areaAsc = false;
-                                                        areaDes = false;
-                                                        timeAsc = false;
-                                                        timeDes = true;
-                                                      });
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                    child: Text(
-                                                        'Time descending')),
-                                                FlatButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        areaAsc = false;
-                                                        areaDes = false;
-                                                        timeAsc = false;
-                                                        timeDes = false;
-                                                        numberAsc = true;
-                                                        numberDes = false;
-                                                      });
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                    child: Text(
-                                                        'number ascending')),
-                                                FlatButton(
-                                                    onPressed: () {
-                                                      setState(() {
-                                                        areaAsc = false;
-                                                        areaDes = false;
-                                                        timeAsc = false;
-                                                        timeDes = false;
-                                                        numberAsc = false;
-                                                        numberDes = true;
-                                                      });
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    },
-                                                    child: Text(
-                                                        'number descending'))
-                                              ],
-                                            ));
-                                    print(filterData);
-                                  },
-                                  child: Icon(
-                                    Icons.sort,
-                                    size: 25,
-                                    color: Color.fromRGBO(96, 125, 129, 1),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Colors.grey[400], width: 2),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(0.0),
-                                child: InkWell(
-                                  onTap: () async {
-                                    filterData = await Navigator.of(context)
-                                        .pushNamed('/filter') as Map;
-                                    print(filterData);
-                                    setState(() {
-                                      searched = false;
-                                    });
-                                  },
-                                  child: Icon(
-                                    Icons.filter_list,
-                                    size: 25,
-                                    color: Color.fromRGBO(96, 125, 129, 1),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            user.type == 'admin' ||
-                                    user.type == 'sales' ||
-                                    user.type == 'operation'
-                                ? InkWell(
-                                    onTap: () => Navigator.of(context)
-                                        .pushNamed('/addOrder'),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                            color: Colors.grey[400], width: 2),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(6.0),
-                                        child: Icon(
-                                          Icons.add,
-                                          size: 25,
-                                          color:
-                                              Color.fromRGBO(96, 125, 129, 1),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : SizedBox(),
-                          ],
-                        ),
+                      Text(
+                        'Order:${ordersQuantity}',
+                        style: TextStyle(
+                            color: Color.fromRGBO(170, 44, 94, 1),
+                            fontSize: 16),
                       ),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: ordersData.length,
-                        itemBuilder: (context, i) {
-                          final line = ordersData[i].data['area'] == null
-                              ? ordersData[i].data['city']
-                              : ordersData[i].data['area'];
-
-                          return StatefulBuilder(builder: (context, orderStat) {
-                            return InkWell(
-                              onDoubleTap: () {
-                                showDialog(
+                      Text(
+                        'Qty:${qty}',
+                        style: TextStyle(
+                            color: Color.fromRGBO(170, 44, 94, 1),
+                            fontSize: 16),
+                      ),
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[400], width: 2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(0.0),
+                          child: InkWell(
+                            onTap: () async {
+                              filterData = await showDialog(
                                   context: context,
                                   builder: (ctx) => AlertDialog(
-                                    title: Text('Description:'),
-                                    content: Text(
-                                        '${ordersData[i].data['description']}'),
-                                    actions: <Widget>[
-                                      FlatButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text('OK!'))
-                                    ],
+                                        title: Text('Sort By'),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  areaAsc = true;
+                                                  areaDes = false;
+                                                  timeAsc = false;
+                                                  timeDes = false;
+                                                });
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text('Area ascending')),
+                                          FlatButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  timeDes = false;
+                                                  areaAsc = false;
+                                                  areaDes = true;
+                                                  timeAsc = false;
+                                                });
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text('Area descending')),
+                                          FlatButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  areaAsc = false;
+                                                  areaDes = false;
+                                                  timeAsc = true;
+                                                  timeDes = false;
+                                                });
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text('Time ascending')),
+                                          FlatButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  areaAsc = false;
+                                                  areaDes = false;
+                                                  timeAsc = false;
+                                                  timeDes = true;
+                                                });
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text('Time descending')),
+                                          FlatButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  areaAsc = false;
+                                                  areaDes = false;
+                                                  timeAsc = false;
+                                                  timeDes = false;
+                                                  numberAsc = true;
+                                                  numberDes = false;
+                                                });
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text('number ascending')),
+                                          FlatButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  areaAsc = false;
+                                                  areaDes = false;
+                                                  timeAsc = false;
+                                                  timeDes = false;
+                                                  numberAsc = false;
+                                                  numberDes = true;
+                                                });
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text('number descending'))
+                                        ],
+                                      ));
+                              print(filterData);
+                            },
+                            child: Icon(
+                              Icons.sort,
+                              size: 25,
+                              color: Color.fromRGBO(96, 125, 129, 1),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 15,
+                      ),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[400], width: 2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(0.0),
+                          child: InkWell(
+                            onTap: () async {
+                              filterData = await Navigator.of(context)
+                                  .pushNamed('/filter') as Map;
+                              print(filterData);
+                              setState(() {
+                                searched = false;
+                              });
+                            },
+                            child: Icon(
+                              Icons.filter_list,
+                              size: 25,
+                              color: Color.fromRGBO(96, 125, 129, 1),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 15,
+                      ),
+                      user.type == 'admin' ||
+                              user.type == 'sales' ||
+                              user.type == 'operation'
+                          ? InkWell(
+                              onTap: () =>
+                                  Navigator.of(context).pushNamed('/addOrder'),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.grey[400], width: 2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(6.0),
+                                  child: Icon(
+                                    Icons.add,
+                                    size: 25,
+                                    color: Color.fromRGBO(96, 125, 129, 1),
                                   ),
-                                );
-                              },
-                              onTap: () async {
-                                Navigator.of(context).pushNamed(
-                                    '/citiyOrderDetails',
-                                    arguments: {
-                                      'docId': ordersData[i].documentID,
-                                    });
-                              },
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 1.0),
-                                child: orderItem(
-                                    id: ordersData[i].documentID,
-                                    address: ordersData[i].data['address'],
-                                    title: '${ordersData[i].data['name']}',
-                                    price: ordersData[i].data['totalAccount'],
-                                    factoryName:
-                                        '${ordersData[i].data['line']}',
-                                    quantity: ordersData[i].data['quantity'],
-                                    date: '${ordersData[i].data['createdAt']}',
-                                    description:
-                                        '${ordersData[i].data['description']}',
-                                    phone: '${ordersData[i].data['phone']}',
-                                    underAccount:
-                                        ordersData[i].data['underAccount'],
-                                    number: ordersData[i].data['orderNumber'],
-                                    isChecked: checkedOrder
-                                        .contains(ordersData[i].documentID),
-                                    type: (ordersData[i].data['status'] ==
-                                            'noAction' &&
-                                        ordersData[i].data['returned'] !=
-                                            null &&
-                                        !ordersData[i].data['returned'] &&
-                                        user.type != 'sales' &&
-                                        user.type != 'warehouse'),
-                                    city: ordersData[i].data['city']),
+                                ),
                               ),
-                            );
+                            )
+                          : SizedBox(),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: ordersData.length,
+                  itemBuilder: (context, i) {
+                    final line = ordersData[i].data['area'] == null
+                        ? ordersData[i].data['city']
+                        : ordersData[i].data['area'];
+
+                    return StatefulBuilder(builder: (context, orderStat) {
+                      return InkWell(
+                        onDoubleTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: Text('Description:'),
+                              content:
+                                  Text('${ordersData[i].data['description']}'),
+                              actions: <Widget>[
+                                FlatButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('OK!'))
+                              ],
+                            ),
+                          );
+                        },
+                        onTap: () async {
+                          Navigator.of(context)
+                              .pushNamed('/citiyOrderDetails', arguments: {
+                            'docId': ordersData[i].documentID,
                           });
                         },
-                      ),
-                    )
-                  ]);
-                }),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 1.0),
+                          child: orderItem(
+                              id: ordersData[i].documentID,
+                              address: ordersData[i].data['address'],
+                              title: '${ordersData[i].data['name']}',
+                              price: ordersData[i].data['totalAccount'],
+                              factoryName: '${ordersData[i].data['line']}',
+                              quantity: ordersData[i].data['quantity'],
+                              date: '${ordersData[i].data['createdAt']}',
+                              description:
+                                  '${ordersData[i].data['description']}',
+                              phone: '${ordersData[i].data['phone']}',
+                              underAccount: ordersData[i].data['underAccount'],
+                              number: ordersData[i].data['orderNumber'],
+                              isChecked: checkedOrder
+                                  .contains(ordersData[i].documentID),
+                              type:
+                                  (ordersData[i].data['status'] == 'noAction' &&
+                                      ordersData[i].data['returned'] != null &&
+                                      !ordersData[i].data['returned'] &&
+                                      user.type != 'sales' &&
+                                      user.type != 'warehouse'),
+                              city: ordersData[i].data['city']),
+                        ),
+                      );
+                    });
+                  },
+                ),
+              )
+            ]),
           );
         });
   }

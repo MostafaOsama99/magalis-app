@@ -65,7 +65,6 @@ class EditOrder extends StatelessWidget {
   GlobalKey key = new GlobalKey<AutoCompleteTextFieldState<String>>();
 
   var isCorporate;
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -78,6 +77,7 @@ class EditOrder extends StatelessWidget {
       nameController.text = orderMap['name'];
       quantityController.text = '${orderMap['quantity']}';
       cityController.text = orderMap['city'];
+      selected = orderMap['city'];
       if (orderMap['isCairo']) {
         enableArea = true;
         areaController.text = orderMap['area'];
@@ -643,49 +643,94 @@ class EditOrder extends StatelessWidget {
                           notes.add(
                               {'from': user.name, 'note': noteController.text});
                         }
-                        if (areaController.text.isNotEmpty) {
-                          await Firestore.instance
-                              .collection('orders')
-                              .document(id)
-                              .updateData({
-                            'city': cityController.text,
-                            'area': area,
-                            'createdAt': date,
-                            'description': description,
-                            'line': lineType,
-                            'name': name,
-                            'phone': phoneNumber,
-                            'quantity': quantity,
-                            'totalAccount': amount,
-                            'underAccount': downpayment,
-                            'address': address,
-                            'status': 'noAction',
-                            'isCairo': true,
-                            'notes': notes,
-                            'edited': true,
-                            'editedBy': user.name,
-                          });
+                        if (cityController.text.isNotEmpty) {
+                          if (areaController.text.isNotEmpty) {
+                            await Firestore.instance
+                                .collection('orders')
+                                .document(id)
+                                .updateData({
+                              'city': cityController.text,
+                              'area': area,
+                              'createdAt': date,
+                              'description': description,
+                              'line': lineType,
+                              'name': name,
+                              'phone': phoneNumber,
+                              'quantity': quantity,
+                              'totalAccount': amount,
+                              'underAccount': downpayment,
+                              'address': address,
+                              'status': 'noAction',
+                              'isCairo': true,
+                              'notes': notes,
+                              'edited': true,
+                              'editedBy': user.name,
+                            });
+                          } else {
+                            await Firestore.instance
+                                .collection('orders')
+                                .document(id)
+                                .updateData({
+                              'city': cityController.text,
+                              'createdAt': date,
+                              'description': description,
+                              'line': lineType,
+                              'name': name,
+                              'phone': phoneNumber,
+                              'quantity': quantity,
+                              'totalAccount': amount,
+                              'underAccount': downpayment,
+                              'address': address,
+                              'status': 'noAction',
+                              'notes': notes,
+                              'isCairo': false,
+                              'edited': true,
+                              'editedBy': user.name,
+                            });
+                          }
                         } else {
-                          await Firestore.instance
-                              .collection('orders')
-                              .document(id)
-                              .updateData({
-                            'city': cityController.text,
-                            'createdAt': date,
-                            'description': description,
-                            'line': lineType,
-                            'name': name,
-                            'phone': phoneNumber,
-                            'quantity': quantity,
-                            'totalAccount': amount,
-                            'underAccount': downpayment,
-                            'address': address,
-                            'status': 'noAction',
-                            'notes': notes,
-                            'isCairo': false,
-                            'edited': true,
-                            'editedBy': user.name,
-                          });
+                          if (areaController.text.isNotEmpty) {
+                            await Firestore.instance
+                                .collection('orders')
+                                .document(id)
+                                .updateData({
+                              'area': area,
+                              'createdAt': date,
+                              'description': description,
+                              'line': lineType,
+                              'name': name,
+                              'phone': phoneNumber,
+                              'quantity': quantity,
+                              'totalAccount': amount,
+                              'underAccount': downpayment,
+                              'address': address,
+                              'status': 'noAction',
+                              'isCairo': true,
+                              'notes': notes,
+                              'edited': true,
+                              'editedBy': user.name,
+                            });
+                          } else {
+                            await Firestore.instance
+                                .collection('orders')
+                                .document(id)
+                                .updateData({
+                              'createdAt': date,
+                              'description': description,
+                              'line': lineType,
+                              'name': name,
+                              'phone': phoneNumber,
+                              'quantity': quantity,
+                              'totalAccount': amount,
+                              'underAccount': downpayment,
+                              'address': address,
+                              'status': 'noAction',
+                              'notes': notes,
+                              'isCairo': false,
+                              'edited': true,
+                              'editedBy': user.name,
+                            });
+                          }
                         }
                         await showDialog(
                           context: context,

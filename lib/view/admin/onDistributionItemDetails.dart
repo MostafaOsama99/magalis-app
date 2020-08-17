@@ -265,11 +265,14 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                                             ordersList[index][
                                                                     'shipped'] =
                                                                 false;
-                                                            final totalAmount = routeData[
+                                                            var totalAmount = routeData[
                                                                     'totalAmount'] -
                                                                 ordersList[
                                                                         index][
                                                                     'totalAccount'];
+                                                            if (totalAmount < 0)
+                                                              totalAmount = 0;
+
                                                             ordersList[index]
                                                                     ['reason'] =
                                                                 textEditingController
@@ -304,7 +307,8 @@ class _OnDistributionDetailsState extends State<OnDistributionDetails> {
                                                                       ['docId'],
                                                               'shipped': false,
                                                             });
-                                                            Firestore.instance
+                                                            await Firestore
+                                                                .instance
                                                                 .collection(
                                                                     'routes')
                                                                 .document(snapshot

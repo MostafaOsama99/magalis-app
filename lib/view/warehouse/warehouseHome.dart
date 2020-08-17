@@ -128,7 +128,7 @@ class _WarehouseHomeState extends State<WarehouseHome> {
                         ),
                         InkWell(
                           onTap: () => Navigator.of(context)
-                              .pushNamed('/totalProduction'),
+                              .pushNamed('/totalProductionHome'),
                           child: Container(
                             width: size.width / 2.25,
                             height: 150,

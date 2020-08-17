@@ -4,7 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
 import 'package:maglis_app/widgets/bottomNavigator.dart';
+import 'package:provider/provider.dart';
 
 class Loans extends StatefulWidget {
   @override
@@ -21,7 +23,7 @@ class _LoansState extends State<Loans> {
   @override
   Widget build(BuildContext context) {
     final map = ModalRoute.of(context).settings.arguments as Map;
-
+    final user = Provider.of<UserProvider>(context).user;
     if (map != null && !called) {
       amount = map['money'];
       type = map['type'];
@@ -70,20 +72,22 @@ class _LoansState extends State<Loans> {
                     fontWeight: FontWeight.bold,
                     fontSize: 20),
               ),
-              trailing: InkWell(
-                onTap: () => Navigator.of(context).pushNamed('/addLoans'),
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  child: Icon(
-                    Icons.add,
-                    size: 35,
-                  ),
-                  decoration: BoxDecoration(
-                      border: Border.all(width: 1.5, color: Colors.grey),
-                      borderRadius: BorderRadius.circular(15)),
-                ),
-              ),
+              trailing: user.type == 'admin'
+                  ? InkWell(
+                      onTap: () => Navigator.of(context).pushNamed('/addLoans'),
+                      child: Container(
+                        width: 50,
+                        height: 50,
+                        child: Icon(
+                          Icons.add,
+                          size: 35,
+                        ),
+                        decoration: BoxDecoration(
+                            border: Border.all(width: 1.5, color: Colors.grey),
+                            borderRadius: BorderRadius.circular(15)),
+                      ),
+                    )
+                  : SizedBox(),
             ),
           ),
           SizedBox(
@@ -93,10 +97,7 @@ class _LoansState extends State<Loans> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: StreamBuilder<QuerySnapshot>(
-                  stream: Firestore.instance
-                      .collection('employee')
-                      .where('loan', isGreaterThan: 0)
-                      .snapshots(),
+                  stream: Firestore.instance.collection('employee').snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting)
                       return Center(
@@ -118,7 +119,7 @@ class _LoansState extends State<Loans> {
                       itemCount: documents.length,
                       itemBuilder: (ctx, index) {
                         Timestamp timestamp =
-                            documents[index]['lastDate'] as Timestamp;
+                            documents[index]['lastTime'] as Timestamp;
                         DateTime dateStamp = timestamp != null
                             ? timestamp.toDate()
                             : DateTime.now();
@@ -126,6 +127,13 @@ class _LoansState extends State<Loans> {
                         return InkWell(
                           onTap: () async {
                             print('amounted$amount');
+                            if (type != 2) {
+                              Navigator.of(context)
+                                  .pushNamed('/employeeLoan', arguments: {
+                                'id': documents[index].documentID,
+                                'name': documents[index].data['name'],
+                              });
+                            }
                             if (type != 2 || amount == 0) return;
                             final totalAmount = documents[index]['loan'];
                             if (totalAmount == 0) return;
@@ -177,7 +185,9 @@ class _LoansState extends State<Loans> {
                                             fontSize: 18),
                                       ),
                                       Text(
-                                        '${documents[index]['loan']}',
+                                        documents[index]['loan'] == null
+                                            ? '0 EGP'
+                                            : '${documents[index]['loan']} EGP',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16),
@@ -199,21 +209,28 @@ class _LoansState extends State<Loans> {
                                                 .bold, //rgb(105, 132, 137)
                                             fontSize: 15),
                                       ),
-                                      InkWell(
-                                        onTap: () => Navigator.of(context)
-                                            .pushNamed('/addLoans', arguments: {
-                                          'id': snapshot
-                                              .data.documents[index].documentID,
-                                          'name': documents[index]['name'],
-                                          'money': snapshot
-                                              .data.documents[index]['money']
-                                        }),
-                                        child: Image.asset(
-                                          'assets/images/noteAdd.png',
-                                          width: 50,
-                                          height: 50,
-                                        ),
-                                      )
+                                      user.type == 'admin'
+                                          ? InkWell(
+                                              onTap: () => Navigator.of(context)
+                                                  .pushNamed('/addLoans',
+                                                      arguments: {
+                                                    'id': snapshot
+                                                        .data
+                                                        .documents[index]
+                                                        .documentID,
+                                                    'name': documents[index]
+                                                        ['name'],
+                                                    'money': snapshot.data
+                                                            .documents[index]
+                                                        ['money']
+                                                  }),
+                                              child: Image.asset(
+                                                'assets/images/noteAdd.png',
+                                                width: 50,
+                                                height: 50,
+                                              ),
+                                            )
+                                          : SizedBox()
                                     ],
                                   )
                                 ],

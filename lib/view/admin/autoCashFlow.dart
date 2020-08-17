@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:maglis_app/widgets/bottomNavigator.dart';
 
-class CashFlow extends StatefulWidget {
+class AutoCashFlow extends StatefulWidget {
   @override
-  _CashFlowState createState() => _CashFlowState();
+  _AutoCashFlowState createState() => _AutoCashFlowState();
 }
 
-class _CashFlowState extends State<CashFlow> {
+class _AutoCashFlowState extends State<AutoCashFlow> {
   double cashOut = 0;
   double cashIn = 0;
   double net = 0;
@@ -20,6 +20,8 @@ class _CashFlowState extends State<CashFlow> {
   var excess = 0.0;
   int shortageIndex = 0;
   int excessIndex = 0;
+
+  bool called = false;
   @override
   Widget build(BuildContext context) {
     if (!done) {
@@ -66,19 +68,20 @@ class _CashFlowState extends State<CashFlow> {
       body: StreamBuilder<QuerySnapshot>(
         stream: Firestore.instance
             .collection('expenses')
-            .where('status', isEqualTo: 'cashed')
+            .where('status', isEqualTo: 'notApproved')
             .snapshots(),
         builder: (context, expensesSnapshot) {
           if (expensesSnapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
+
           final expensesDocs = expensesSnapshot.data.documents;
           expensesDocs.sort((a, b) => (a.data['time'] as Timestamp)
               .compareTo((b.data['time'] as Timestamp)));
           return StreamBuilder<QuerySnapshot>(
             stream: Firestore.instance
                 .collection('routes')
-                .where('status', isEqualTo: 'cashed')
+                .where('status', isEqualTo: 'shipped')
                 .snapshots(),
             builder: (context, routesSnapshot) {
               if (routesSnapshot.connectionState == ConnectionState.waiting) {
@@ -94,7 +97,7 @@ class _CashFlowState extends State<CashFlow> {
               return StreamBuilder<QuerySnapshot>(
                   stream: Firestore.instance
                       .collection('revenue')
-                      .where('status', isEqualTo: 'cashed')
+                      .where('status', isEqualTo: 'notApproved')
                       .snapshots(),
                   builder: (context, revenueSnapshot) {
                     if (revenueSnapshot.connectionState ==
@@ -114,15 +117,26 @@ class _CashFlowState extends State<CashFlow> {
                         child: CircularProgressIndicator(),
                       );
                     allDocs = routesDocs + expensesDocs + revenueDocs;
+                    if (!called) {
+                      routesDocs.forEach((element) {
+                        cashIn +=
+                            element.data['totalAmount'] - element.data['fees'];
+                      });
+                      expensesDocs.forEach((element) {
+                        cashOut += element.data['amount'];
+                      });
+                      revenueDocs.forEach((element) {
+                        cashIn += element.data['amount'];
+                      });
+                      called = true;
+                    }
+
+                    print(cashIn);
+                    savedDocs = allDocs;
                     print('length1:${expensesSnapshot.data.documents.length}');
                     print('length2:${routesSnapshot.data.documents.length}');
                     print('length3:${revenueSnapshot.data.documents.length}');
 
-                    print('length:${allDocs.length}');
-                    allDocs.forEach((elemen) {
-                      print('${elemen.data}');
-                    });
-                    print('indexes');
                     print(allDocs.length + shortageIndex);
                     print(
                         'All indexess:${allDocs.length + shortageIndex + excessIndex}');
@@ -136,7 +150,7 @@ class _CashFlowState extends State<CashFlow> {
                           color: Colors.white,
                           child: ListTile(
                             title: Text(
-                              'Cash Flow',
+                              'Automatic Cash Flow',
                               style: TextStyle(
                                   color: Color.fromRGBO(170, 44, 94, 1),
                                   fontWeight: FontWeight.bold,
@@ -242,7 +256,7 @@ class _CashFlowState extends State<CashFlow> {
                                             excessIndex == 0 &&
                                             index == 0)) {
                                       print('shortagessss');
-                                      return expensesCashFlowTile(
+                                      return expensesAutoCashFlowTile(
                                         userName: 'Shortage',
                                         suplierName: '',
                                         date: '',
@@ -253,7 +267,7 @@ class _CashFlowState extends State<CashFlow> {
 
                                     if ((excessIndex == 1 && index == 0)) {
                                       print('Excessesss');
-                                      return revenueCashFlowTile(
+                                      return revenueAutoCashFlowTile(
                                         userName: 'Excess',
                                         suplierName: '',
                                         date: '',
@@ -282,7 +296,7 @@ class _CashFlowState extends State<CashFlow> {
                                       final amount =
                                           allDocs[index].data['totalAmount'] -
                                               allDocs[index].data['fees'];
-                                      return routeCashFlowTile(
+                                      return routeAutoCashFlowTile(
                                         userName: userName,
                                         suplierName: supplier,
                                         date: date,
@@ -308,7 +322,7 @@ class _CashFlowState extends State<CashFlow> {
                                           allDocs[index].data['amount'];
                                       print('its an expenses2');
 
-                                      return expensesCashFlowTile(
+                                      return expensesAutoCashFlowTile(
                                         userName: userName,
                                         suplierName: supplier,
                                         date: date,
@@ -329,7 +343,7 @@ class _CashFlowState extends State<CashFlow> {
                                       final amount =
                                           allDocs[index].data['amount'];
 
-                                      return revenueCashFlowTile(
+                                      return revenueAutoCashFlowTile(
                                         userName: userName,
                                         suplierName: supplier,
                                         date: date,
@@ -443,7 +457,7 @@ class _CashFlowState extends State<CashFlow> {
                                 ),
                               );
                               final result = await Firestore.instance
-                                  .collection('cashFlow')
+                                  .collection('AutoCashFlow')
                                   .add({
                                 'cashIn': cashIn,
                                 'cashOut': cashOut,
@@ -459,7 +473,7 @@ class _CashFlowState extends State<CashFlow> {
                                 if (element.reference.path.split('/')[0] ==
                                     'revenue') {
                                   Firestore.instance
-                                      .collection('cashFlow')
+                                      .collection('AutoCashFlow')
                                       .document(result.documentID)
                                       .collection('revenue')
                                       .document(element.documentID)
@@ -474,7 +488,7 @@ class _CashFlowState extends State<CashFlow> {
                                         .split('/')[0] ==
                                     'expenses') {
                                   Firestore.instance
-                                      .collection('cashFlow')
+                                      .collection('AutoCashFlow')
                                       .document(result.documentID)
                                       .collection('expenses')
                                       .document(element.documentID)
@@ -489,7 +503,7 @@ class _CashFlowState extends State<CashFlow> {
                                         .split('/')[0] ==
                                     'routes') {
                                   Firestore.instance
-                                      .collection('cashFlow')
+                                      .collection('AutoCashFlow')
                                       .document(result.documentID)
                                       .collection('routes')
                                       .document(element.documentID)
@@ -570,7 +584,7 @@ class _CashFlowState extends State<CashFlow> {
                               );
                               if (type == null) return;
                               final result = await Firestore.instance
-                                  .collection('cashFlow')
+                                  .collection('AutoCashFlow')
                                   .add({
                                 'cashIn': cashIn,
                                 'cashOut': cashOut,
@@ -582,7 +596,7 @@ class _CashFlowState extends State<CashFlow> {
                                 if (element.reference.path.split('/')[0] ==
                                     'revenue') {
                                   Firestore.instance
-                                      .collection('cashFlow')
+                                      .collection('AutoCashFlow')
                                       .document(result.documentID)
                                       .collection('revenue')
                                       .document(element.documentID)
@@ -597,7 +611,7 @@ class _CashFlowState extends State<CashFlow> {
                                         .split('/')[0] ==
                                     'expenses') {
                                   Firestore.instance
-                                      .collection('cashFlow')
+                                      .collection('AutoCashFlow')
                                       .document(result.documentID)
                                       .collection('expenses')
                                       .document(element.documentID)
@@ -612,7 +626,7 @@ class _CashFlowState extends State<CashFlow> {
                                         .split('/')[0] ==
                                     'routes') {
                                   Firestore.instance
-                                      .collection('cashFlow')
+                                      .collection('AutoCashFlow')
                                       .document(result.documentID)
                                       .collection('routes')
                                       .document(element.documentID)
@@ -811,7 +825,7 @@ class _CashFlowState extends State<CashFlow> {
     }
   }
 
-  expensesCashFlowTile(
+  expensesAutoCashFlowTile(
       {String suplierName,
       String userName,
       String date,
@@ -950,7 +964,7 @@ class _CashFlowState extends State<CashFlow> {
     );
   }
 
-  revenueCashFlowTile({
+  revenueAutoCashFlowTile({
     String suplierName,
     String userName,
     String date,
@@ -1086,7 +1100,7 @@ class _CashFlowState extends State<CashFlow> {
     );
   }
 
-  routeCashFlowTile({
+  routeAutoCashFlowTile({
     String suplierName,
     String userName,
     String date,

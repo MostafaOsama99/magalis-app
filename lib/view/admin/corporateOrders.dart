@@ -63,34 +63,19 @@ class _CorporateOrdersState extends State<CorporateOrders> {
         // print(map['type']);
         if (map != null) {
           // print(map['date']);
-          if (map['type'] == 1) {
+          if (map['type'] == 10) {
             title = 'All';
             logo = 'assets/images/AllIcon.png';
             orderstream = Firestore.instance
                 .collection('orders')
                 .where('isCorporate', isEqualTo: true)
                 .getDocuments();
-          } else if (map['type'] == 2) {
+          } else {
             title = 'No Action';
             logo = 'assets/images/NotApproved.png';
             orderstream = Firestore.instance
                 .collection('orders')
-                .where('status', isEqualTo: 'noAction')
-                .where('isCorporate', isEqualTo: true)
-                .getDocuments();
-          } else if (map['type'] == 3) {
-            title = 'Collected';
-            logo = 'assets/images/PersonCheck.png';
-            orderstream = Firestore.instance
-                .collection('orders')
-                .where('status', isEqualTo: 'collected')
-                .where('isCorporate', isEqualTo: true)
-                .getDocuments();
-          } else {
-            title = 'All';
-            logo = 'assets/images/AllIcon.png';
-            orderstream = Firestore.instance
-                .collection('orders')
+                .where('status', isEqualTo: map['status'])
                 .where('isCorporate', isEqualTo: true)
                 .getDocuments();
           }
@@ -121,33 +106,125 @@ class _CorporateOrdersState extends State<CorporateOrders> {
         orderstream = firestoreQuery.getDocuments();
       }
     }
-    return FutureBuilder<DocumentSnapshot>(
-        future: Firestore.instance.collection('myInfo').document('order').get(),
+    return FutureBuilder<QuerySnapshot>(
+        future: orderstream,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting &&
-              !isCalled) {
+          if (snapshot.connectionState == ConnectionState.waiting)
             return Center(
               child: CircularProgressIndicator(),
             );
+
+          final ordersData = snapshot.data.documents;
+          if (filterData != null &&
+              (filterData['lines'] as List) != null &&
+              (filterData['lines'] as List).length > 0) {
+            final lines = filterData['lines'] as List;
+            ordersData.removeWhere(
+                (element) => !lines.contains(element.data['line']));
+          }
+          if (filterData != null &&
+              (filterData['month'] as int) != null &&
+              (filterData['month'] as int) > 0) {
+            final month = filterData['month'] as int;
+            print(month);
+            print(ordersData.length);
+            ordersData.removeWhere((element) {
+              return !((element.data['time'] as Timestamp).toDate().month ==
+                  month);
+            });
+            print(ordersData.length);
+          }
+          if (!searched) {
+            if (!searched) {
+              if (areaAsc) {
+                ordersData.sort((a, b) {
+                  if (a.data['area'] == null) {
+                    return 1;
+                  }
+                  if (b.data['area'] == null) {
+                    return -1;
+                  }
+                  return (a.data['area'] as String)
+                      .toLowerCase()
+                      .compareTo((b.data['area'] as String).toLowerCase());
+                });
+              } else if (areaDes) {
+                ordersData.sort((b, a) {
+                  if (a.data['area'] == null) {
+                    return 1;
+                  }
+                  if (b.data['area'] == null) {
+                    return -1;
+                  }
+                  return (a.data['area'] as String)
+                      .toLowerCase()
+                      .compareTo((b.data['area'] as String).toLowerCase());
+                });
+              } else if (timeAsc) {
+                ordersData.sort((a, b) {
+                  if (a.data['time'] == null) {
+                    return 1;
+                  }
+                  if (b.data['time'] == null) {
+                    return -1;
+                  }
+                  return (a.data['time'] as Timestamp)
+                      .compareTo((b.data['time'] as Timestamp));
+                });
+              } else if (timeDes) {
+                ordersData.sort((b, a) {
+                  if (a.data['time'] == null) {
+                    return 1;
+                  }
+                  if (b.data['time'] == null) {
+                    return -1;
+                  }
+                  return (a.data['time'] as Timestamp)
+                      .compareTo((b.data['time'] as Timestamp));
+                });
+              } else if (numberDes) {
+                ordersData.sort((b, a) {
+                  if (a.data['orderNumber'] == null) {
+                    return 1;
+                  }
+                  if (b.data['orderNumber'] == null) {
+                    return -1;
+                  }
+                  return (a.data['orderNumber'] as int)
+                      .compareTo((b.data['orderNumber'] as int));
+                });
+              } else {
+                ordersData.sort((a, b) {
+                  if (a.data['orderNumber'] == null) {
+                    return 1;
+                  }
+                  if (b.data['orderNumber'] == null) {
+                    return -1;
+                  }
+                  return (a.data['orderNumber'] as int)
+                      .compareTo((b.data['orderNumber'] as int));
+                });
+              }
+            }
           }
           if (!isCalled) {
-            recomendations.addAll(
-                (snapshot.data.data['name'] as List).map((e) => e.toString()));
-            names = (snapshot.data.data['name'] as List)
-                .map((e) => e.toString())
-                .toList();
-            recomendations.addAll((snapshot.data.data['address'] as List)
-                .map((e) => e.toString()));
-            address = (snapshot.data.data['address'] as List)
-                .map((e) => e.toString())
-                .toList();
-            recomendations.addAll(
-                (snapshot.data.data['phone'] as List).map((e) => e.toString()));
-            phones = (snapshot.data.data['phone'] as List)
-                .map((e) => e.toString())
-                .toList();
-            isCalled = true;
-          }
+          recomendations.addAll((snapshot.data.documents)
+              .map<String>((e) => e.data['name'].toString()));
+          names = (snapshot.data.documents)
+              .map<String>((e) => e.data['name'].toString())
+              .toList();
+          recomendations.addAll((snapshot.data.documents)
+              .map<String>((e) => e.data['address'].toString()));
+          address = (snapshot.data.documents)
+              .map<String>((e) => e.data['address'].toString())
+              .toList();
+          recomendations.addAll((snapshot.data.documents)
+              .map<String>((e) => e.data['phone'].toString()));
+          phones = (snapshot.data.documents)
+              .map<String>((e) => e.data['phone'].toString())
+              .toList();
+          isCalled = true;
+        }
 
           return Scaffold(
             bottomNavigationBar: BottomNavigator(),
@@ -452,113 +529,8 @@ class _CorporateOrdersState extends State<CorporateOrders> {
                   ),
                 ),
                 Expanded(
-                  child: FutureBuilder<QuerySnapshot>(
-                      future: orderstream,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting)
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-
-                        final ordersData = snapshot.data.documents;
-                        if (filterData != null &&
-                            (filterData['lines'] as List) != null &&
-                            (filterData['lines'] as List).length > 0) {
-                          final lines = filterData['lines'] as List;
-                          ordersData.removeWhere((element) =>
-                              !lines.contains(element.data['line']));
-                        }
-                        if (filterData != null &&
-                            (filterData['month'] as int) != null &&
-                            (filterData['month'] as int) > 0) {
-                          final month = filterData['month'] as int;
-                          print(month);
-                          print(ordersData.length);
-                          ordersData.removeWhere((element) {
-                            return !((element.data['time'] as Timestamp)
-                                    .toDate()
-                                    .month ==
-                                month);
-                          });
-                          print(ordersData.length);
-                        }
-                        if (!searched) {
-                          if (!searched) {
-                            if (areaAsc) {
-                              ordersData.sort((a, b) {
-                                if (a.data['area'] == null) {
-                                  return 1;
-                                }
-                                if (b.data['area'] == null) {
-                                  return -1;
-                                }
-                                return (a.data['area'] as String)
-                                    .toLowerCase()
-                                    .compareTo((b.data['area'] as String)
-                                        .toLowerCase());
-                              });
-                            } else if (areaDes) {
-                              ordersData.sort((b, a) {
-                                if (a.data['area'] == null) {
-                                  return 1;
-                                }
-                                if (b.data['area'] == null) {
-                                  return -1;
-                                }
-                                return (a.data['area'] as String)
-                                    .toLowerCase()
-                                    .compareTo((b.data['area'] as String)
-                                        .toLowerCase());
-                              });
-                            } else if (timeAsc) {
-                              ordersData.sort((a, b) {
-                                if (a.data['time'] == null) {
-                                  return 1;
-                                }
-                                if (b.data['time'] == null) {
-                                  return -1;
-                                }
-                                return (a.data['time'] as Timestamp)
-                                    .compareTo((b.data['time'] as Timestamp));
-                              });
-                            } else if (timeDes) {
-                              ordersData.sort((b, a) {
-                                if (a.data['time'] == null) {
-                                  return 1;
-                                }
-                                if (b.data['time'] == null) {
-                                  return -1;
-                                }
-                                return (a.data['time'] as Timestamp)
-                                    .compareTo((b.data['time'] as Timestamp));
-                              });
-                            } else if (numberDes) {
-                              ordersData.sort((b, a) {
-                                if (a.data['orderNumber'] == null) {
-                                  return 1;
-                                }
-                                if (b.data['orderNumber'] == null) {
-                                  return -1;
-                                }
-                                return (a.data['orderNumber'] as int)
-                                    .compareTo((b.data['orderNumber'] as int));
-                              });
-                            } else {
-                              ordersData.sort((a, b) {
-                                if (a.data['orderNumber'] == null) {
-                                  return 1;
-                                }
-                                if (b.data['orderNumber'] == null) {
-                                  return -1;
-                                }
-                                return (a.data['orderNumber'] as int)
-                                    .compareTo((b.data['orderNumber'] as int));
-                              });
-                            }
-                          }
-                        }
-                        if (snapshot.data.documents.length <= 0) {
-                          return Center(
+                    child: snapshot.data.documents.length <= 0
+                        ? Center(
                             child: Text(
                               'No Orders to Routed',
                               style: TextStyle(
@@ -566,81 +538,80 @@ class _CorporateOrdersState extends State<CorporateOrders> {
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20),
                             ),
-                          );
-                        }
+                          )
+                        : ListView.builder(
+                            itemCount: ordersData.length,
+                            itemBuilder: (context, i) {
+                              final line = ordersData[i].data['area'] == null
+                                  ? ordersData[i].data['city']
+                                  : ordersData[i].data['area'];
 
-                        return ListView.builder(
-                          itemCount: ordersData.length,
-                          itemBuilder: (context, i) {
-                            final line = ordersData[i].data['area'] == null
-                                ? ordersData[i].data['city']
-                                : ordersData[i].data['area'];
-
-                            return StatefulBuilder(
-                                builder: (context, orderStat) {
-                              return InkWell(
-                                onDoubleTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (ctx) => AlertDialog(
-                                      title: Text('Description:'),
-                                      content: Text(
-                                          '${ordersData[i].data['description']}'),
-                                      actions: <Widget>[
-                                        FlatButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: Text('OK!'))
-                                      ],
-                                    ),
-                                  );
-                                },
-                                onTap: () async {
-                                  Navigator.of(context).pushNamed(
-                                      '/corporateOrderDetails',
-                                      arguments: {
-                                        'docId': ordersData[i].documentID,
-                                      });
-                                },
-                                child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 1.0),
-                                    child: orderItem(
-                                        id: ordersData[i].documentID,
-                                        address: ordersData[i].data['address'],
-                                        title: '${ordersData[i].data['name']}',
-                                        price:
-                                            ordersData[i].data['totalAccount'],
-                                        factoryName:
-                                            '${ordersData[i].data['line']}',
-                                        quantity:
-                                            ordersData[i].data['quantity'],
-                                        date:
-                                            '${ordersData[i].data['createdAt']}',
-                                        description:
-                                            '${ordersData[i].data['description']}',
-                                        phone: '${ordersData[i].data['phone']}',
-                                        underAccount:
-                                            ordersData[i].data['underAccount'],
-                                        number:
-                                            ordersData[i].data['orderNumber'],
-                                        line: '$line',
-                                        isChecked: checkedOrder
-                                            .contains(ordersData[i].documentID),
-                                        type: (ordersData[i].data['status'] ==
-                                                'noAction' &&
-                                            ordersData[i].data['returned'] !=
-                                                null &&
-                                            !ordersData[i].data['returned'] &&
-                                            user.type != 'sales' &&
-                                            user.type != 'warehouse'))),
-                              );
-                            });
-                          },
-                        );
-                      }),
-                )
+                              return StatefulBuilder(
+                                  builder: (context, orderStat) {
+                                return InkWell(
+                                  onDoubleTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: Text('Description:'),
+                                        content: Text(
+                                            '${ordersData[i].data['description']}'),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text('OK!'))
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  onTap: () async {
+                                    Navigator.of(context).pushNamed(
+                                        '/corporateOrderDetails',
+                                        arguments: {
+                                          'docId': ordersData[i].documentID,
+                                        });
+                                  },
+                                  child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 1.0),
+                                      child: orderItem(
+                                          id: ordersData[i].documentID,
+                                          address:
+                                              ordersData[i].data['address'],
+                                          title:
+                                              '${ordersData[i].data['name']}',
+                                          price: ordersData[i]
+                                              .data['totalAccount'],
+                                          factoryName:
+                                              '${ordersData[i].data['line']}',
+                                          quantity:
+                                              ordersData[i].data['quantity'],
+                                          date:
+                                              '${ordersData[i].data['createdAt']}',
+                                          description:
+                                              '${ordersData[i].data['description']}',
+                                          phone:
+                                              '${ordersData[i].data['phone']}',
+                                          underAccount: ordersData[i]
+                                              .data['underAccount'],
+                                          number:
+                                              ordersData[i].data['orderNumber'],
+                                          line: '$line',
+                                          isChecked: checkedOrder.contains(
+                                              ordersData[i].documentID),
+                                          type: (ordersData[i].data['status'] ==
+                                                  'noAction' &&
+                                              ordersData[i].data['returned'] !=
+                                                  null &&
+                                              !ordersData[i].data['returned'] &&
+                                              user.type != 'sales' &&
+                                              user.type != 'warehouse'))),
+                                );
+                              });
+                            },
+                          ))
               ],
             ),
           );

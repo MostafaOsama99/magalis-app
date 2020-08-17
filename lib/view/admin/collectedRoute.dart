@@ -1,6 +1,7 @@
 //Screen 10
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 class CollectedRoutes extends StatelessWidget {
@@ -82,9 +83,13 @@ class CollectedRoutes extends StatelessWidget {
                 final routesData = snapshot.data.documents;
                 routesData.sort((a, b) => (a.data['time'] as Timestamp)
                     .compareTo((b.data['time'] as Timestamp)));
-                return ListView.builder(
+                return ListView.builder( 
                   itemCount: routesData.length,
                   itemBuilder: (context, i) {
+                    int qty = 0;
+                    (routesData[i].data['orders'] as List).forEach((element) {
+                      qty += element['qty'] == null ? 0 : element['qty'];
+                    });
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: InkWell(
@@ -157,25 +162,56 @@ class CollectedRoutes extends StatelessWidget {
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18),
                                   ),
-                                  Icon(
-                                    Icons.info,
-                                    color: Colors.amber,
-                                  )
+                                  Text(
+                                    'Orders: ${(routesData[i].data['orders'] as List).length}',
+                                    style: TextStyle(
+                                        color: Color.fromRGBO(170, 44, 94, 1),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18),
+                                  ),
                                 ],
                               ),
-                              Text(
-                                'Area: ${routesData[i].data['area']}',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Area: ${routesData[i].data['area']}',
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                  Text(
+                                    'Total: ${routesData[i].data['totalAmount']} EGP',
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                'Date: ${routesData[i].data['date']}', //date
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Date: ${DateFormat.yMd().add_EEEE().format((routesData[i].data['time'] as Timestamp).toDate()).toString()}', //date
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                  qty > 0
+                                      ? Text(
+                                          'Qty: ${qty}',
+                                          style: TextStyle(
+                                              color: Colors.grey,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16),
+                                        )
+                                      : SizedBox(),
+                                ],
                               )
                             ],
                           ),

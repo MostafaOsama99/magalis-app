@@ -71,7 +71,7 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                             'area': routeData['area'],
                             'date': routeData['date'],
                             'id': snapshot.data.documentID,
-                            'orderList':snapshot.data.data['orders']
+                            'orderList': snapshot.data.data['orders']
                           });
                         },
                         child: Container(
@@ -260,7 +260,7 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
                   : ((user.type == 'admin' ||
                               user.type == 'warehouse' ||
                               user.type == 'operation') &&
-                          isOperationable)
+                          snapshot.data.data['status'] == 'new')
                       ? InkWell(
                           onTap: () async {
                             setState(() {
@@ -312,11 +312,11 @@ class _RouteItemDetailsState extends State<RouteItemDetails> {
               SizedBox(
                 height: 8,
               ),
-              (user.type != 'sales' && user.type != 'warehouse')
+              (user.type != 'sales' && user.type != 'warehouse') &&
+                      snapshot.data.data['status'] == 'new'
                   ? InkWell(
                       onTap: () {
-                        Navigator.of(context)
-                            .pushNamed('/orders', arguments: {
+                        Navigator.of(context).pushNamed('/orders', arguments: {
                           'type': 4,
                           'routeId': snapshot.data.documentID,
                           'lastOrders': ordersList,

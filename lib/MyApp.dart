@@ -1,3 +1,4 @@
+import 'package:maglis_app/view/admin/autoCashFlow.dart';
 import 'package:maglis_app/view/admin/customerServicesHome.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,6 +28,8 @@ import 'package:maglis_app/view/admin/corporateOrders.dart';
 import 'package:maglis_app/view/admin/distribute.dart';
 import 'package:maglis_app/view/admin/cashFlow.dart';
 import 'package:maglis_app/view/admin/editRoute.dart';
+import 'package:maglis_app/view/admin/employeeLoans.dart';
+import 'package:maglis_app/view/admin/employeeSalaryScreen.dart';
 import 'package:maglis_app/view/admin/expensesDetails.dart';
 import 'package:maglis_app/view/admin/collectedRoute.dart';
 import 'package:maglis_app/view/admin/dateDetails.dart';
@@ -40,6 +43,7 @@ import 'package:maglis_app/view/admin/expensesNotApprobedDetails.dart';
 import 'package:maglis_app/view/admin/filterScreen.dart';
 import 'package:maglis_app/view/admin/finance.dart';
 import 'package:maglis_app/view/admin/financeAndShipments.dart';
+import 'package:maglis_app/view/admin/financeFilter.dart';
 import 'package:maglis_app/view/admin/home.dart';
 import 'package:maglis_app/view/admin/issueHome.dart';
 import 'package:maglis_app/view/admin/issueScreen.dart';
@@ -74,6 +78,7 @@ import 'package:maglis_app/view/admin/orderHome.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
 import 'package:maglis_app/view/sales/salesHome.dart';
 import 'package:maglis_app/view/warehouse/totalProduction.dart';
+import 'package:maglis_app/view/warehouse/totalProductionHome.dart';
 import 'package:maglis_app/view/warehouse/warehouseHome.dart';
 import 'package:maglis_app/view/warehouse/warehouseOnDistribution.dart';
 import 'package:provider/provider.dart';
@@ -96,6 +101,7 @@ class _MyAppState extends State<MyApp> {
         ),
         home: LoginPage(),
         routes: {
+          "/autoCashFlow": (ctx) => AutoCashFlow(),
           "/splashscreen": (ctx) => SplashScreen(),
           "/allScreens": (ctx) => AllScreens(),
           "/addOrder": (ctx) => AddOrder(),
@@ -121,7 +127,7 @@ class _MyAppState extends State<MyApp> {
           "/distributionHome": (ctx) => DistributionHome(),
           "/distributionCities": (ctx) => DistributionCities(),
           "/distributionType": (ctx) => DistributionType(),
-
+          "/financeFilter": (ctx) => FinanceFilter(),
           "/onDistributionType": (ctx) => OnDistributionType(),
           "/editOrder": (ctx) => EditOrder(),
           "/reprePage": (ctx) => ReprePage(),
@@ -159,10 +165,12 @@ class _MyAppState extends State<MyApp> {
           "/approvedTwo": (ctx) => ApprovedTwo(),
           "/notapprovedTwo": (ctx) => NotApprovedTwo(),
           "/loans": (ctx) => Loans(),
+          "/employeeLoan": (ctx) => EmployeeLoans(),
+          "/employeeSalary": (ctx) => EmployeeSalaries(),
           "/addLoans": (ctx) => AddLoans(),
-          "/salaries": (ctx) => SalariesScreen(),
+          "/salaries": (ctx) => SalaryScreen(),
           "/monthSalary": (ctx) => MonthSalary(),
-          "/addSalary": (ctx) => AddSalary(),
+          "/addSalary": (ctx) => AddSalaries(),
           "/editRoute": (ctx) => EditRoute(),
           //OperationApp
           "/operation": (ctx) => OperationHome(),
@@ -173,6 +181,7 @@ class _MyAppState extends State<MyApp> {
           "/warehouse": (ctx) => WarehouseHome(),
           "/warehouseOnDistribution": (ctx) => WareOnDistribution(),
           "/totalProduction": (ctx) => TotalPro(),
+          "/totalProductionHome": (ctx) => TotalProductionHome(),
         },
 
         //initialRoute: '/distributionCities',

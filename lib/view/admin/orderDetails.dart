@@ -200,6 +200,15 @@ class _OrderDetailsState extends State<OrderDetails> {
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16),
                             ),
+                            order['channel'] != null
+                                ? Text(
+                                    'Channel: ${order['channel']}',
+                                    style: TextStyle(
+                                        color: Color.fromRGBO(170, 44, 94, 1),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  )
+                                : SizedBox(),
                             Text(
                               'Created Date: ${order['createdAt']}',
                               style: TextStyle(
@@ -1085,13 +1094,16 @@ class _OrderDetailsState extends State<OrderDetails> {
                                             .document(element.documentID)
                                             .updateData({'isSolved': true});
                                       });
+                                      print('qtys:${order['quantity']}');
                                       await Navigator.of(context)
                                           .pushNamed('/newRoute', arguments: {
                                         'type': 2,
                                         'docId': snapshot.data.documentID,
                                         'address': order['address'],
                                         'name': order['name'],
-                                        'totalAccount': order['totalAccount']
+                                        'totalAccount': order['totalAccount'] -
+                                            order['underAccount'],
+                                        'qty': order['quantity'],
                                       });
                                       setState(() {
                                         distributed = true;

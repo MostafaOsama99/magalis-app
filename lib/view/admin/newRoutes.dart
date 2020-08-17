@@ -118,6 +118,7 @@ class _NewRoutesState extends State<NewRoutes> {
                 final routesData = snapshot.data.documents;
                 routesData.sort((a, b) => (a.data['time'] as Timestamp)
                     .compareTo((b.data['time'] as Timestamp)));
+
                 if (snapshot.data == null) {
                   return Center(
                     child: Text(
@@ -130,6 +131,10 @@ class _NewRoutesState extends State<NewRoutes> {
                 return ListView.builder(
                   itemCount: snapshot.data.documents.length,
                   itemBuilder: (context, i) {
+                    int qty = 0;
+                    (routesData[i].data['orders'] as List).forEach((element) {
+                      qty += element['qty'] == null ? 0 : element['qty'];
+                    });
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: InkWell(
@@ -152,6 +157,7 @@ class _NewRoutesState extends State<NewRoutes> {
                                   'name': map['name'],
                                   'address': map['address'],
                                   'totalAccount': map['totalAccount'],
+                                  'qty': map['qty']
                                 });
                                 final totalAmount =
                                     routesData[i].data['totalAmount'] +
@@ -236,25 +242,54 @@ class _NewRoutesState extends State<NewRoutes> {
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18),
                                   ),
-                                  Icon(
-                                    Icons.info,
-                                    color: Colors.amber,
-                                  )
+                                  Text(
+                                    'Orders: ${(routesData[i].data['orders'] as List).length}',
+                                    style: TextStyle(
+                                        color: Color.fromRGBO(170, 44, 94, 1),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18),
+                                  ),
                                 ],
                               ),
-                              Text(
-                                'Area: ${routesData[i].data['area']}',
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Area: ${routesData[i].data['area']}',
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                  Text(
+                                    'Total: ${routesData[i].data['totalAmount']} EGP',
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                'Date: ${routesData[i].data['date']}', //date
-                                style: TextStyle(
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Date: ${DateFormat.yMd().add_EEEE().format((routesData[i].data['time'] as Timestamp).toDate()).toString()}', //date
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                  Text(
+                                    'Qty: ${qty}',
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16),
+                                  ),
+                                ],
                               )
                             ],
                           ),

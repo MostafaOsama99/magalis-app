@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:maglis_app/controllers/auth.dart';
 import 'package:maglis_app/controllers/userProvider.dart';
@@ -273,6 +274,7 @@ class _LoginPageState extends State<LoginPage> {
     Provider.of<UserProvider>(context, listen: false)
         .setUser(User(name: userData['name'], type: userData['type']));
     if (userData['type'] == 'admin') {
+      await FirebaseMessaging().subscribeToTopic('admin');
       Navigator.pushNamedAndRemoveUntil(context, '/admin', (route) => false);
     } else if (userData['type'] == 'operation') {
       Navigator.pushNamedAndRemoveUntil(

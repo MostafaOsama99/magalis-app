@@ -1,37 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:maglis_app/controllers/userProvider.dart';
 import 'package:maglis_app/widgets/bottomNavigator.dart';
+import 'package:provider/provider.dart';
 
-class CashFlowHome extends StatelessWidget {
+class TotalProductionHome extends StatefulWidget {
+  @override
+  _TotalProductionState createState() => _TotalProductionState();
+}
+
+class _TotalProductionState extends State<TotalProductionHome> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final user = Provider.of<UserProvider>(context).user;
+
     return Scaffold(
-      bottomNavigationBar: BottomNavigator(),
-      backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        elevation: 10,
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        title: Image.asset(
-          'assets/images/logo.png',
-          width: 150,
+        bottomNavigationBar: BottomNavigator(),
+        backgroundColor: Colors.grey[200],
+        appBar: AppBar(
+          elevation: 10,
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          title: Image.asset(
+            'assets/images/logo.png',
+            width: 170,
+          ),
         ),
-      ),
-      body: Column(
-        children: [
+        body: Column(children: [
           SizedBox(
             height: 10,
           ),
           Container(
             color: Colors.white,
             child: ListTile(
-              leading: Image.asset(
-                'assets/images/CashFlow.png',
-                width: 50,
-                height: 50,
-              ),
+              leading: Image.asset('assets/images/NotApproved.png'),
               title: Text(
-                'Cash Flow',
+                'Total Production',
                 style: TextStyle(
                     color: Color.fromRGBO(170, 44, 94, 1),
                     fontWeight: FontWeight.bold,
@@ -48,11 +52,12 @@ class CashFlowHome extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/cashFlow'),
+                        onTap: () => Navigator.of(context).pushNamed(
+                            '/totalProduction',
+                            arguments: {'type': 1}),
                         child: Container(
                           width: size.width / 2.25,
-                          height: 150,
+                          height: 170,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border:
@@ -63,13 +68,14 @@ class CashFlowHome extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Container(
-                                  child: Icon(
-                                Icons.new_releases,
-                                size: 50,
-                                color: Color.fromRGBO(170, 44, 94, 1),
-                              )),
+                                child:
+                                    Image.asset('assets/images/LineIcon.png'),
+                                width: 100,
+                                height: 100,
+                              ),
                               Text(
-                                'New Cash Flow',
+                                'Cairo',
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: 18,
                                     color: Color.fromRGBO(134, 134, 134, 1),
@@ -80,36 +86,38 @@ class CashFlowHome extends StatelessWidget {
                         ),
                       ),
                       InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/oldCashFlowHome'),
+                        onTap: () => Navigator.of(context).pushNamed(
+                            '/totalProduction',
+                            arguments: {'type': 2}),
                         child: Container(
-                            width: size.width / 2.25,
-                            height: 150,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(
-                                  width: 2.5, color: Colors.grey[400]),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Container(
-                                  child: Icon(
-                                    Icons.timelapse,
-                                    color: Color.fromRGBO(170, 44, 94, 1),
-                                    size: 50,
-                                  ),
-                                ),
-                                Text(
-                                  'Old Cash Flow',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      color: Color.fromRGBO(134, 134, 134, 1),
-                                      fontWeight: FontWeight.bold),
-                                )
-                              ],
-                            )),
+                          width: size.width / 2.25,
+                          height: 170,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border:
+                                Border.all(width: 2.5, color: Colors.grey[400]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Container(
+                                child:
+                                    Image.asset('assets/images/LinesIcon.png'),
+                                width: 100,
+                                height: 100,
+                              ),
+                              Text(
+                                'Cities',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: Color.fromRGBO(134, 134, 134, 1),
+                                    fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -120,11 +128,12 @@ class CashFlowHome extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       InkWell(
-                        onTap: () =>
-                            Navigator.of(context).pushNamed('/autoCashFlow'),
+                        onTap: () => Navigator.of(context).pushNamed(
+                            '/totalProduction',
+                            arguments: {'type': 3}),
                         child: Container(
                           width: size.width / 2.25,
-                          height: 150,
+                          height: 170,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border:
@@ -135,18 +144,17 @@ class CashFlowHome extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Container(
-                                  child: Icon(
-                                Icons.autorenew,
-                                size: 50,
-                                color: Color.fromRGBO(170, 44, 94, 1),
-                              )),
+                                child: Image.asset('assets/images/AllIcon.png'),
+                                width: 100,
+                                height: 100,
+                              ),
                               Text(
-                                'Automatic Cash Flow',
+                                'Corporation',
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: 18,
                                     color: Color.fromRGBO(134, 134, 134, 1),
                                     fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.center,
                               )
                             ],
                           ),
@@ -154,12 +162,10 @@ class CashFlowHome extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
+                )
               ],
             ),
-          )
-        ],
-      ),
-    );
+          ),
+        ]));
   }
 }

@@ -14,8 +14,6 @@ class ExpensesDetails extends StatelessWidget {
         MediaQuery.of(context).padding.top;
     final map = (ModalRoute.of(context).settings.arguments as Map);
     final id = map['id'];
-    Future<DocumentSnapshot> stream =
-        Firestore.instance.collection('expenses').document(id).get();
     final user = Provider.of<UserProvider>(context, listen: false).user;
     return Scaffold(
       bottomNavigationBar: BottomNavigator(),
@@ -30,7 +28,7 @@ class ExpensesDetails extends StatelessWidget {
         ),
       ),
       body: FutureBuilder<DocumentSnapshot>(
-          future: stream,
+          future: Firestore.instance.collection('expenses').document(id).get(),
           builder: (context, snapshot) {
             final data = snapshot.data.data;
             return Column(
