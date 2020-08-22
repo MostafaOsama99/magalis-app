@@ -152,7 +152,7 @@ class _FinanceState extends State<Finance> {
                         ),
                       ),
                       InkWell(
-                        onTap: () => Navigator.of(context).pushNamed('/blCalc'),
+                        onTap: () => Navigator.of(context).pushNamed('/blHome'),
                         child: Container(
                           width: size.width / 2.25,
                           height: 150,

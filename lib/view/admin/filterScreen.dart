@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:maglis_app/widgets/bottomNavigator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FilterScreen extends StatefulWidget {
   @override
@@ -28,18 +29,63 @@ class _FilterScreenState extends State<FilterScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return FutureBuilder<DocumentSnapshot>(
-        future: Firestore.instance.collection('myInfo').document('area').get(),
+    final map = ModalRoute.of(context).settings.arguments as Map;
+    final isCity = map['isCity'] == null ? false : map['isCity'];
+    Future getFilter;
+    if (!isCity) {
+      getFilter =
+          Firestore.instance.collection('myInfo').document('area').get();
+    } else {
+      getFilter = Future.delayed(Duration(milliseconds: 50));
+    }
+    return FutureBuilder(
+        future: getFilter,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting && !called) {
-            called = true;
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+          if (!isCity) {
+            if (snapshot.connectionState == ConnectionState.waiting &&
+                !called) {
+              called = true;
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
           }
-          areas = (snapshot.data.data['areas'] as List)
-              .map((e) => e.toString())
-              .toList();
+
+          if (isCity) {
+            areas = [
+              'Alexandria',
+              'Aswan',
+              'Asyut',
+              'Beheira',
+              'Beni Suef',
+              'Cairo',
+              'Dakahlia',
+              'Damietta',
+              'Faiyum',
+              'Gharbia',
+              'Giza',
+              'Ismailia',
+              'Kafr El Sheikh',
+              'Luxor',
+              'Minya',
+              'Monufia',
+              'New Valley',
+              'North Sinai',
+              'North Coast',
+              'Port Said',
+              'Qalyubia',
+              'Qena',
+              'Red Sea',
+              'Sharqia',
+              'Sohag',
+              'South Sinai',
+              'Suez'
+            ];
+          } else {
+            areas = (snapshot.data.data['areas'] as List)
+                .map((e) => e.toString())
+                .toList();
+          }
           return Scaffold(
               bottomNavigationBar: BottomNavigator(),
               backgroundColor: Colors.grey[200],
@@ -444,9 +490,20 @@ class _FilterScreenState extends State<FilterScreen> {
                     ),
                     InkWell(
                       onTap: () async {
+                        final preference =
+                            await SharedPreferences.getInstance();
                         print(selectedAreas);
                         print(selectedLines);
+                        if (isCity != null && isCity) {
+                          await preference.setStringList('city', selectedAreas);
+                        }else{
+                          await preference.setStringList('areas', selectedAreas);
+                        }
+                        await preference.setStringList('lines', selectedLines);
+
                         if (isDate) {
+                          await preference.setString(
+                              'date', DateFormat.yMd().format(date));
                           Map filterMap = {
                             'lines': selectedLines,
                             'areas': selectedAreas,
@@ -455,6 +512,7 @@ class _FilterScreenState extends State<FilterScreen> {
                           print(filterMap);
                           Navigator.of(context).pop(filterMap);
                         } else if (isMonth) {
+                          await preference.setInt('month', month);
                           Map filterMap = {
                             'lines': selectedLines,
                             'areas': selectedAreas,

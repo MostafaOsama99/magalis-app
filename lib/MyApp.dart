@@ -1,4 +1,6 @@
+import 'package:maglis_app/view/admin/autoBL.dart';
 import 'package:maglis_app/view/admin/autoCashFlow.dart';
+import 'package:maglis_app/view/admin/blHome.dart';
 import 'package:maglis_app/view/admin/customerServicesHome.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -108,7 +110,9 @@ class _MyAppState extends State<MyApp> {
           "/addRoute": (ctx) => AddRoute(),
           "/addRevenue": (ctx) => AddRevenue(),
           "/approvedRevenue": (ctx) => ApprovedRevenue(),
+          "/autoBL": (ctx) => AutoBlCalc(),
           "/blCalc": (ctx) => BlCalc(),
+          "/blHome": (ctx) => BLCalculationHome(),
           "/corporateHome": (ctx) => CorporateHome(),
           "/corporateOrders": (ctx) => CorporateOrders(),
           "/corporateOrderDetails": (ctx) => CorporateOrderDetails(),

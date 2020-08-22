@@ -113,9 +113,27 @@ class _OrderDetailsState extends State<OrderDetails> {
                                 .updateData({'status': 'noAction'});
 
                             setState(() {});
+                          } else if (val == 'Follow Up') {
+                            Firestore.instance
+                                .collection('orders')
+                                .document(docId)
+                                .updateData({'follow': true});
+
+                            setState(() {});
+                          } else if (val == 'Un Follow') {
+                            Firestore.instance
+                                .collection('orders')
+                                .document(docId)
+                                .updateData({'follow': false});
+
+                            setState(() {});
                           }
                         },
                         itemBuilder: ((BuildContext context) {
+                          final followCheck =
+                              (order['follow'] == null || !order['follow'])
+                                  ? 'Follow Up'
+                                  : 'Un Follow';
                           if (snapshot.data.data['status'] == 'archived') {
                             return {'Cancel', 'No Action'}.map((String choice) {
                               return PopupMenuItem<String>(
@@ -124,7 +142,8 @@ class _OrderDetailsState extends State<OrderDetails> {
                               );
                             }).toList();
                           }
-                          return {'Cancel', 'Archive'}.map((String choice) {
+                          return {'Cancel', 'Archive', followCheck}
+                              .map((String choice) {
                             return PopupMenuItem<String>(
                               value: choice,
                               child: Text(choice),

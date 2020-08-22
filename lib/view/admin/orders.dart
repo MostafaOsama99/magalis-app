@@ -7,6 +7,7 @@ import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 import 'package:maglis_app/widgets/orderTile.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart' as url;
 
 class OrdersPage extends StatefulWidget {
@@ -34,12 +35,41 @@ class _OrdersPageState extends State<OrdersPage> {
   List<String> names = [];
   List<String> address = [];
   List<String> phones = [];
+  List<String> orderNumbers = [];
 
   List<String> recomendations = [];
 
   Future orderstream;
+  Query orderQuery;
 
   List<String> checkedOrder = [];
+
+  Future<QuerySnapshot> checkFilter(Query firestoreQuery) async {
+    final preference = await SharedPreferences.getInstance();
+    final lines = preference.getStringList('lines');
+    final areas = preference.getStringList('areas');
+    final date = preference.getString('date');
+    final month = preference.getInt('month');
+    filterData={};
+    if (areas != null && areas.length > 0) {
+      filterData['areas'] = areas;
+      firestoreQuery = firestoreQuery.where('area', whereIn: areas);
+    }
+
+    if (date != null && date.isNotEmpty) {
+      filterData['date'] = date;
+      firestoreQuery = firestoreQuery.where('createdAt', isEqualTo: date);
+    }
+    if (lines != null) {
+      filterData.putIfAbsent('lines', () => lines);
+    }
+    if (month != null) {
+      filterData['month'] = month;
+    }
+    final snapshot =  await firestoreQuery.getDocuments();
+    print(snapshot.documents.length);
+    return snapshot;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +92,12 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
                 .getDocuments();
+            orderQuery = Firestore.instance
+                .collection('orders')
+                .where('status', isEqualTo: map['status'])
+                .where('area', isEqualTo: map['date'])
+                .where('isCairo', isEqualTo: true)
+                .where('isCorporate', isEqualTo: false);
           } else if (map['type'] == 2) {
             orderstream = Firestore.instance
                 .collection('orders')
@@ -70,6 +106,12 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
                 .getDocuments();
+            orderQuery = Firestore.instance
+                .collection('orders')
+                .where('status', isEqualTo: map['status'])
+                .where('createdAt', isEqualTo: map['date'])
+                .where('isCairo', isEqualTo: true)
+                .where('isCorporate', isEqualTo: false);
           } else if (map['type'] == 3) {
             orderstream = Firestore.instance
                 .collection('orders')
@@ -78,6 +120,12 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
                 .getDocuments();
+            orderQuery = Firestore.instance
+                .collection('orders')
+                .where('status', isEqualTo: map['status'])
+                .where('line', isEqualTo: map['date'])
+                .where('isCairo', isEqualTo: true)
+                .where('isCorporate', isEqualTo: false);
           } else if (map['type'] == 4) {
             orderstream = Firestore.instance
                 .collection('orders')
@@ -85,6 +133,11 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
                 .getDocuments();
+            orderQuery = Firestore.instance
+                .collection('orders')
+                .where('status', isEqualTo: map['status'])
+                .where('isCairo', isEqualTo: true)
+                .where('isCorporate', isEqualTo: false);
           } else if (map['type'] == 7) {
             orderstream = Firestore.instance
                 .collection('orders')
@@ -92,6 +145,24 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
                 .getDocuments();
+            orderQuery = Firestore.instance
+                .collection('orders')
+                .where('status', isEqualTo: map['status'])
+                .where('isCairo', isEqualTo: true)
+                .where('isCorporate', isEqualTo: false);
+          } else if (map['follow'] != null && map['follow']) {
+            orderstream = Firestore.instance
+                .collection('orders')
+                .where('isCairo', isEqualTo: true)
+                .where('isCorporate', isEqualTo: false)
+                .where('follow', isEqualTo: true)
+                .getDocuments();
+            orderQuery = Firestore.instance
+                .collection('orders')
+                .where('status', isEqualTo: map['status'])
+                .where('isCairo', isEqualTo: true)
+                .where('isCorporate', isEqualTo: false)
+                .where('follow', isEqualTo: true);
           } else {
             orderstream = Firestore.instance
                 .collection('orders')
@@ -99,6 +170,11 @@ class _OrdersPageState extends State<OrdersPage> {
                 .where('isCairo', isEqualTo: true)
                 .where('isCorporate', isEqualTo: false)
                 .getDocuments();
+            orderQuery = Firestore.instance
+                .collection('orders')
+                .where('status', isEqualTo: map['status'])
+                .where('isCairo', isEqualTo: true)
+                .where('isCorporate', isEqualTo: false);
           }
         } else {
           orderstream = Firestore.instance
@@ -106,6 +182,10 @@ class _OrdersPageState extends State<OrdersPage> {
               .where('isCairo', isEqualTo: true)
               .where('isCorporate', isEqualTo: false)
               .getDocuments();
+          orderQuery = Firestore.instance
+              .collection('orders')
+              .where('isCairo', isEqualTo: true)
+              .where('isCorporate', isEqualTo: false);
         }
       } else {
         List<String> areas = filterData['areas'];
@@ -129,14 +209,14 @@ class _OrdersPageState extends State<OrdersPage> {
         orderstream = firestoreQuery.getDocuments();
       }
     }
+    
     return FutureBuilder<QuerySnapshot>(
-      future: orderstream,
+      future:orderstream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting)
           return Center(
             child: CircularProgressIndicator(),
           );
-
         final ordersData = snapshot.data.documents;
 
         if (filterData != null &&
@@ -253,6 +333,12 @@ class _OrdersPageState extends State<OrdersPage> {
           phones = (snapshot.data.documents)
               .map<String>((e) => e.data['phone'].toString())
               .toList();
+          recomendations.addAll((snapshot.data.documents)
+              .map<String>((e) => e.data['orderNumber'].toString()));
+          orderNumbers = snapshot.data.documents
+              .map<String>((e) => e.data['orderNumber'].toString())
+              .toList();
+
           isCalled = true;
         }
 
@@ -282,16 +368,23 @@ class _OrdersPageState extends State<OrdersPage> {
                         orderquery = Firestore.instance
                             .collection('orders')
                             .where('name', isEqualTo: item);
-                      }
-                      if (address.contains(item)) {
+                      } else if (address.contains(item)) {
                         orderquery = Firestore.instance
                             .collection('orders')
                             .where('address', isEqualTo: item);
-                      }
-                      if (phones.contains(item)) {
+                      } else if (phones.contains(item)) {
                         orderquery = Firestore.instance
                             .collection('orders')
                             .where('phone', isEqualTo: item);
+                      } else if (orderNumbers.contains(item)) {
+                        final number = int.parse(item);
+                        orderquery = Firestore.instance
+                            .collection('orders')
+                            .where('orderNumber', isEqualTo: number);
+                      } else {
+                        orderquery = Firestore.instance
+                            .collection('orders')
+                            .where('orderNumber', isEqualTo: item);
                       }
                       orderstream = orderquery.getDocuments();
                       isSearch = false;
@@ -547,7 +640,8 @@ class _OrdersPageState extends State<OrdersPage> {
                           child: InkWell(
                             onTap: () async {
                               filterData = await Navigator.of(context)
-                                  .pushNamed('/filter') as Map;
+                                  .pushNamed('/filter',
+                                      arguments: {'isCity': false}) as Map;
                               print(filterData);
                               setState(() {
                                 searched = false;

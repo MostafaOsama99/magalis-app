@@ -211,7 +211,7 @@ class _OnDistributionRoutesState extends State<OnDistributionRoutes> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'Date: ${DateFormat.yMd().add_EEEE().format((routesData[i].data['time'] as Timestamp).toDate()).toString()}', //date
+                                    'Date: ${routesData[i].data['date']}', //date
                                     style: TextStyle(
                                         color: Colors.grey,
                                         fontWeight: FontWeight.bold,

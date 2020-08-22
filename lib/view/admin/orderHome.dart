@@ -42,7 +42,9 @@ class _RevenueState extends State<OrderHomeScreen> {
                       fontWeight: FontWeight.bold,
                       fontSize: 20),
                 ),
-                trailing: user.type == 'admin' || user.type == 'sales' || user.type == 'operation'
+                trailing: user.type == 'admin' ||
+                        user.type == 'sales' ||
+                        user.type == 'operation'
                     ? InkWell(
                         onTap: () =>
                             Navigator.of(context).pushNamed('/addOrder'),
@@ -308,45 +310,94 @@ class _RevenueState extends State<OrderHomeScreen> {
                     ],
                   ),
                 ),
-                InkWell(
-                  onTap: () =>
-                      Navigator.of(context).pushNamed('/orders', arguments: {
-                    'logo': 'assets/images/DateIcon.png',
-                    'type': 0,
-                    'title': 'Archived',
-                    'status': 'archived',
-                  }),
-                  child: Container(
-                    width: size.width / 2.25,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(width: 2.5, color: Colors.grey[400]),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Container(
-                          child: Image.asset('assets/images/DateIcon.png'),
-                          width: 100,
-                          height: 100,
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      InkWell(
+                        onTap: () => Navigator.of(context)
+                            .pushNamed('/orders', arguments: {
+                          'logo': 'assets/images/DateIcon.png',
+                          'type': 0,
+                          'title': 'Archived',
+                          'status': 'archived',
+                        }),
+                        child: Container(
+                          width: size.width / 2.25,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border:
+                                Border.all(width: 2.5, color: Colors.grey[400]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Container(
+                                child:
+                                    Image.asset('assets/images/DateIcon.png'),
+                                width: 100,
+                                height: 100,
+                              ),
+                              Text(
+                                'Archived',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: Color.fromRGBO(134, 134, 134, 1),
+                                    fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
                         ),
-                        Text(
-                          'Archived',
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Color.fromRGBO(134, 134, 134, 1),
-                              fontWeight: FontWeight.bold),
-                        )
-                      ],
-                    ),
+                      ),
+                      InkWell(
+                        onTap: () => Navigator.of(context)
+                            .pushNamed('/orders', arguments: {
+                          'logo': 'assets/images/AllIcon.png',
+                          'type': 0,
+                          'title': 'All',
+                          'follow': true,
+                        }),
+                        child: Container(
+                          width: size.width / 2.25,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border:
+                                Border.all(width: 2.5, color: Colors.grey[400]),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Container(
+                                child: Icon(
+                                  Icons.arrow_upward,
+                                  size: 45,
+                                  color: Color.fromRGBO(170, 44, 94, 1),
+                                ),
+                                width: 100,
+                                height: 100,
+                              ),
+                              Text(
+                                'Follow Up',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: Color.fromRGBO(134, 134, 134, 1),
+                                    fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-         
         ],
       ),
     );

@@ -57,6 +57,7 @@ class _AddOrderState extends State<AddOrder> {
     'Monufia',
     'New Valley',
     'North Sinai',
+    'North Coast',
     'Port Said',
     'Qalyubia',
     'Qena',
@@ -757,6 +758,22 @@ class _AddOrderState extends State<AddOrder> {
                       String area = areaController.text;
                       String address = addressController.text;
 
+                      if (!areas.contains(area)&& selected == 'Cairo'&& area.isNotEmpty&& area!='null') {
+                        showDialog(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                                  title: Text('Validation Error'),
+                                  content: Text(
+                                      'This area is not recognised in the System'),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(),
+                                        child: Text('Ok!'))
+                                  ],
+                                ));
+                        return;
+                      }
                       String description = descriptionConroller.text;
                       String phoneNumber = phoneController.text;
                       double amount = double.parse(priceController.text);
@@ -783,21 +800,13 @@ class _AddOrderState extends State<AddOrder> {
                                 ));
                         return;
                       }
-                      if (area != null) {
-                        if (!areas.contains(area)) {
-                          areas.add(area);
-                          Firestore.instance
-                              .collection('myInfo')
-                              .document('area')
-                              .updateData({'areas': areas});
-                        }
-                      }
+
                       List note = [];
                       if (noteController.text.isNotEmpty) {
                         note.add(
                             {'note': noteController.text, 'from': user.name});
                       }
-                      
+
                       if (selected.toLowerCase() == 'cairo') {
                         await Firestore.instance.collection('orders').add({
                           'time': DateTime.now(),
@@ -842,37 +851,6 @@ class _AddOrderState extends State<AddOrder> {
                           'channel': channel,
                         });
                       }
-                      final document = await Firestore.instance
-                          .collection('myInfo')
-                          .document('order')
-                          .get();
-                      final names = (document.data['name'] as List)
-                          .map((e) => e.toString())
-                          .toList();
-                      final addressList = (document.data['address'] as List)
-                          .map((e) => e.toString())
-                          .toList();
-                      final phones = (document.data['phone'] as List)
-                          .map((e) => e.toString())
-                          .toList();
-                      if (!names.contains(name)) {
-                        names.add(name);
-                      }
-                      if (!addressList.contains(address)) {
-                        addressList.add(address);
-                      }
-                      if (!phones.contains(phoneNumber)) {
-                        phones.add(phoneNumber);
-                      }
-
-                      await Firestore.instance
-                          .collection('myInfo')
-                          .document('order')
-                          .updateData({
-                        'name': names,
-                        'address': addressList,
-                        'phone': phones
-                      });
                       await showDialog(
                         context: context,
                         child: AlertDialog(

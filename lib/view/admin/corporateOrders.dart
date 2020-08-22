@@ -484,7 +484,8 @@ class _CorporateOrdersState extends State<CorporateOrders> {
                             child: InkWell(
                               onTap: () async {
                                 filterData = await Navigator.of(context)
-                                    .pushNamed('/filter') as Map;
+                                    .pushNamed('/filter',
+                                      arguments: {'isCity': false}) as Map;
                                 print(filterData);
                                 setState(() {
                                   searched = false;

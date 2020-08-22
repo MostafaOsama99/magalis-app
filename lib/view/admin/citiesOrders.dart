@@ -7,6 +7,7 @@ import 'package:maglis_app/widgets/bottomNavigator.dart';
 
 import 'package:maglis_app/widgets/orderTile.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart' as url;
 
 class CitiesOrders extends StatefulWidget {
@@ -40,8 +41,38 @@ class _CitiesOrdersState extends State<CitiesOrders> {
   Future orderstream;
 
   List<String> checkedOrder = [];
+
+  String status = '';
   var title = 'All';
   var logo = 'assets/images/AllIcon.png';
+  Query firestoreQuery;
+  Future<QuerySnapshot> checkFilter(Query firestoreQuery) async {
+    final preference = await SharedPreferences.getInstance();
+    final lines = preference.getStringList('lines');
+    final city = preference.getStringList('city');
+    final date = preference.getString('date');
+    final month = preference.getInt('month');
+    filterData = {};
+    if (city != null && city.length > 0) {
+      filterData['areas'] = city;
+      firestoreQuery = firestoreQuery.where('city', whereIn: city);
+    }
+
+    if (date != null && date.isNotEmpty) {
+      filterData['date'] = date;
+      firestoreQuery = firestoreQuery.where('createdAt', isEqualTo: date);
+    }
+    if (lines != null) {
+      filterData.putIfAbsent('lines', () => lines);
+    }
+    if (month != null) {
+      filterData['month'] = month;
+    }
+    final snapshot = await firestoreQuery.getDocuments();
+    print(snapshot.documents.length);
+    return snapshot;
+  }
+
   @override
   Widget build(BuildContext context) {
     final map = ModalRoute.of(context).settings.arguments as Map;
@@ -56,6 +87,7 @@ class _CitiesOrdersState extends State<CitiesOrders> {
           // print(map['date']);
           if (map['type'] == 1) {
             title = 'No Action';
+            status = 'noAction';
             logo = 'assets/images/CancelIcon.png';
             orderstream = Firestore.instance
                 .collection('orders')
@@ -63,8 +95,14 @@ class _CitiesOrdersState extends State<CitiesOrders> {
                 .where('isCairo', isEqualTo: false)
                 .where('isCorporate', isEqualTo: false)
                 .getDocuments();
+            firestoreQuery = Firestore.instance
+                .collection('orders')
+                .where('status', isEqualTo: 'noAction')
+                .where('isCairo', isEqualTo: false)
+                .where('isCorporate', isEqualTo: false);
           } else if (map['type'] == 2) {
             title = 'On Distribution';
+            status = 'onDistribution';
             logo = 'assets/images/NotApproved.png';
             orderstream = Firestore.instance
                 .collection('orders')
@@ -72,8 +110,14 @@ class _CitiesOrdersState extends State<CitiesOrders> {
                 .where('isCairo', isEqualTo: false)
                 .where('isCorporate', isEqualTo: false)
                 .getDocuments();
+            firestoreQuery = Firestore.instance
+                .collection('orders')
+                .where('status', isEqualTo: 'onDistribution')
+                .where('isCairo', isEqualTo: false)
+                .where('isCorporate', isEqualTo: false);
           } else if (map['type'] == 3) {
             title = 'Shipped';
+            status = 'shipped';
             logo = 'assets/images/PersonCheck.png';
             orderstream = Firestore.instance
                 .collection('orders')
@@ -81,8 +125,14 @@ class _CitiesOrdersState extends State<CitiesOrders> {
                 .where('isCairo', isEqualTo: false)
                 .where('isCorporate', isEqualTo: false)
                 .getDocuments();
+            firestoreQuery = Firestore.instance
+                .collection('orders')
+                .where('status', isEqualTo: 'shipped')
+                .where('isCairo', isEqualTo: false)
+                .where('isCorporate', isEqualTo: false);
           } else if (map['type'] == 4) {
             title = 'Collected';
+            status = 'collected';
             logo = 'assets/images/PersonCheck.png';
             orderstream = Firestore.instance
                 .collection('orders')
@@ -90,42 +140,69 @@ class _CitiesOrdersState extends State<CitiesOrders> {
                 .where('isCairo', isEqualTo: false)
                 .where('isCorporate', isEqualTo: false)
                 .getDocuments();
+            firestoreQuery = Firestore.instance
+                .collection('orders')
+                .where('status', isEqualTo: 'collected')
+                .where('isCairo', isEqualTo: false)
+                .where('isCorporate', isEqualTo: false);
             print(orderstream.toString());
           } else if (map['type'] == 5) {
             title = 'Archived';
             logo = 'assets/images/DateIcon.png';
+            status = 'archived';
             orderstream = Firestore.instance
                 .collection('orders')
                 .where('status', isEqualTo: 'archived')
                 .where('isCairo', isEqualTo: false)
                 .where('isCorporate', isEqualTo: false)
                 .getDocuments();
+            firestoreQuery = Firestore.instance
+                .collection('orders')
+                .where('status', isEqualTo: 'archived')
+                .where('isCairo', isEqualTo: false)
+                .where('isCorporate', isEqualTo: false);
             print(orderstream.toString());
           } else if (map['type'] == 6) {
             title = 'Cancel';
             logo = 'assets/images/CancelIcon.png';
+            status = 'canceled';
             orderstream = Firestore.instance
                 .collection('orders')
                 .where('status', isEqualTo: 'canceled')
                 .where('isCairo', isEqualTo: false)
                 .where('isCorporate', isEqualTo: false)
                 .getDocuments();
+            firestoreQuery = Firestore.instance
+                .collection('orders')
+                .where('status', isEqualTo: 'canceled')
+                .where('isCairo', isEqualTo: false)
+                .where('isCorporate', isEqualTo: false);
             print(orderstream.toString());
           } else {
             title = 'All';
             logo = 'assets/images/OrdersIcon.png';
+            status = '';
             orderstream = Firestore.instance
                 .collection('orders')
                 .where('isCairo', isEqualTo: false)
                 .where('isCorporate', isEqualTo: false)
                 .getDocuments();
+            firestoreQuery = Firestore.instance
+                .collection('orders')
+                .where('isCairo', isEqualTo: false)
+                .where('isCorporate', isEqualTo: false);
           }
         } else {
+          status = '';
           orderstream = Firestore.instance
               .collection('orders')
               .where('isCairo', isEqualTo: false)
               .where('isCorporate', isEqualTo: false)
               .getDocuments();
+          firestoreQuery = Firestore.instance
+              .collection('orders')
+              .where('isCairo', isEqualTo: false)
+              .where('isCorporate', isEqualTo: false);
         }
       } else {
         List<String> areas = filterData['areas'];
@@ -135,16 +212,17 @@ class _CitiesOrdersState extends State<CitiesOrders> {
             .collection('orders')
             .where('isCairo', isEqualTo: false)
             .where('isCorporate', isEqualTo: false);
+
+        if (status.isNotEmpty && status != null) {
+          firestoreQuery = firestoreQuery.where('status', isEqualTo: status);
+        }
+
         if (areas != null && areas.length > 0) {
-          firestoreQuery = firestoreQuery.where('area', whereIn: areas);
+          firestoreQuery = firestoreQuery.where('city', whereIn: areas);
         }
 
         if (date != null && date.isNotEmpty) {
           firestoreQuery = firestoreQuery.where('createdAt', isEqualTo: date);
-        }
-        if (map['status'] != null) {
-          firestoreQuery =
-              firestoreQuery.where('status', isEqualTo: map['status']);
         }
         orderstream = firestoreQuery.getDocuments();
       }
@@ -250,17 +328,7 @@ class _CitiesOrdersState extends State<CitiesOrders> {
               }
             }
           }
-          if (snapshot.data.documents.length <= 0) {
-            return Center(
-              child: Text(
-                'No Orders to Routed',
-                style: TextStyle(
-                    color: Color.fromRGBO(170, 44, 94, 1),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20),
-              ),
-            );
-          }
+
           var qty = 0;
           var ordersQuantity = 0;
           ordersQuantity = ordersData.length;
@@ -555,7 +623,8 @@ class _CitiesOrdersState extends State<CitiesOrders> {
                           child: InkWell(
                             onTap: () async {
                               filterData = await Navigator.of(context)
-                                  .pushNamed('/filter') as Map;
+                                  .pushNamed('/filter',
+                                      arguments: {'isCity': true}) as Map;
                               print(filterData);
                               setState(() {
                                 searched = false;
@@ -600,67 +669,82 @@ class _CitiesOrdersState extends State<CitiesOrders> {
                 ),
               ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: ordersData.length,
-                  itemBuilder: (context, i) {
-                    final line = ordersData[i].data['area'] == null
-                        ? ordersData[i].data['city']
-                        : ordersData[i].data['area'];
+                child: snapshot.data.documents.length <= 0
+                    ? Center(
+                        child: Text(
+                          'No Orders to Routed',
+                          style: TextStyle(
+                              color: Color.fromRGBO(170, 44, 94, 1),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: ordersData.length,
+                        itemBuilder: (context, i) {
+                          final line = ordersData[i].data['area'] == null
+                              ? ordersData[i].data['city']
+                              : ordersData[i].data['area'];
 
-                    return StatefulBuilder(builder: (context, orderStat) {
-                      return InkWell(
-                        onDoubleTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: Text('Description:'),
-                              content:
-                                  Text('${ordersData[i].data['description']}'),
-                              actions: <Widget>[
-                                FlatButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text('OK!'))
-                              ],
-                            ),
-                          );
-                        },
-                        onTap: () async {
-                          Navigator.of(context)
-                              .pushNamed('/citiyOrderDetails', arguments: {
-                            'docId': ordersData[i].documentID,
+                          return StatefulBuilder(builder: (context, orderStat) {
+                            return InkWell(
+                              onDoubleTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: Text('Description:'),
+                                    content: Text(
+                                        '${ordersData[i].data['description']}'),
+                                    actions: <Widget>[
+                                      FlatButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('OK!'))
+                                    ],
+                                  ),
+                                );
+                              },
+                              onTap: () async {
+                                Navigator.of(context).pushNamed(
+                                    '/citiyOrderDetails',
+                                    arguments: {
+                                      'docId': ordersData[i].documentID,
+                                    });
+                              },
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 1.0),
+                                child: orderItem(
+                                    id: ordersData[i].documentID,
+                                    address: ordersData[i].data['address'],
+                                    title: '${ordersData[i].data['name']}',
+                                    price: ordersData[i].data['totalAccount'],
+                                    factoryName:
+                                        '${ordersData[i].data['line']}',
+                                    quantity: ordersData[i].data['quantity'],
+                                    date: '${ordersData[i].data['createdAt']}',
+                                    description:
+                                        '${ordersData[i].data['description']}',
+                                    phone: '${ordersData[i].data['phone']}',
+                                    underAccount:
+                                        ordersData[i].data['underAccount'],
+                                    number: ordersData[i].data['orderNumber'],
+                                    isChecked: checkedOrder
+                                        .contains(ordersData[i].documentID),
+                                    type: (ordersData[i].data['status'] ==
+                                            'noAction' &&
+                                        ordersData[i].data['returned'] !=
+                                            null &&
+                                        !ordersData[i].data['returned'] &&
+                                        user.type != 'sales' &&
+                                        user.type != 'warehouse'),
+                                    city: ordersData[i].data['city']),
+                              ),
+                            );
                           });
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 1.0),
-                          child: orderItem(
-                              id: ordersData[i].documentID,
-                              address: ordersData[i].data['address'],
-                              title: '${ordersData[i].data['name']}',
-                              price: ordersData[i].data['totalAccount'],
-                              factoryName: '${ordersData[i].data['line']}',
-                              quantity: ordersData[i].data['quantity'],
-                              date: '${ordersData[i].data['createdAt']}',
-                              description:
-                                  '${ordersData[i].data['description']}',
-                              phone: '${ordersData[i].data['phone']}',
-                              underAccount: ordersData[i].data['underAccount'],
-                              number: ordersData[i].data['orderNumber'],
-                              isChecked: checkedOrder
-                                  .contains(ordersData[i].documentID),
-                              type:
-                                  (ordersData[i].data['status'] == 'noAction' &&
-                                      ordersData[i].data['returned'] != null &&
-                                      !ordersData[i].data['returned'] &&
-                                      user.type != 'sales' &&
-                                      user.type != 'warehouse'),
-                              city: ordersData[i].data['city']),
-                        ),
-                      );
-                    });
-                  },
-                ),
+                      ),
               )
             ]),
           );
