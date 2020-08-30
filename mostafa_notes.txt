@@ -1,0 +1,10 @@
+- there's some images with icon and it's descriptive text, though that causes
+    . specific text widgets in some screens
+    . impossible to change font, color or even text size
+
+- it's better to use png icons with transparent background instead of white,
+    so you will be able to change icon color anytime.
+
+- admin page is hard coded and includes a lot of repeated code for each grid item
+    and dose not use a [GridView], it depends on [Row]s & [Column] which is inefficient
+    the application is not working in landscape mode
