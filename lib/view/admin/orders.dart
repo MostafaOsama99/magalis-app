@@ -923,7 +923,7 @@ class _OrdersPageState extends State<OrdersPage> {
       decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(
-            width: 2,
+            width: 1,
             color: Colors.grey.withOpacity(0.5),
           ),
           borderRadius: BorderRadius.circular(12)),

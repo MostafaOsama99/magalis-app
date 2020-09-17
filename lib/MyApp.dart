@@ -1,3 +1,4 @@
+import 'package:maglis_app/osama/test/test_main.dart';
 import 'package:maglis_app/view/admin/autoBL.dart';
 import 'package:maglis_app/view/admin/autoCashFlow.dart';
 import 'package:maglis_app/view/admin/blHome.dart';

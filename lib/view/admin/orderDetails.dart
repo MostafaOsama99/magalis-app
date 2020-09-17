@@ -8,6 +8,8 @@ import 'package:maglis_app/widgets/bottomNavigator.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart' as url;
 
+import '../../osama/screens/prepare_to_print.dart';
+
 //Screen 39
 class OrderDetails extends StatefulWidget {
   @override
@@ -24,8 +26,11 @@ class _OrderDetailsState extends State<OrderDetails> {
   bool isIssue = false;
   bool distributed = false;
   int orderNumber;
+
   @override
   Widget build(BuildContext context) {
+    print('order details');
+
     final orderData =
         ModalRoute.of(context).settings.arguments as Map<dynamic, dynamic>;
     final user = Provider.of<UserProvider>(context, listen: false).user;
@@ -169,23 +174,54 @@ class _OrderDetailsState extends State<OrderDetails> {
                           fontWeight: FontWeight.bold,
                           fontSize: 20),
                     ),
-                    trailing: (order['status'] != 'collected' &&
-                            order['status'] != 'canceled' &&
-                            order['status'] != 'archived' &&
-                            order['status'] != 'cashed')
-                        ? InkWell(
-                            onTap: () => Navigator.of(context)
-                                .pushNamed('/editOrder', arguments: {
-                              'id': snapshot.data.documentID,
-                              'orderMap': snapshot.data.data
-                            }),
-                            child: Image.asset(
-                              'assets/images/noteAdd.png',
-                              width: 50,
-                              height: 50,
+                    trailing: SizedBox(
+                      width: 90,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          (order['status'] != 'collected' &&
+                                  order['status'] != 'canceled' &&
+                                  order['status'] != 'archived' &&
+                                  order['status'] != 'cashed')
+                              ? InkWell(
+                                  onTap: () => Navigator.of(context)
+                                      .pushNamed('/editOrder', arguments: {
+                                    'id': snapshot.data.documentID,
+                                    'orderMap': snapshot.data.data
+                                  }),
+                                  child: Image.asset(
+                                    'assets/images/noteAdd.png',
+                                    width: 30,
+                                    height: 30,
+                                  ),
+                                )
+                              : SizedBox(),
+                          SizedBox(width: 8),
+                          IconButton(
+                            icon: Icon(
+                              Icons.print,
+                              color: Colors.pink.shade600,
                             ),
-                          )
-                        : SizedBox(),
+                            onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => PrepareToPrint(
+                                          orderDescription:
+                                              order['description'],
+                                          paymentAddress: order['address'],
+                                          shippingAddress: order['address'],
+                                          shippingName: order['name'],
+                                          paymentName: order['name'],
+                                          shippingPhone: order['phone'],
+                                          paymentPhone: order['phone'],
+                                          shippingNote: '', //order['notes'] => dynamic List,
+                                          id: '${order['orderNumber']}' ?? '',
+                                          time: order['createdAt'],
+                                        ))),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(
